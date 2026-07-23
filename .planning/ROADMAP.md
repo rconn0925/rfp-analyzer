@@ -29,7 +29,15 @@ Decimal phases appear between their surrounding integers in numeric order.
   2. UCF section boundaries (L, M, C/SOW/PWS, H) are correctly detected on a standard solicitation, and a non-UCF package (e.g., FAR Part 12 combined synopsis) is flagged as non-standard instead of silently mis-sectioned
   3. Low-quality or scanned pages are caught by per-page quality gates and surfaced, never passed through as silent garbage text
   4. SF30 amendment files within a package are identified and labeled as amendments
-**Plans**: TBD
+**Plans:** 6 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Scaffolding: uv project, document-map schema (Phase 2 contract), public GitHub repo + CI
+- [ ] 01-02-PLAN.md — 3-package SAM.gov corpus acquisition + MANIFEST (human-assisted; surfaces SAM.gov API key request)
+- [ ] 01-03-PLAN.md — Parsing layer: file discovery + hostile-input guards, pdfplumber PDF, python-docx DOCX
+- [ ] 01-04-PLAN.md — Per-page quality gates + header/footer stripping (flag-and-surface, no OCR)
+- [ ] 01-05-PLAN.md — UCF section detection w/ TOC disambiguation, SF form signatures, SF30 ladder, package classification
+- [ ] 01-06-PLAN.md — CLI harness (dual output), corpus integration tests, human verification of success criteria
 
 Note: Request the SAM.gov API key during this phase — issuance reportedly takes ~10 business days and Phase 5 depends on it.
 
@@ -89,7 +97,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Parsing & Structure Foundation | 0/TBD | Not started | - |
+| 1. Parsing & Structure Foundation | 0/6 | Not started | - |
 | 2. Requirement Extraction & Grounding | 0/TBD | Not started | - |
 | 3. Analysis & Export | 0/TBD | Not started | - |
 | 4. Web App & Job Orchestration | 0/TBD | Not started | - |
