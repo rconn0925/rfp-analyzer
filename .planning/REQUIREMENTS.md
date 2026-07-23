@@ -89,13 +89,36 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmap) | | |
+| INTK-01 | Phase 4 | Pending |
+| INTK-02 | Phase 5 | Pending |
+| INTK-03 | Phase 2 | Pending |
+| PARS-01 | Phase 1 | Pending |
+| PARS-02 | Phase 1 | Pending |
+| EXTR-01 | Phase 2 | Pending |
+| EXTR-02 | Phase 2 | Pending |
+| EXTR-03 | Phase 2 | Pending |
+| EXTR-04 | Phase 2 | Pending |
+| EXTR-05 | Phase 2 | Pending |
+| ANLZ-01 | Phase 3 | Pending |
+| ANLZ-02 | Phase 3 | Pending |
+| ANLZ-03 | Phase 4 | Pending |
+| ANLZ-04 | Phase 3 | Pending |
+| EXPT-01 | Phase 3 | Pending |
+| EXPT-02 | Phase 3 | Pending |
+| EXPT-03 | Phase 3 | Pending |
+| EXPT-04 | Phase 3 | Pending |
+| PIPE-01 | Phase 4 | Pending |
+| PIPE-02 | Phase 4 | Pending |
+| PIPE-03 | Phase 4 | Pending |
+| DEMO-01 | Phase 5 | Pending |
+| DEMO-02 | Phase 5 | Pending |
+| DEMO-03 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 24 total
-- Mapped to phases: 0
-- Unmapped: 24 ⚠️
+- Mapped to phases: 24
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-22*
-*Last updated: 2026-07-22 after initial definition*
+*Last updated: 2026-07-22 after roadmap creation (traceability mapped)*
