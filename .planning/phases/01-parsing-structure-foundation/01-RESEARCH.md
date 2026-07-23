@@ -589,7 +589,7 @@ def file_identity(path: Path) -> tuple[str, str]:
 
 **Missing dependencies with no fallback:** none.
 **Missing dependencies with fallback:** uv (trivial winget install — make it an explicit early task).
-**Additional finding:** `C:\Users\ross\Projects\rfp-analyzer` is **not yet a git repository** — Phase 1 plan must include `git init`, initial commit hygiene, `.gitignore` before any corpus files land, and `gh repo create` (public) per D-07. Note: `.planning/` docs — decide whether they're committed to the public repo or excluded; GSD `commit_docs: true` implies committed, which is fine for a portfolio repo but the planner should surface it.
+**Additional finding:** the project is a local git repository (branch `master`, planning-doc commits only) with **no GitHub remote configured** — Phase 1 plan must include `gh repo create` (public) + push per D-07, with `.gitignore` in place *before* any corpus files land, and optionally a `master`→`main` rename before the repo goes public. Note: `.planning/` docs — decide whether they're committed to the public repo or excluded; GSD `commit_docs: true` implies committed, which is fine for a portfolio repo but the planner should surface it.
 
 ## Security Domain
 
