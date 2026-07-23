@@ -33,12 +33,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Low-quality or scanned pages are caught by per-page quality gates and surfaced, never passed through as silent garbage text
   4. SF30 amendment files within a package are identified and labeled as amendments
 
-**Plans:** 6 plans
+**Plans:** 1/6 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Scaffolding: uv project, document-map schema (Phase 2 contract), public GitHub repo + CI
+- [x] 01-01-PLAN.md — Scaffolding: uv project, document-map schema (Phase 2 contract), public GitHub repo + CI
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -127,7 +127,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Parsing & Structure Foundation | 0/6 | Not started | - |
+| 1. Parsing & Structure Foundation | 1/6 | In Progress|  |
 | 2. Requirement Extraction & Grounding | 0/TBD | Not started | - |
 | 3. Analysis & Export | 0/TBD | Not started | - |
 | 4. Web App & Job Orchestration | 0/TBD | Not started | - |
