@@ -1,0 +1,15 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Pipeline output
+artifacts/
+
+# Test corpus binaries (D-02): real RFP packages are large public documents;
+# only the manifests are tracked.
+tests/corpus/*
+!tests/corpus/MANIFEST.md
+!tests/corpus/manifest.json
