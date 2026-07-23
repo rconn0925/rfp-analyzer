@@ -562,18 +562,21 @@ def file_identity(path: Path) -> tuple[str, str]:
 | A9 | Single-artifact JSON with inline cleaned text ≈1–2 MB for 300-page package | Pattern 6 | Low — if larger, split text into sibling artifact without schema break (text refs) |
 | A10 | Approximate package ages/download volumes in legitimacy audit table | Package Legitimacy Audit | None — slopcheck verdicts and PyPI version history are the operative evidence |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the chosen primary corpus package use SF33 or SF1449 cover?**
    - What we know: DoD services solicitations usually SF33 + full UCF; some full-UCF-ish packages ship on SF1449.
    - What's unclear: Can't know until Ross/executor selects the package.
    - Recommendation: Classification treats SF1449 + detected L/M sections as `partial_ucf` (not `non_ucf`) — form signal and structure signal are independent; encode that explicitly.
+   - RESOLVED: adopted in plan 01-05 Task 3 (4-way classification treats form signal and structure signal independently).
 2. **How reliable are DOCX heading styles in real federal attachments?**
    - What we know: python-docx exposes `style.name`; federal docs often use direct formatting.
    - Recommendation: Implement style-first + text-heuristic fallback (Pattern 2/Pitfall 4); measure on corpus DOCX files.
+   - RESOLVED: adopted in plan 01-05 Task 2 (style-first with text-heuristic fallback); measured against corpus in 01-06.
 3. **Where exactly does the amendment number live on text-layer SF30s as extracted?**
    - What we know: Block 2 "AMENDMENT/MODIFICATION NO." (verified form layout); extraction order of form fields varies with layout mode.
    - Recommendation: Try default extraction first, `layout=True` on page 1 as fallback; regex for the label with a nearby token; accept `amendment_number: None` with the amendment still labeled.
+   - RESOLVED: adopted via `first_page_layout_text` capture in plans 01-01/01-03 and the SF30 detection ladder in 01-05; `amendment_number: None` is an accepted outcome.
 
 ## Environment Availability
 

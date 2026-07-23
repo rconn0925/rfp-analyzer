@@ -7,6 +7,7 @@ Build the pipeline inside-out: prove parsing and section detection on hostile re
 ## Phases
 
 **Phase Numbering:**
+
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
@@ -21,72 +22,101 @@ Decimal phases appear between their surrounding integers in numeric order.
 ## Phase Details
 
 ### Phase 1: Parsing & Structure Foundation
+
 **Goal**: Real federal RFP packages (multi-file PDF/DOCX) parse into an accurate, navigable document structure that everything downstream can trust
 **Depends on**: Nothing (first phase)
 **Requirements**: PARS-01, PARS-02
 **Success Criteria** (what must be TRUE):
+
   1. Running the CLI harness on a multi-file federal RFP package (PDFs + DOCX) produces a document map with section hierarchy and page numbers for every file
   2. UCF section boundaries (L, M, C/SOW/PWS, H) are correctly detected on a standard solicitation, and a non-UCF package (e.g., FAR Part 12 combined synopsis) is flagged as non-standard instead of silently mis-sectioned
   3. Low-quality or scanned pages are caught by per-page quality gates and surfaced, never passed through as silent garbage text
   4. SF30 amendment files within a package are identified and labeled as amendments
+
 **Plans:** 6 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 01-01-PLAN.md — Scaffolding: uv project, document-map schema (Phase 2 contract), public GitHub repo + CI
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 01-02-PLAN.md — 3-package SAM.gov corpus acquisition + MANIFEST (human-assisted; surfaces SAM.gov API key request)
 - [ ] 01-03-PLAN.md — Parsing layer: file discovery + hostile-input guards, pdfplumber PDF, python-docx DOCX
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 01-04-PLAN.md — Per-page quality gates + header/footer stripping (flag-and-surface, no OCR)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 01-05-PLAN.md — UCF section detection w/ TOC disambiguation, SF form signatures, SF30 ladder, package classification
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 01-06-PLAN.md — CLI harness (dual output), corpus integration tests, human verification of success criteria
 
 Note: Request the SAM.gov API key during this phase — issuance reportedly takes ~10 business days and Phase 5 depends on it.
 
 ### Phase 2: Requirement Extraction & Grounding
+
 **Goal**: Every requirement in a package is extracted verbatim with provably real source references — measurably, with recall/precision evals as the objective signal
 **Depends on**: Phase 1
 **Requirements**: EXTR-01, EXTR-02, EXTR-03, EXTR-04, EXTR-05, INTK-03
 **Success Criteria** (what must be TRUE):
+
   1. CLI extraction produces every requirement (shall/must/will/should statements, Section L instructions, Section M criteria, and requirements found in attachments/Sections C/H) as verbatim text with a stable requirement ID, type classification, and binding keyword
   2. Every source reference (document, section/paragraph, page) is computed from the document map and string-match verified against the source — no LLM-generated citation reaches output
   3. A deterministic shall/must/will/should keyword sweep reconciles against AI extraction and surfaces any missed candidate requirements
   4. SF30 amendment change statements appear as their own extracted rows with potentially modified requirements flagged — no silent merging
   5. Extraction recall/precision against a hand-shredded golden-set RFP is measured and reported on every run
+
 **Plans**: TBD
 
 ### Phase 3: Analysis & Export
+
 **Goal**: An extracted requirement set becomes a complete, judged, exportable compliance matrix — the full pipeline runs end-to-end via CLI on a real federal RFP
 **Depends on**: Phase 2
 **Requirements**: ANLZ-01, ANLZ-02, ANLZ-04, EXPT-01, EXPT-02, EXPT-03, EXPT-04
 **Success Criteria** (what must be TRUE):
+
   1. Cross-mapping flags every L-without-M, M-without-L, and SOW-without-either gap or orphan across the requirement set
   2. A proposal outline (volumes/sections) is derived from Section L structure and every requirement is mapped to an outline node
   3. Each requirement carries a graded compliance judgment (Fully/Partially/Non-comply plus rationale and confidence) against a stored capabilities profile (fictional demo profile suffices at this stage)
   4. The exported .xlsx contains a compliance matrix sheet with practitioner-standard columns, a cross-reference matrix sheet, and a shred checklist sheet; the matrix is also downloadable as raw CSV
   5. The full pipeline runs CLI end-to-end on a real federal RFP: package in, populated matrix workbook out, no manual steps
+
 **Plans**: TBD
 
 ### Phase 4: Web App & Job Orchestration
+
 **Goal**: The proven pipeline library runs as an async web application — upload to download with no manual steps, results that persist
 **Depends on**: Phase 3
 **Requirements**: INTK-01, ANLZ-03, PIPE-01, PIPE-02, PIPE-03
 **Success Criteria** (what must be TRUE):
+
   1. User can upload a multi-file federal RFP package (PDF/DOCX: base, SF30 amendments, attachments) via the web UI and start an analysis
   2. Analysis runs as an async background job with stage-level progress visible in the UI while it processes
   3. User can author a company capabilities profile by pasting free text in the UI and edit it later
   4. A completed analysis persists — user can return later to view results and re-download Excel/CSV exports without re-running the pipeline
   5. The full flow (upload → processing → populated matrix → download) completes with zero manual intervention
+
 **Plans**: TBD
 **UI hint**: yes
 
 ### Phase 5: Public Demo, Hardening & SAM.gov Fetch
+
 **Goal**: The app is live at a public URL where a recruiter can experience the full product in ~60 seconds, with API costs bounded and SAM.gov as a second intake path
 **Depends on**: Phase 4
 **Requirements**: DEMO-01, DEMO-02, DEMO-03, INTK-02
 **Success Criteria** (what must be TRUE):
+
   1. The app is reachable at a stable public URL
   2. An anonymous visitor can experience the full demo (precomputed sample-RFP analysis + fictional company profile, zero live LLM calls) in ~60 seconds
   3. Live (non-demo) processing is protected by per-IP rate limiting and a daily spend kill-switch that bounds public API cost
   4. User can paste a SAM.gov solicitation number or link and the package (notice + attachments) is fetched into the same pipeline, with graceful degradation to upload when fetch fails or quota is exhausted
+
 **Plans**: TBD
 **UI hint**: yes
 
