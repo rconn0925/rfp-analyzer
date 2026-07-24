@@ -528,24 +528,24 @@ def is_match(pred, gold, thresh=90.0) -> bool:
 | A8 | rapidfuzz `partial_ratio_alignment` src offsets map reliably back through the chunk page_map | Pattern 5 | Low — offsets are into the normalized haystack; keep a parallel raw↔normalized index or re-locate in raw text |
 | A9 | `estimated_cost_usd` stays 0.0 (local); tokens/latency are the meaningful metrics | CLAUDE.md constraints | None — local inference has no per-token dollar cost |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Exact chunk token budget for each Qwen size.**
+1. **[RESOLVED]** Exact chunk token budget for each Qwen size.
    - What we know: 32768 ctx; tail recall degrades below the ceiling; must reserve output room.
    - What's unclear: the precise input cap that maximizes F1 without over-chunking (call overhead).
-   - Recommendation: start at ~16k input / reserve ~12k output; sweep chunk size as an eval knob during the bake-off. Measure `prompt_eval_count` to ground A1.
+   - RESOLVED: chunk budget carried into plans as `iter_chunks(max_input_chars=48000)` (02-03), an eval-tunable default reserving output room; sweep chunk size as a bake-off knob. Measure `prompt_eval_count` to ground A1.
 
-2. **Does grounding need char-offset mapping through normalization, or is per-page re-location enough?**
+2. **[RESOLVED]** Does grounding need char-offset mapping through normalization, or is per-page re-location enough?
    - What we know: rapidfuzz returns offsets into the normalized haystack; we need a page number, not exact chars, for the ref.
-   - Recommendation: since grounding is scoped to a single page's text (via page_map), the page number is known once a page's text matches — exact char offset is optional metadata. Store char_span best-effort; the page is the load-bearing output.
+   - RESOLVED: per-page mapping is enough — grounding computes the page from chunk.page_map (02-02 build_source_ref); char offsets are stored best-effort, the page is the load-bearing output.
 
-3. **AcroForm SF30 amendment-number recovery — in scope for Phase 2 or defer?**
+3. **[RESOLVED]** AcroForm SF30 amendment-number recovery — in scope for Phase 2 or defer?
    - What we know: Phase 1 left `amendment_number=None` (AcroForm fields invisible to text layer); flagged as a Phase 2 candidate.
-   - Recommendation: treat as nice-to-have. Change-statement rows are valid without the number. If cheap (pdfplumber/pypdf field read), add it; otherwise defer — don't let it block extraction.
+   - RESOLVED: AcroForm amendment-number recovery DEFERRED (02-03 Task 3 marks it out of scope); change-statement rows are valid with amendment_number=None.
 
-4. **Sentence segmentation quality for the sweep and atomic splitting.**
+4. **[RESOLVED]** Sentence segmentation quality for the sweep and atomic splitting.
    - What we know: naive `. ` splitting mis-handles "No.", "U.S.", "e.g.", section numbers like "L.4.2".
-   - Recommendation: a small abbreviation-guarded splitter in pure Python (no new dep); tune against corpus. Over-segmentation hurts the sweep's precision but not its recall-floor role.
+   - RESOLVED: an abbreviation-guarded pure-Python sentence splitter (no new dep) implemented in the sweep (02-03 Task 2); guards No./U.S./e.g./section numbers, tuned against corpus.
 
 ## Environment Availability
 
