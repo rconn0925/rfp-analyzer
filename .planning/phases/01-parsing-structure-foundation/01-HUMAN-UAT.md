@@ -20,9 +20,9 @@ result: [skipped — DEFERRED by user decision 2026-07-24. Upload/local-package 
 expected: `uv run rfp-analyzer parse tests/corpus/primary-ucf --out artifacts` reports SECTION L at pages 49-57 and SECTION M at 58-70 of `Solicitation - N4008526R0033.pdf`. Open that PDF and confirm SECTION L truly begins at page 49.
 result: [pending human eyeball — machine-verified during 01-06: a pdfplumber scan of the base PDF confirmed the reported page_start values match where the headings actually occur]
 
-### 3. Primary package classified partial_ucf (not full_ucf) is the right call
-expected: The base solicitation is an SF1449 ("SOLICITATION/CONTRACT/ORDER FOR COMMERCIAL PRODUCTS AND COMMERCIAL SERVICES") that nonetheless carries a complete UCF A-M structure. Per Open Question 1, a commercial-form signal alongside UCF letter sections yields `partial_ucf` + a "verify package format" warning. Confirm this hybrid handling is what you want, since this package is Phase 2's golden set.
-result: [pending human judgment — corpus ground truth was corrected from full_ucf to partial_ucf during 01-06 based on page-1 inspection]
+### 3. Primary package classification — RESOLVED
+expected: The base solicitation is an SF1449 that nonetheless carries a complete UCF A-M structure.
+result: [resolved 2026-07-24 — Ross decided UCF structure is decisive over the cover form. Primary package now classifies `full_ucf` (commit fc5821d). Rule and rationale recorded in PROJECT.md Key Decisions and classify/package.py docstring.]
 
 ### 4. Amendment labeling on all three SF30 files
 expected: All three SF30-marked files in primary-ucf are labeled `[amendment]` via form_text evidence (not the filename fallback).

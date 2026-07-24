@@ -1,7 +1,9 @@
 ---
 phase: 01-parsing-structure-foundation
 verified: 2026-07-24T04:38:32Z
-status: human_needed
+status: passed
+resolved: 2026-07-24T05:30:00Z
+resolution_note: "Both human_verification escalations resolved. (1) Classification semantics decided by Ross 2026-07-24: UCF structure is decisive over the cover form — the primary package now classifies full_ucf (commit fc5821d, manifest + regression test updated). (2) Section-heading false positives fixed at the detection level (commit 790ce19): the two spurious SECTION F/H nodes are gone, base A-M tree byte-identical. Remaining items (no true FAR 12.603 corpus specimen; 355-page SPECIAL REQS span node; header-stripper title-line note) are documented tech debt, not phase gaps. Final suites: 149 unit passed/1 skipped, 10 integration passed, ruff clean."
 score: 28/28 must-haves verified
 overrides_applied: 1
 overrides:
@@ -25,7 +27,7 @@ human_verification:
 
 **Phase Goal:** Real federal RFP packages (multi-file PDF/DOCX) parse into an accurate, navigable document structure that everything downstream can trust
 **Verified:** 2026-07-24T04:38:32Z
-**Status:** human_needed
+**Status:** passed (both human escalations resolved 2026-07-24 — see `resolution_note` in frontmatter)
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
