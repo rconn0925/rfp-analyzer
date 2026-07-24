@@ -104,4 +104,11 @@ def test_identity_passed_through(tmp_path: Path, make_docx):
     parsed = parse_docx(path, sha256=SHA, file_id=FILE_ID)
     assert parsed.sha256 == SHA
     assert parsed.file_id == FILE_ID
-    assert parsed.filename == "identity.docx"
+    assert parsed.filename == "identity.docx"  # defaults to the basename
+
+
+def test_discovered_relative_filename_is_preserved(tmp_path: Path, make_docx):
+    """WR-03: the discovery-assigned relative path wins over the basename."""
+    path = make_docx(tmp_path / "identity.docx", ["Paragraph."])
+    parsed = parse_docx(path, sha256=SHA, file_id=FILE_ID, filename="amd1/identity.docx")
+    assert parsed.filename == "amd1/identity.docx"

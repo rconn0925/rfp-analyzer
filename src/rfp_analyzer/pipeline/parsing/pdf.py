@@ -30,12 +30,19 @@ def _page_images(page) -> list:
         return page.objects.get("image", [])
 
 
-def parse_pdf(path: Path, *, sha256: str, file_id: str) -> ParsedFile:
+def parse_pdf(
+    path: Path, *, sha256: str, file_id: str, filename: str | None = None
+) -> ParsedFile:
     """Parse one PDF into a ParsedFile with per-page raw text and metrics.
+
+    ``filename`` is the discovery-assigned name — the posix path relative to
+    the package dir — so nested attachments keep the same identity the
+    rejection records use. Defaults to the basename when not supplied.
 
     Never raises: malformed input returns ``parse_status="failed"`` with the
     exception message so the package run continues (per-file isolation).
     """
+    name = path.name if filename is None else filename
     pages: list[PageInfo] = []
     first_page_layout_text: str | None = None
     try:
@@ -62,7 +69,7 @@ def parse_pdf(path: Path, *, sha256: str, file_id: str) -> ParsedFile:
     except Exception as exc:  # pdfminer raises varied exception types
         return ParsedFile(
             file_id=file_id,
-            filename=path.name,
+            filename=name,
             sha256=sha256,
             file_type="pdf",
             parse_status="failed",
@@ -71,7 +78,7 @@ def parse_pdf(path: Path, *, sha256: str, file_id: str) -> ParsedFile:
         )
     return ParsedFile(
         file_id=file_id,
-        filename=path.name,
+        filename=name,
         sha256=sha256,
         file_type="pdf",
         parse_status="ok",

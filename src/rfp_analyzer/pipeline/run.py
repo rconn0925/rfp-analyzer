@@ -45,9 +45,23 @@ def run_pipeline(package_dir: Path) -> DocumentMap:
         if entry.kind == "rejected" and entry.rejection is not None:
             files.append(entry.rejection)
         elif entry.kind == "pdf":
-            files.append(parse_pdf(entry.path, sha256=entry.sha256, file_id=entry.file_id))
+            files.append(
+                parse_pdf(
+                    entry.path,
+                    filename=entry.filename,
+                    sha256=entry.sha256,
+                    file_id=entry.file_id,
+                )
+            )
         elif entry.kind == "docx":
-            files.append(parse_docx(entry.path, sha256=entry.sha256, file_id=entry.file_id))
+            files.append(
+                parse_docx(
+                    entry.path,
+                    filename=entry.filename,
+                    sha256=entry.sha256,
+                    file_id=entry.file_id,
+                )
+            )
     timings["parse"] = time.perf_counter() - t0
 
     t0 = time.perf_counter()

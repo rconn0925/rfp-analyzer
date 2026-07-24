@@ -30,10 +30,10 @@ MAX_COMPRESSION_RATIO = 200
 """Max uncompressed/compressed ratio before a member is bomb-suspect."""
 
 
-def _failed(path: Path, sha256: str, file_id: str, error: str) -> ParsedFile:
+def _failed(name: str, sha256: str, file_id: str, error: str) -> ParsedFile:
     return ParsedFile(
         file_id=file_id,
-        filename=path.name,
+        filename=name,
         sha256=sha256,
         file_type="docx",
         parse_status="failed",
@@ -63,18 +63,25 @@ def _bomb_check(path: Path) -> str | None:
     return None
 
 
-def parse_docx(path: Path, *, sha256: str, file_id: str) -> ParsedFile:
+def parse_docx(
+    path: Path, *, sha256: str, file_id: str, filename: str | None = None
+) -> ParsedFile:
     """Parse one DOCX into a ParsedFile with ordered BlockInfo blocks.
+
+    ``filename`` is the discovery-assigned name — the posix path relative to
+    the package dir — so nested attachments keep the same identity the
+    rejection records use. Defaults to the basename when not supplied.
 
     Never raises: bomb-suspect archives fail pre-parse, and any python-docx
     exception on malformed packages becomes ``parse_status="failed"``.
     """
+    name = path.name if filename is None else filename
     try:
         bomb_error = _bomb_check(path)
     except Exception as exc:  # not a readable zip at all
-        return _failed(path, sha256, file_id, str(exc) or type(exc).__name__)
+        return _failed(name, sha256, file_id, str(exc) or type(exc).__name__)
     if bomb_error is not None:
-        return _failed(path, sha256, file_id, bomb_error)
+        return _failed(name, sha256, file_id, bomb_error)
 
     blocks: list[BlockInfo] = []
     try:
@@ -98,11 +105,11 @@ def parse_docx(path: Path, *, sha256: str, file_id: str) -> ParsedFile:
                     )
                 )
     except Exception as exc:  # python-docx raises on malformed packages
-        return _failed(path, sha256, file_id, str(exc) or type(exc).__name__)
+        return _failed(name, sha256, file_id, str(exc) or type(exc).__name__)
 
     return ParsedFile(
         file_id=file_id,
-        filename=path.name,
+        filename=name,
         sha256=sha256,
         file_type="docx",
         parse_status="ok",

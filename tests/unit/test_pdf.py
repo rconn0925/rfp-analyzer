@@ -79,4 +79,12 @@ def test_identity_passed_through(three_page_pdf: Path):
     parsed = parse_pdf(three_page_pdf, sha256=SHA, file_id=FILE_ID)
     assert parsed.sha256 == SHA
     assert parsed.file_id == FILE_ID
-    assert parsed.filename == "three.pdf"
+    assert parsed.filename == "three.pdf"  # defaults to the basename
+
+
+def test_discovered_relative_filename_is_preserved(three_page_pdf: Path):
+    """WR-03: the discovery-assigned relative path wins over the basename."""
+    parsed = parse_pdf(
+        three_page_pdf, sha256=SHA, file_id=FILE_ID, filename="attachments/three.pdf"
+    )
+    assert parsed.filename == "attachments/three.pdf"
