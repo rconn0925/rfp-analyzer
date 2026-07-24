@@ -6,13 +6,26 @@ end-to-end corpus proof lives in ``tests/integration/test_extract_corpus.py``
 (skipif Ollama+corpus).
 """
 
+import argparse
+import json
+
+from rfp_analyzer.cli import (
+    _run_extract,
+    build_parser,
+    render_requirements_report,
+)
 from rfp_analyzer.pipeline.extraction.run_extraction import run_extraction
+from rfp_analyzer.pipeline.metrics import RunMetrics
 from rfp_analyzer.pipeline.models import (
     DocumentMap,
+    MissedCandidate,
     PageInfo,
     ParsedFile,
+    Requirement,
     RequirementBatch,
     RequirementDraft,
+    RequirementSet,
+    SourceRef,
 )
 
 
@@ -116,3 +129,197 @@ class TestRunExtraction:
         batch = RequirementBatch(requirements=[])
         result = run_extraction(dmap, extract_fn=_fake_fn(batch))
         assert result.model_name == "qwen2.5:14b-instruct"
+
+
+# --- CLI: build_parser, report rendering, artifact + exit codes ----------------
+
+
+def _source_ref(section_label: str, page: int | None, *, doc_role: str = "base_solicitation"):
+    verified = page is not None
+    return SourceRef(
+        file_id="ffffffffffff-solicitation",
+        filename="Solicitation.pdf",
+        section_label=section_label,
+        page=page,
+        char_start=0 if verified else None,
+        char_end=10 if verified else None,
+        match="exact" if verified else "none",
+        score=100.0 if verified else 0.0,
+        verified=verified,
+        doc_role=doc_role,
+    )
+
+
+def _requirement(
+    rid: str,
+    *,
+    req_type: str,
+    section_label: str,
+    page: int | None,
+    keyword: str = "shall",
+    is_amendment_change: bool = False,
+    possibly_modified: bool = False,
+    doc_role: str = "base_solicitation",
+) -> Requirement:
+    return Requirement(
+        requirement_id=rid,
+        display_label=f"{section_label}-1",
+        verbatim_text=f"The offeror {keyword} do the thing described in {section_label}.",
+        atomic_obligation="Do the thing.",
+        binding_keyword=keyword,
+        req_type=req_type,
+        source_ref=_source_ref(section_label, page, doc_role=doc_role),
+        verified=page is not None,
+        is_amendment_change=is_amendment_change,
+        possibly_modified=possibly_modified,
+    )
+
+
+def _synthetic_requirement_set() -> RequirementSet:
+    return RequirementSet(
+        package_name="primary-ucf",
+        model_name="qwen2.5:14b-instruct",
+        requirements=[
+            _requirement("r1", req_type="instruction", section_label="L", page=49),
+            _requirement("r2", req_type="evaluation", section_label="M", page=58),
+            _requirement("r3", req_type="sow_pws", section_label="C", page=12),
+            # ungroundable row (verified=False) — must be counted, never hidden.
+            _requirement("r4", req_type="other", section_label="C", page=None),
+            _requirement(
+                "r5",
+                req_type="other",
+                section_label="L",
+                page=3,
+                keyword="shall",
+                is_amendment_change=True,
+                doc_role="amendment",
+            ),
+            _requirement(
+                "r6",
+                req_type="instruction",
+                section_label="L",
+                page=49,
+                possibly_modified=True,
+            ),
+        ],
+        missed_candidates=[
+            MissedCandidate(
+                file_id="ffffffffffff-solicitation",
+                page=52,
+                verbatim_sentence="The contractor must provide a payment bond before award.",
+                binding_keyword="must",
+            )
+        ],
+        metrics=RunMetrics(
+            stage_timings={"extract": 42.5, "sweep": 0.3, "amendments": 0.01},
+            llm_calls=11,
+            input_tokens=120000,
+            output_tokens=8000,
+        ),
+    )
+
+
+class TestBuildParserExtract:
+    def test_extract_subcommand_defaults(self):
+        parser = build_parser()
+        args = parser.parse_args(["extract", "artifacts/primary-ucf"])
+        assert args.command == "extract"
+        assert args.artifacts_dir == "artifacts/primary-ucf"
+        assert args.model == "qwen2.5:14b-instruct"
+        assert args.seed == 7
+        assert args.out is None
+
+    def test_extract_subcommand_accepts_flags(self):
+        parser = build_parser()
+        args = parser.parse_args(
+            ["extract", "artifacts/x", "--model", "qwen2.5:32b-instruct",
+             "--seed", "3", "--out", "o"]
+        )
+        assert args.model == "qwen2.5:32b-instruct"
+        assert args.seed == 3
+        assert args.out == "o"
+
+
+class TestRenderRequirementsReport:
+    def test_report_carries_all_load_bearing_lines(self):
+        report = render_requirements_report(_synthetic_requirement_set())
+
+        assert "Package: primary-ucf" in report
+        assert "Model: qwen2.5:14b-instruct" in report
+
+        # Verified vs unverified breakdown (T-02-15): 5 verified, 1 ungroundable.
+        assert "verified (grounded): 5" in report
+        assert "unverified (ungroundable): 1" in report
+
+        # By-type and by-section breakdowns.
+        assert "By type:" in report
+        assert "instruction: 2" in report
+        assert "By section:" in report
+        assert "L: 3" in report
+        assert "M: 1" in report
+
+        # INTK-03 amendment rows.
+        assert "Amendment change rows: 1" in report
+        assert "possibly-modified base rows: 1" in report
+
+        # EXTR-05 missed candidate surfaced with its keyword.
+        assert "Missed candidates (sweep hits not extracted): 1" in report
+        assert "must" in report
+        assert "payment bond" in report
+
+        # Local metrics footer.
+        assert "LLM calls: 11" in report
+        assert "LLM cost: $0.00 (local inference)" in report
+
+
+class TestRunExtractExitCodes:
+    def _write_map(self, artifacts_dir, dmap: DocumentMap) -> None:
+        artifacts_dir.mkdir(parents=True, exist_ok=True)
+        (artifacts_dir / "document_map.json").write_text(
+            dmap.model_dump_json(indent=2), encoding="utf-8"
+        )
+
+    def test_missing_document_map_returns_exit_2(self, tmp_path):
+        artifacts = tmp_path / "primary-ucf"
+        artifacts.mkdir()
+        args = argparse.Namespace(
+            artifacts_dir=str(artifacts), model="fake", seed=7, out=None
+        )
+        assert _run_extract(args) == 2
+
+    def test_nonexistent_dir_returns_exit_2(self, tmp_path):
+        args = argparse.Namespace(
+            artifacts_dir=str(tmp_path / "nope"), model="fake", seed=7, out=None
+        )
+        assert _run_extract(args) == 2
+
+    def test_incompatible_schema_version_returns_exit_2(self, tmp_path):
+        artifacts = tmp_path / "primary-ucf"
+        artifacts.mkdir()
+        # A document_map.json from a future contract major version.
+        (artifacts / "document_map.json").write_text(
+            json.dumps({"schema_version": "2.0", "package_name": "x", "files": []}),
+            encoding="utf-8",
+        )
+        args = argparse.Namespace(
+            artifacts_dir=str(artifacts), model="fake", seed=7, out=None
+        )
+        assert _run_extract(args) == 2
+
+    def test_success_writes_requirements_json_and_exits_0(self, tmp_path, monkeypatch):
+        artifacts = tmp_path / "primary-ucf"
+        self._write_map(artifacts, _single_page_map("The offeror shall provide a cover letter."))
+        # Stub the model-calling entry so the CLI path is CI-safe.
+        monkeypatch.setattr(
+            "rfp_analyzer.cli.run_extraction",
+            lambda dmap, model, seed: _synthetic_requirement_set(),
+        )
+        args = argparse.Namespace(
+            artifacts_dir=str(artifacts), model="fake", seed=7, out=None
+        )
+        assert _run_extract(args) == 0
+
+        # requirements.json written next to the map and re-validates against schema.
+        out_path = artifacts / "requirements.json"
+        assert out_path.exists()
+        RequirementSet.model_validate_json(out_path.read_text(encoding="utf-8"))

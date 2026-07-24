@@ -19,10 +19,19 @@ zero sections detected anywhere — machine-checkable "we got nothing");
 """
 
 import argparse
+import json
 import sys
+from collections import Counter
 from pathlib import Path
 
-from rfp_analyzer.pipeline.models import DocumentMap, PageInfo, ParsedFile, SectionNode
+from rfp_analyzer.pipeline.extraction.run_extraction import DEFAULT_MODEL, run_extraction
+from rfp_analyzer.pipeline.models import (
+    DocumentMap,
+    PageInfo,
+    ParsedFile,
+    RequirementSet,
+    SectionNode,
+)
 from rfp_analyzer.pipeline.run import run_pipeline
 
 QUALITY_NOTES: dict[str, str] = {
@@ -53,6 +62,31 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         default="artifacts",
         help="Output directory for artifacts (default: artifacts).",
+    )
+
+    extract_cmd = subparsers.add_parser(
+        "extract",
+        help="Extract grounded requirements from a parsed package's document_map.json.",
+    )
+    extract_cmd.add_argument(
+        "artifacts_dir",
+        help="Directory containing a document_map.json produced by `parse`.",
+    )
+    extract_cmd.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"Local Ollama model for extraction (default: {DEFAULT_MODEL}).",
+    )
+    extract_cmd.add_argument(
+        "--seed",
+        type=int,
+        default=7,
+        help="Deterministic sampling seed passed to the model (default: 7).",
+    )
+    extract_cmd.add_argument(
+        "--out",
+        default=None,
+        help="Directory for requirements.json (default: alongside document_map.json).",
     )
     return parser
 
@@ -144,6 +178,153 @@ def render_report(document_map: DocumentMap) -> str:
     return "\n".join(lines)
 
 
+def render_requirements_report(requirement_set: RequirementSet) -> str:
+    """Human-readable extraction report — the `extract` half of the dual output.
+
+    Surfaces the honesty signals the matrix depends on: counts by req_type and
+    by section, verified vs unverified totals (T-02-15: hallucinated rows are
+    counted, never hidden), the deterministic-sweep missed-candidate list
+    (EXTR-05), amendment change rows and possibly-modified base rows (INTK-03),
+    and a metrics footer proving the local $0.00 accounting.
+    """
+    reqs = requirement_set.requirements
+    lines: list[str] = []
+    lines.append(f"Package: {requirement_set.package_name}")
+    lines.append(f"Model: {requirement_set.model_name}")
+    lines.append(f"Requirements: {len(reqs)}")
+
+    verified = sum(1 for r in reqs if r.verified)
+    unverified = len(reqs) - verified
+    lines.append(f"  verified (grounded): {verified}  unverified (ungroundable): {unverified}")
+
+    by_type = Counter(r.req_type for r in reqs)
+    lines.append("")
+    lines.append("By type:")
+    for req_type, count in sorted(by_type.items()):
+        lines.append(f"  {req_type}: {count}")
+
+    by_section = Counter((r.source_ref.section_label or "(none)") for r in reqs)
+    lines.append("")
+    lines.append("By section:")
+    for section, count in sorted(by_section.items()):
+        lines.append(f"  {section}: {count}")
+
+    # INTK-03: amendment change rows and the base rows they may modify (never merged).
+    changes = [r for r in reqs if r.is_amendment_change]
+    modified = [r for r in reqs if r.possibly_modified]
+    lines.append("")
+    lines.append(
+        f"Amendment change rows: {len(changes)}  "
+        f"possibly-modified base rows: {len(modified)}"
+    )
+    for change in changes:
+        page = change.source_ref.page
+        where = f"p{page}" if page is not None else "ungrounded"
+        preview = _truncate(change.verbatim_text)
+        lines.append(f"  change [{change.display_label} {where}]: {preview}")
+
+    # EXTR-05: deterministic sweep hits no extraction covered.
+    missed = requirement_set.missed_candidates
+    lines.append("")
+    lines.append(f"Missed candidates (sweep hits not extracted): {len(missed)}")
+    for candidate in missed[:_MISSED_PREVIEW]:
+        lines.append(
+            f"  [{candidate.file_id} p{candidate.page} {candidate.binding_keyword}] "
+            f"{_truncate(candidate.verbatim_sentence)}"
+        )
+    if len(missed) > _MISSED_PREVIEW:
+        lines.append(f"  ... and {len(missed) - _MISSED_PREVIEW} more")
+
+    metrics = requirement_set.metrics
+    lines.append("")
+    lines.append("Metrics:")
+    timing = "  ".join(f"{name}: {secs:.2f}s" for name, secs in metrics.stage_timings.items())
+    if timing:
+        lines.append(f"  stages: {timing}")
+    lines.append(
+        f"  LLM calls: {metrics.llm_calls}"
+        f"  input tokens: {metrics.input_tokens}"
+        f"  output tokens: {metrics.output_tokens}"
+    )
+    lines.append(f"  LLM cost: ${metrics.estimated_cost_usd:.2f} (local inference)")
+    return "\n".join(lines)
+
+
+def _truncate(text: str, limit: int = 120) -> str:
+    """One-line preview of a verbatim span for the report."""
+    collapsed = " ".join(text.split())
+    return collapsed if len(collapsed) <= limit else collapsed[: limit - 1] + "…"
+
+
+_MISSED_PREVIEW = 25
+"""How many missed candidates to list before summarizing the remainder."""
+
+
+def _run_extract(args: argparse.Namespace) -> int:
+    artifacts_dir = Path(args.artifacts_dir)
+    if not artifacts_dir.exists():
+        print(f"error: artifacts directory does not exist: {artifacts_dir}", file=sys.stderr)
+        return 2
+    if not artifacts_dir.is_dir():
+        print(f"error: not a directory: {artifacts_dir}", file=sys.stderr)
+        return 2
+
+    map_path = artifacts_dir / "document_map.json"
+    if not map_path.exists():
+        print(
+            f"error: no document_map.json in {artifacts_dir} — run `parse` first",
+            file=sys.stderr,
+        )
+        return 2
+
+    raw = map_path.read_text(encoding="utf-8")
+
+    # T-02-14: validate the artifact before it drives extraction. A schema-version
+    # mismatch is an honest, machine-readable failure, not a silent mis-parse.
+    document_map = _load_document_map(raw)
+    if document_map is None:
+        return 2
+
+    requirement_set = run_extraction(document_map, model=args.model, seed=args.seed)
+
+    out_dir = Path(args.out) if args.out is not None else artifacts_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    requirements_path = out_dir / "requirements.json"
+    requirements_path.write_text(requirement_set.model_dump_json(indent=2), encoding="utf-8")
+
+    print(render_requirements_report(requirement_set))
+    print(f"\nRequirements written to {requirements_path}")
+    return 0
+
+
+def _load_document_map(raw: str) -> DocumentMap | None:
+    """Validate raw document_map.json text; return None (after an error) if unusable.
+
+    Rejects an incompatible major ``schema_version`` before Pydantic validation
+    so an evolved contract fails with a clear message instead of a field error.
+    """
+    expected_major = DocumentMap().schema_version.split(".", 1)[0]
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        print(f"error: document_map.json is not valid JSON: {exc}", file=sys.stderr)
+        return None
+    found_version = str(payload.get("schema_version", ""))
+    found_major = found_version.split(".", 1)[0]
+    if found_major != expected_major:
+        print(
+            f"error: incompatible document_map schema_version {found_version!r} "
+            f"(this build reads {expected_major}.x) — re-run `parse`",
+            file=sys.stderr,
+        )
+        return None
+    try:
+        return DocumentMap.model_validate_json(raw)
+    except ValueError as exc:
+        print(f"error: document_map.json failed schema validation: {exc}", file=sys.stderr)
+        return None
+
+
 def _run_parse(args: argparse.Namespace) -> int:
     package_dir = Path(args.package_dir)
     if not package_dir.exists():
@@ -187,6 +368,8 @@ def main() -> None:
         sys.exit(2)
     if args.command == "parse":
         sys.exit(_run_parse(args))
+    if args.command == "extract":
+        sys.exit(_run_extract(args))
     parser.error(f"unknown command: {args.command}")
 
 
