@@ -241,6 +241,109 @@ class TestTocDisambiguation:
         sections = build_section_tree(make_pdf_file(pages))
         assert {s.label for s in sections} == {"C", "J", "M"}
 
+    def test_bare_section_citation_in_table_body_is_not_a_section(self):
+        # W1 regression (corpus: "N4008526R0033 Section C Annexes.pdf" p110).
+        # A table cell reading "Section F." matched SECTION_HEADING with the
+        # trailing dot eaten as the separator and an EMPTY title, becoming a
+        # bogus 16-page top-level SECTION F node.
+        pages = [
+            make_page(1, BODY),
+            make_page(2, "Section F.\n" + BODY),
+            make_page(3, "Section F\n" + BODY),
+            make_page(4, "Section F -\n" + BODY),
+            make_page(5, BODY),
+        ]
+        assert build_section_tree(make_pdf_file(pages)) == []
+
+    def test_section_citation_with_trailing_sentence_is_not_a_section(self):
+        # W1 regression (corpus: same file, p33). "Section F. These
+        # certifications shall be kept up to date by the Contractor. The" is a
+        # sentence citing Section F, not a heading. The period after the letter
+        # is a sentence terminator, so the captured title begins with ". These"
+        # and is rejected as a citation.
+        pages = [
+            make_page(1, BODY),
+            make_page(
+                2,
+                "Section F. These certifications shall be kept up to date by the Contractor. The\n"
+                + BODY,
+            ),
+            make_page(3, "Section F. Any failures in processing shall be corrected and\n" + BODY),
+            make_page(4, BODY),
+        ]
+        assert build_section_tree(make_pdf_file(pages)) == []
+
+    def test_section_citation_with_leading_comma_clause_is_not_a_section(self):
+        # W1 regression (corpus: same file, p35). "Section F, at no additional
+        # cost to the Government." is a clause continuation; the captured title
+        # begins with a comma and is rejected as a citation.
+        pages = [
+            make_page(1, BODY),
+            make_page(2, "Section F, at no additional cost to the Government.\n" + BODY),
+            make_page(3, BODY),
+        ]
+        assert build_section_tree(make_pdf_file(pages)) == []
+
+    def test_or_prose_continuation_is_not_a_section(self):
+        # W1 regression (corpus: same file, p126). Body prose "Section H or on
+        # a measured from issue date of" became a bogus 36-page SECTION H node
+        # because OR was missing from the prose-continuation alternation.
+        pages = [
+            make_page(1, BODY),
+            make_page(2, "Section H or on a measured from issue date of\n" + BODY),
+            make_page(3, BODY),
+        ]
+        assert build_section_tree(make_pdf_file(pages)) == []
+
+    def test_or_inside_a_title_still_reads_as_a_heading(self):
+        # The rule is about a title that BEGINS as prose continuation. "OR"
+        # occurring inside a genuine UCF title must not be affected — the
+        # corpus's "SECTION F ANNEX.pdf" really is titled "DELIVERIES OR
+        # PERFORMANCE", and Section B's official title carries OR too.
+        pages = [
+            make_page(1, BODY),
+            make_page(2, "SECTION B - SUPPLIES OR SERVICES AND PRICES/COSTS\n" + BODY),
+            make_page(3, "SECTION F - DELIVERIES OR PERFORMANCE\n" + BODY),
+            make_page(
+                4,
+                "SECTION L - INSTRUCTIONS, CONDITIONS, & NOTICES TO OFFERORS OR QUOTERS\n" + BODY,
+            ),
+            make_page(5, BODY),
+        ]
+        sections = build_section_tree(make_pdf_file(pages))
+        assert {s.label for s in sections} == {"B", "F", "L"}
+        node_f = next(s for s in sections if s.label == "F")
+        assert node_f.title == "DELIVERIES OR PERFORMANCE"
+        assert (node_f.locator.page_start, node_f.locator.page_end) == (3, 3)
+
+    def test_prose_lines_never_beat_the_real_heading_for_the_same_letter(self):
+        # Both false-positive shapes appearing AFTER the real heading: the
+        # last-wins start rule would hand them the section start.
+        pages = [
+            make_page(1, BODY),
+            make_page(2, "SECTION F - DELIVERIES OR PERFORMANCE\n" + BODY),
+            make_page(3, "Section F.\n" + BODY),
+            make_page(4, "Section F or as otherwise directed\n" + BODY),
+            make_page(5, "SECTION M - EVALUATION FACTORS FOR AWARD\n" + BODY),
+        ]
+        sections = build_section_tree(make_pdf_file(pages))
+        node_f = next(s for s in sections if s.label == "F")
+        assert node_f.title == "DELIVERIES OR PERFORMANCE"
+        assert (node_f.locator.page_start, node_f.locator.page_end) == (2, 4)
+
+    def test_paragraph_id_with_wrapped_title_survives_the_no_title_guard(self):
+        # The empty-title rejection is scoped to the `heading` signal: a bare
+        # paragraph ID whose title wrapped to the next line is a real
+        # structural signal, not a citation.
+        pages = [
+            make_page(1, "SECTION L - INSTRUCTIONS, CONDITIONS, AND NOTICES TO OFFERORS\n" + BODY),
+            make_page(2, "L.1\nGeneral instructions to offerors.\n" + BODY),
+            make_page(3, BODY),
+        ]
+        sections = build_section_tree(make_pdf_file(pages))
+        node_l = next(s for s in sections if s.label == "L")
+        assert [c.label for c in node_l.children] == ["L.1"]
+
     def test_docx_word_toc_role_title_does_not_fabricate_a_node(self):
         # WR-07 regression: the TOC-trailing guard only covered the `heading`
         # signal, so a Word TOC entry like "STATEMENT OF WORK .......... 12"

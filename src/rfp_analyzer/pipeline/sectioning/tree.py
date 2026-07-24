@@ -24,7 +24,9 @@ Last-wins cannot guard against mid-document cross-references — it actively
 prefers them — so those are filtered out beforehand instead: a ``SECTION X``
 match whose captured title reads on as prose ("SECTION L *of this
 solicitation is amended as follows*") is a sentence about the section, not
-its heading, and never becomes an occurrence.
+its heading, and never becomes an occurrence. The same filter rejects the
+bare-citation form ("see ``Section F.``" as a table cell), where the match
+captures no title at all.
 
 Honesty invariant (success criterion 2): a node is only ever emitted for a
 matched signal — a file with zero heading candidates returns an empty list,
@@ -50,14 +52,43 @@ _TOC_TRAILING_RE = re.compile(r"(\.{3,}\s*\d{1,4}|\s\d{1,4})\s*$")
 
 _CROSS_REFERENCE_TAIL_RE = re.compile(
     r"^(?:,"
-    r"|OF|IS|ARE|WAS|WERE|WILL|SHALL|MAY|HAS|HAVE|HEREBY"
-    r"|ABOVE|BELOW|AND|TO|IN|THEREOF|ENTITLED"
+    r"|OF|IS|ARE|WAS|WERE|WILL|SHALL|MAY|MUST|CAN|COULD|SHOULD|WOULD"
+    r"|DO|DOES|DID|HAS|HAVE|HEREBY|BEING|BEEN"
+    r"|ABOVE|BELOW|AND|OR|NOR|BUT|TO|IN|UNDER|WITHIN|WITHOUT"
+    r"|THAT|WHICH|THEREOF|THEREIN|THERETO|HEREIN|HEREOF|HERETO|HEREUNDER"
+    r"|ENTITLED"
     r")\b"
 )
 """A ``SECTION X`` match whose captured title reads on as prose is a
 cross-reference sentence ("SECTION L *of this solicitation is amended as
-follows*"), not a section start (A7 — corpus-tunable). Anchored alternation
-of bare literals: no nesting, no unbounded quantifier (T-01-12)."""
+follows*"), not a section start (A7 — corpus-tunable).
+
+Every alternative is a function word that no FAR 15.204-1 section title ever
+*begins* with — the same word appearing later inside a title is untouched, so
+``SECTION F - DELIVERIES OR PERFORMANCE`` still reads as a heading while
+``Section H or on a measured from issue date of`` does not. Word-boundary
+anchored, so hyphenated compounds (``UNDERGROUND``, ``WITHIN-SCOPE``) are not
+swallowed by a shorter alternative. Anchored alternation of bare literals: no
+nesting, no unbounded quantifier (T-01-12)."""
+
+_CITATION_TITLE_RE = re.compile(r"^(?:\W*$|[.,;])")
+"""A ``SECTION X`` match whose captured title is a bare citation, not a title.
+
+Two shapes, both observed as false positives in the corpus's Section C annex
+file where every ``SECTION X`` line is table-body prose citing another
+section:
+
+* ``^\\W*$`` — nothing but punctuation/whitespace: ``Section F.`` in a table
+  cell (the period is a sentence terminator, not a heading separator).
+* ``^[.,;]`` — begins with sentence/clause punctuation: ``Section F. These
+  certifications shall be kept up to date…`` captures ``. These …`` once the
+  period is no longer eaten as a separator (see ``SECTION_HEADING``), and
+  ``Section F, at no additional cost to the Government.`` captures ``, at no
+  cost …``. A real UCF title never begins with a comma, period, or semicolon.
+
+Only applied to the ``heading`` signal: a paragraph ID (``L.1``) on its own
+line with its title wrapped to the next physical line is a real structural
+signal, not a citation."""
 
 CANONICAL_LETTER_ROLES: dict[str, str] = {
     "C": "sow_pws",
@@ -92,8 +123,19 @@ def _is_cross_reference(candidate: HeadingCandidate) -> bool:
     the section start — and since the start rule prefers the LAST qualifying
     occurrence, the cross-reference wins and the section's span and title
     both come out wrong.
+
+    Two prose shapes are rejected: a title that *begins* as a continuation of
+    the sentence (:data:`_CROSS_REFERENCE_TAIL_RE`) — including bare-citation
+    forms like ``Section F. These certifications…`` — and a citation with no
+    title at all (:data:`_CITATION_TITLE_RE`), ``Section F.`` in a table body.
+    Both were observed as false-positive top-level sections in the corpus's
+    Section C annex file.
     """
-    return bool(candidate.letter) and bool(_CROSS_REFERENCE_TAIL_RE.match(candidate.title))
+    if not candidate.letter:
+        return False
+    if candidate.signal == "heading" and _CITATION_TITLE_RE.match(candidate.title):
+        return True
+    return bool(_CROSS_REFERENCE_TAIL_RE.match(candidate.title))
 
 
 def _is_toc_page(candidates: list[HeadingCandidate]) -> bool:

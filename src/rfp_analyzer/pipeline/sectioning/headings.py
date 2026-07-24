@@ -10,7 +10,10 @@ page text (no file I/O):
    attachment-style "PROPOSAL SUBMISSION INSTRUCTIONS") mapped to
    :class:`~rfp_analyzer.pipeline.models.SectionNode` role values, so a
    package whose instructions live in an attachment titled "Proposal
-   Submission Instructions" still gets role-tagged (Pitfall 3).
+   Submission Instructions" still gets role-tagged (Pitfall 3). A role-title
+   *candidate* only fires when the phrase leads the line
+   (:func:`match_role_title_at_start`) — body prose that merely mentions
+   "performance work statement" mid-sentence is a reference, not a heading.
 
 Assumption A5: the exact heading forms encoded here are hypotheses — the
 3-package corpus (plan 01-06) exists to falsify and tune them.
@@ -26,11 +29,17 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 SECTION_HEADING = re.compile(
-    r"^\s*SECTION\s+([A-M])\b\s*[—–\-:.]?\s*(.{0,120})$",
+    r"^\s*SECTION\s+([A-M])\b\s*[—–\-:]?\s*(.{0,120})$",
     re.IGNORECASE | re.MULTILINE,
 )
 """``SECTION L - TITLE`` style headings (A5). Group 1 = section letter,
-group 2 = trailing title text (bounded at 120 chars)."""
+group 2 = trailing title text (bounded at 120 chars).
+
+Separator class is dash/en-dash/em-dash/colon only — a period is *not* a
+heading separator. ``Section F.`` and ``Section F. These certifications…`` are
+sentence-citations in table body prose, not headings; keeping the period in
+the captured title lets :func:`~rfp_analyzer.pipeline.sectioning.tree._is_cross_reference`
+reject them (W1)."""
 
 PART_HEADING = re.compile(
     r"^\s*PART\s+(I{1,3}|IV)\b\s*[—–\-:.]?\s*(.{0,80})$",
@@ -79,16 +88,41 @@ def normalize_line(s: str) -> str:
 
 
 def match_role_title(line: str) -> str | None:
-    """Role for a line matching a known section role title, else None.
+    """Role for a line *containing* a known section role title, else None.
 
     Substring match against the normalized line, so mixed case and wrapped
-    whitespace survive.
+    whitespace survive. Used to tag a letter-section heading's role from its
+    own title text (``SECTION C - …STATEMENT OF WORK`` -> ``sow_pws``), where
+    the phrase legitimately sits at the end of an already-anchored heading.
     """
     normalized = normalize_line(line)
     if not normalized:
         return None
     for title, role in ROLE_TITLES.items():
         if title in normalized:
+            return role
+    return None
+
+
+def match_role_title_at_start(line: str) -> str | None:
+    """Role for a line that *begins with* a known role title, else None.
+
+    Line-start anchored, mirroring :data:`SECTION_HEADING`: a role-title
+    heading names the section and so the title phrase leads the line
+    (``STATEMENT OF WORK``, ``EVALUATION FACTORS FOR AWARD``). Body prose that
+    merely mentions the phrase mid-sentence (``services described in this
+    performance work statement (PWS)``, ``dock fender repair IAW the statement
+    of work``) is a reference, not a heading, and yields no candidate (W1 —
+    the role-title analogue of the ``SECTION X`` cross-reference filter).
+
+    A trailing token boundary keeps this from firing on a longer word that
+    merely starts with a title string.
+    """
+    normalized = normalize_line(line)
+    if not normalized:
+        return None
+    for title, role in ROLE_TITLES.items():
+        if normalized == title or normalized.startswith(title + " "):
             return role
     return None
 
@@ -165,7 +199,7 @@ def find_heading_candidates(page_text: str) -> list[HeadingCandidate]:
             )
             continue
 
-        role = match_role_title(line)
+        role = match_role_title_at_start(line)
         if role:
             candidates.append(
                 HeadingCandidate(

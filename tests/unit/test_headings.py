@@ -14,6 +14,7 @@ from rfp_analyzer.pipeline.sectioning.headings import (
     SECTION_HEADING,
     find_heading_candidates,
     match_role_title,
+    match_role_title_at_start,
     normalize_line,
 )
 
@@ -83,6 +84,25 @@ class TestRoleTitles:
         # Pitfall-3 class: attachment files titled like this carry Section L
         # content without any "SECTION L" literal.
         assert match_role_title("Proposal Submission Instructions") == "instructions"
+
+    def test_at_start_matches_standalone_titles(self):
+        # A role-title heading leads the line.
+        assert match_role_title_at_start("STATEMENT OF WORK") == "sow_pws"
+        assert match_role_title_at_start("Statement of Work 0002, 0003") == "sow_pws"
+        assert match_role_title_at_start("SPECIAL CONTRACT REQUIREMENTS") == "special_requirements"
+        assert match_role_title_at_start("Evaluation Factors For Award") == "evaluation"
+
+    def test_at_start_rejects_phrase_embedded_in_prose(self):
+        # W1 role-title analogue: the phrase mid-sentence is a reference.
+        embedded = "services described in this performance work statement"
+        assert match_role_title_at_start(embedded) is None
+        assert match_role_title_at_start("dock fender repair IAW the statement of work") is None
+        assert match_role_title_at_start("DESCRIPTION/SPECIFICATIONS/STATEMENT OF WORK") is None
+        assert match_role_title_at_start("01 STATEMENT OF WORK 22 JUL 2026") is None
+
+    def test_at_start_requires_a_token_boundary(self):
+        # Must not fire on a longer word that merely starts with a title.
+        assert match_role_title_at_start("STATEMENT OF WORKFLOW SYSTEMS") is None
 
     def test_matching_survives_normalization(self):
         assert match_role_title("  statement \t  of   work  ") == "sow_pws"
