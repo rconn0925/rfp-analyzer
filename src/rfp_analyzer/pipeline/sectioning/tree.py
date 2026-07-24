@@ -15,9 +15,16 @@ trailing page-number pattern. TOC pages never seed section starts.
 Start-page rule (assumption A7, corpus-tunable): a section starts on the
 page where its heading appears as a leading line on a non-TOC page,
 preferring the LAST such occurrence that still precedes at least one
-subsequent distinct section heading (guards against both the page-1 TOC and
-mid-document cross-references); when no occurrence qualifies (e.g. the final
-section), the first occurrence wins.
+subsequent distinct section heading; when no occurrence qualifies (e.g. the
+final section), the first occurrence wins. Last-wins guards against
+contents-style listing pages that fall under the TOC threshold (the page-1
+TOC proper is already excluded before occurrences are built).
+
+Last-wins cannot guard against mid-document cross-references — it actively
+prefers them — so those are filtered out beforehand instead: a ``SECTION X``
+match whose captured title reads on as prose ("SECTION L *of this
+solicitation is amended as follows*") is a sentence about the section, not
+its heading, and never becomes an occurrence.
 
 Honesty invariant (success criterion 2): a node is only ever emitted for a
 matched signal — a file with zero heading candidates returns an empty list,
@@ -41,6 +48,17 @@ of its page to count as a section start (A7 — corpus-tunable)."""
 _TOC_TRAILING_RE = re.compile(r"(\.{3,}\s*\d{1,4}|\s\d{1,4})\s*$")
 """Dot-leader (``... 40``) or trailing standalone page-number TOC-line tails."""
 
+_CROSS_REFERENCE_TAIL_RE = re.compile(
+    r"^(?:,"
+    r"|OF|IS|ARE|WAS|WERE|WILL|SHALL|MAY|HAS|HAVE|HEREBY"
+    r"|ABOVE|BELOW|AND|TO|IN|THEREOF|ENTITLED"
+    r")\b"
+)
+"""A ``SECTION X`` match whose captured title reads on as prose is a
+cross-reference sentence ("SECTION L *of this solicitation is amended as
+follows*"), not a section start (A7 — corpus-tunable). Anchored alternation
+of bare literals: no nesting, no unbounded quantifier (T-01-12)."""
+
 CANONICAL_LETTER_ROLES: dict[str, str] = {
     "C": "sow_pws",
     "H": "special_requirements",
@@ -63,6 +81,19 @@ class _Occurrence:
 
     pos: tuple[int, int]
     candidate: HeadingCandidate
+
+
+def _is_cross_reference(candidate: HeadingCandidate) -> bool:
+    """True when a letter-section heading match is really prose about it.
+
+    ``SECTION L of this solicitation is amended as follows`` is line-start
+    anchored and matches SECTION_HEADING with the whole sentence tail
+    captured as the "title". Left in, it competes with the real heading for
+    the section start — and since the start rule prefers the LAST qualifying
+    occurrence, the cross-reference wins and the section's span and title
+    both come out wrong.
+    """
+    return bool(candidate.letter) and bool(_CROSS_REFERENCE_TAIL_RE.match(candidate.title))
 
 
 def _is_toc_page(candidates: list[HeadingCandidate]) -> bool:
@@ -91,7 +122,12 @@ def find_toc_pages(file: ParsedFile) -> list[int]:
 
 
 def _choose_start(occs: list[_Occurrence], all_letter_occs: list[_Occurrence]) -> _Occurrence:
-    """A7 start rule over one letter's sorted occurrences."""
+    """A7 start rule over one letter's sorted occurrences.
+
+    Cross-reference occurrences are already filtered out by
+    :func:`_is_cross_reference` before this runs, so "last qualifying" here
+    only ever chooses between plausible real headings.
+    """
     qualifying = [
         occ
         for occ in occs
@@ -225,6 +261,8 @@ def build_section_tree(file: ParsedFile) -> list[SectionNode]:
             if number in toc_pages:
                 continue
             for cand in cands:
+                if _is_cross_reference(cand):
+                    continue  # prose about a section, not the section itself
                 occ = _Occurrence(pos=(number, cand.line_index), candidate=cand)
                 if cand.signal == "heading" and cand.line_index < LEADING_LINE_LIMIT:
                     heading_occs.append(occ)
@@ -249,6 +287,8 @@ def build_section_tree(file: ParsedFile) -> list[SectionNode]:
             if block.kind != "paragraph" or not block.text:
                 continue
             for cand in find_heading_candidates(block.text):
+                if _is_cross_reference(cand):
+                    continue  # prose about a section, not the section itself
                 if cand.signal == "heading" and _TOC_TRAILING_RE.search(cand.title):
                     continue  # Word-generated TOC line, not a section start
                 occ = _Occurrence(pos=(block.ordinal, cand.line_index), candidate=cand)

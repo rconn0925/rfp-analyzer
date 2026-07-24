@@ -190,6 +190,57 @@ class TestTocDisambiguation:
         assert sections[0].label == "L"
         assert (sections[0].locator.block_start, sections[0].locator.block_end) == (1, 2)
 
+    def test_mid_document_cross_reference_does_not_steal_the_section_start(self):
+        # WR-06 regression: "SECTION L of this solicitation is amended as
+        # follows" is line-start anchored and matches SECTION_HEADING with the
+        # whole sentence captured as the title. Because the start rule prefers
+        # the LAST qualifying occurrence, the cross-reference used to beat the
+        # real page-40 heading and drag the span and title with it.
+        pages = []
+        for n in range(1, 40):
+            pages.append(make_page(n, BODY))
+        pages.append(
+            make_page(
+                40,
+                "SECTION L - INSTRUCTIONS, CONDITIONS, AND NOTICES TO OFFERORS\n" + BODY,
+            )
+        )
+        for n in range(41, 45):
+            pages.append(make_page(n, BODY))
+        pages.append(
+            make_page(45, "SECTION L of this solicitation is amended as follows:\n" + BODY)
+        )
+        for n in range(46, 50):
+            pages.append(make_page(n, BODY))
+        pages.append(make_page(50, "SECTION M - EVALUATION FACTORS FOR AWARD\n" + BODY))
+        pages.append(make_page(51, BODY))
+
+        sections = build_section_tree(make_pdf_file(pages))
+        node_l = next(s for s in sections if s.label == "L")
+        assert node_l.locator.page_start == 40
+        assert node_l.title == "INSTRUCTIONS, CONDITIONS, AND NOTICES TO OFFERORS"
+        assert node_l.role == "instructions"
+
+    def test_cross_reference_alone_does_not_fabricate_a_section(self):
+        # A file whose only "SECTION M" mention is prose must emit no M node.
+        pages = [
+            make_page(1, BODY),
+            make_page(2, "SECTION M is hereby deleted in its entirety.\n" + BODY),
+            make_page(3, BODY),
+        ]
+        assert build_section_tree(make_pdf_file(pages)) == []
+
+    def test_real_headings_are_not_mistaken_for_cross_references(self):
+        # The guard must not eat legitimate UCF titles.
+        pages = [
+            make_page(1, BODY),
+            make_page(2, "SECTION C - DESCRIPTION/SPECIFICATIONS/STATEMENT OF WORK\n" + BODY),
+            make_page(3, "SECTION J - LIST OF ATTACHMENTS\n" + BODY),
+            make_page(4, "SECTION M - EVALUATION FACTORS FOR AWARD\n" + BODY),
+        ]
+        sections = build_section_tree(make_pdf_file(pages))
+        assert {s.label for s in sections} == {"C", "J", "M"}
+
     def test_zero_candidates_yields_honest_empty_list(self):
         # Never fabricate nodes; scanned pages (text == "") contribute nothing.
         body_only = make_pdf_file([make_page(1, BODY), make_page(2, BODY)])
