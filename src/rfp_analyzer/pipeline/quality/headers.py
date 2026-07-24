@@ -4,9 +4,13 @@ Implements RESEARCH Pattern 5's cross-page frequency technique (assumption
 A2): a line whose digit-stripped, whitespace-collapsed, uppercased form
 appears in the top/bottom line bands of at least
 :data:`HEADER_FREQ_THRESHOLD` of a file's OK pages is a running
-header/footer — removed from stored page text and recorded on the file for
-auditability (Pitfall 6: header noise must not contaminate Phase 2
-requirement extraction).
+header/footer — removed from those same bands in the stored page text and
+recorded on the file for auditability (Pitfall 6: header noise must not
+contaminate Phase 2 requirement extraction).
+
+Removal is band-scoped exactly like detection: a body line that happens to
+normalize to a running pattern is kept, because silently deleting mid-page
+content is worse than leaving one stray header line in.
 
 :func:`apply_quality` is the single quality-stage function: classify every
 PDF page (gates), empty non-ok page text so garbage never flows downstream
@@ -71,6 +75,29 @@ def detect_running_lines(pages: Iterable[PageInfo]) -> set[str]:
     return {key for key, n in counts.items() if n >= cutoff}
 
 
+def _strip_running_lines(text: str, running: set[str]) -> str:
+    """Remove running-header/footer lines from one page's top/bottom bands.
+
+    Removal scope MUST match detection scope. Filtering the whole page
+    instead silently deleted body lines that merely normalized to a running
+    pattern — and since the running header is typically the solicitation
+    number and digits are stripped before comparison, that is a routine
+    collision (amendment references, signature blocks, numeric table rows),
+    not a theoretical one. Mid-page content feeds Phase 2 requirement
+    extraction, so losing it is a data-integrity defect.
+    """
+    lines = text.splitlines()
+    last_band_start = len(lines) - RUNNING_LINE_BAND
+    return "\n".join(
+        line
+        for index, line in enumerate(lines)
+        if not (
+            (index < RUNNING_LINE_BAND or index >= last_band_start)
+            and _normalize(line) in running
+        )
+    )
+
+
 def apply_quality(file: ParsedFile, thresholds: QualityThresholds | None = None) -> ParsedFile:
     """Quality stage: classify pages, empty non-ok text, strip running lines.
 
@@ -97,9 +124,7 @@ def apply_quality(file: ParsedFile, thresholds: QualityThresholds | None = None)
         if page.quality != "ok":
             page.text = ""
         elif running:
-            page.text = "\n".join(
-                line for line in page.text.splitlines() if _normalize(line) not in running
-            )
+            page.text = _strip_running_lines(page.text, running)
 
     file.stripped_headers = sorted(running)
     return file

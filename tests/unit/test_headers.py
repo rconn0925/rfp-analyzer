@@ -93,6 +93,41 @@ class TestRunningLineDetection:
     def test_threshold_is_named_constant(self):
         assert HEADER_FREQ_THRESHOLD == 0.4
 
+    def test_mid_page_body_line_matching_the_header_is_not_deleted(self):
+        # WR-04 regression: removal must be scoped to the same top/bottom
+        # bands that voted. The running header is the solicitation number,
+        # and body text legitimately repeats it (amendment references,
+        # signature blocks) — deleting those mid-page lines is silent
+        # content loss feeding Phase 2 extraction.
+        header = "SOLICITATION W912DY-26-R-0012"
+        pages = []
+        for i in range(1, 11):
+            word = WORDS[i - 1]
+            lines = [
+                header,
+                *body_lines(word),
+                f"More prose about {word} deliverables and the associated reporting duties.",
+                # Mid-page (index 4): a real body reference to the same number.
+                header,
+                f"Continued prose for {word} following the reference above.",
+                *body_lines(word),
+                f"Page {i} of 10",
+            ]
+            pages.append(make_page(i, "\n".join(lines)))
+
+        file = apply_quality(make_pdf_file(pages))
+        assert "SOLICITATION WDY--R-" in file.stripped_headers  # digit-stripped key
+
+        for page in file.pages:
+            lines = page.text.splitlines()
+            assert lines[0] != header, "band header survived stripping"
+            assert lines[-1].strip() != "", "band footer line left an artifact"
+            assert header in lines, (
+                f"page {page.page_number}: mid-page body reference was deleted"
+            )
+            assert page.text.count(header) == 1
+            assert "contractor shall" in page.text
+
 
 class TestApplyQuality:
     def test_scanned_page_flagged_and_emptied_no_pending_survives(self):
