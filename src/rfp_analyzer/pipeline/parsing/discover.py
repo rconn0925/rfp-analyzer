@@ -21,6 +21,11 @@ MAX_FILE_BYTES = 250 * 1024 * 1024
 
 _STEM_SANITIZER = re.compile(r"[^a-z0-9]+")
 
+
+def _placeholder_file_id(path: Path) -> str:
+    """Zero-prefixed identity for files that were never hashed (rejected)."""
+    return "0" * 12 + "-" + _STEM_SANITIZER.sub("-", path.stem.lower()).strip("-")[:40]
+
 _SUFFIX_KINDS: dict[str, Literal["pdf", "docx"]] = {
     ".pdf": "pdf",
     ".docx": "docx",
@@ -40,8 +45,16 @@ class DiscoveredFile:
 
 
 def _is_within(path: Path, root: Path) -> bool:
-    """True if path's resolved location is contained in root's resolved location."""
-    return path.resolve().is_relative_to(root.resolve())
+    """True if path's resolved location is contained in root's resolved location.
+
+    Fails closed: ``resolve()`` can raise OSError on pathological symlink /
+    junction loops, and a path whose real location cannot be established is
+    never treated as contained (T-01-08).
+    """
+    try:
+        return path.resolve().is_relative_to(root.resolve())
+    except OSError:
+        return False
 
 
 def _file_identity(path: Path) -> tuple[str, str]:
@@ -87,7 +100,7 @@ def discover_files(package_dir: Path) -> list[DiscoveredFile]:
         # Containment first: never read a file whose real location escapes
         # the package dir (symlinks/junctions/crafted names — T-01-08).
         if not _is_within(path, package_dir):
-            file_id = "0" * 12 + "-" + _STEM_SANITIZER.sub("-", path.stem.lower()).strip("-")[:40]
+            file_id = _placeholder_file_id(path)
             discovered.append(
                 DiscoveredFile(
                     path=path,
@@ -106,7 +119,28 @@ def discover_files(package_dir: Path) -> list[DiscoveredFile]:
             )
             continue
 
-        sha256, file_id = _file_identity(path)
+        # Every filesystem touch is guarded: a file locked by another process,
+        # permission-denied, or deleted between rglob() and here must become a
+        # rejected record, never a crashed run (per-file isolation).
+        try:
+            size = path.stat().st_size
+            sha256, file_id = _file_identity(path)
+        except OSError as exc:
+            file_id = _placeholder_file_id(path)
+            discovered.append(
+                DiscoveredFile(
+                    path=path,
+                    filename=filename,
+                    sha256="",
+                    file_id=file_id,
+                    kind="rejected",
+                    rejection=_rejection(
+                        filename, "", file_id, "other", f"unreadable file: {exc}"
+                    ),
+                )
+            )
+            continue
+
         suffix = path.suffix.lower()
         kind = _SUFFIX_KINDS.get(suffix)
 
@@ -116,8 +150,8 @@ def discover_files(package_dir: Path) -> list[DiscoveredFile]:
         elif kind is None:
             error = f"unsupported file type: {suffix or '(no extension)'}"
             rejection = _rejection(filename, sha256, file_id, "other", error)
-        elif path.stat().st_size > MAX_FILE_BYTES:
-            error = f"file size {path.stat().st_size} bytes exceeds cap of {MAX_FILE_BYTES} bytes"
+        elif size > MAX_FILE_BYTES:
+            error = f"file size {size} bytes exceeds cap of {MAX_FILE_BYTES} bytes"
             rejection = _rejection(filename, sha256, file_id, kind, error)
         else:
             discovered.append(

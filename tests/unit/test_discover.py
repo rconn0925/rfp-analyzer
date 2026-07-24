@@ -123,6 +123,60 @@ def test_symlink_escaping_package_dir_rejected(tmp_path: Path):
     assert "outside package directory" in entry.rejection.error
 
 
+@pytest.mark.parametrize(
+    "exc",
+    [
+        PermissionError(13, "The process cannot access the file"),
+        FileNotFoundError(2, "No such file or directory"),
+        OSError(1224, "The requested operation cannot be performed"),
+    ],
+    ids=["locked", "vanished", "generic-oserror"],
+)
+def test_unreadable_file_rejected_not_raised(
+    tmp_path: Path, monkeypatch, make_minimal_pdf, exc: OSError
+):
+    """A locked/vanished/unreadable file becomes a rejected record, not a crash.
+
+    CR-01 regression: discovery runs BEFORE the parsers' per-file isolation,
+    so an OSError from the stat/open of one entry used to take down the whole
+    package run.
+    """
+    pkg = tmp_path / "package"
+    pkg.mkdir()
+    make_minimal_pdf(pkg / "locked.pdf", ["Locked by another process"])
+    make_minimal_pdf(pkg / "fine.pdf", ["Readable"])
+
+    real_identity = discover._file_identity
+
+    def flaky_identity(path: Path):
+        if path.name == "locked.pdf":
+            raise exc
+        return real_identity(path)
+
+    monkeypatch.setattr(discover, "_file_identity", flaky_identity)
+
+    entries = discover_files(pkg)
+    assert len(entries) == 2
+
+    locked = _by_name(entries, "locked.pdf")
+    assert locked.kind == "rejected"
+    assert locked.rejection.parse_status == "rejected"
+    assert "unreadable file" in locked.rejection.error
+
+    # The rest of the package is unaffected — isolation is per file.
+    assert _by_name(entries, "fine.pdf").kind == "pdf"
+
+
+def test_is_within_fails_closed_on_unresolvable_path(tmp_path: Path):
+    """resolve() raising (symlink/junction loop) means 'not contained', not a crash."""
+
+    class Unresolvable:
+        def resolve(self):
+            raise OSError(1921, "The name of the file cannot be resolved by the system")
+
+    assert discover._is_within(Unresolvable(), tmp_path) is False
+
+
 def test_nested_files_discovered_with_relative_path(tmp_path: Path, make_minimal_pdf):
     """Files in nested dirs ARE discovered; filename records the relative path."""
     pkg = tmp_path / "package"
