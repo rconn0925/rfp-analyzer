@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Low-quality or scanned pages are caught by per-page quality gates and surfaced, never passed through as silent garbage text
   4. SF30 amendment files within a package are identified and labeled as amendments
 
-**Plans:** 4/6 plans executed
+**Plans:** 5/6 plans executed
 
 Plans:
 **Wave 1**
@@ -51,7 +51,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-05-PLAN.md — UCF section detection w/ TOC disambiguation, SF form signatures, SF30 ladder, package classification
+- [x] 01-05-PLAN.md — UCF section detection w/ TOC disambiguation, SF form signatures, SF30 ladder, package classification
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -127,7 +127,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Parsing & Structure Foundation | 4/6 | In Progress|  |
+| 1. Parsing & Structure Foundation | 5/6 | In Progress|  |
 | 2. Requirement Extraction & Grounding | 0/TBD | Not started | - |
 | 3. Analysis & Export | 0/TBD | Not started | - |
 | 4. Web App & Job Orchestration | 0/TBD | Not started | - |
