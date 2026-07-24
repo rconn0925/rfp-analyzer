@@ -12,9 +12,9 @@ updated: 2026-07-24
 
 ## Tests
 
-### 1. SAM.gov API key request (Ross-personal, Phase 5 dependency)
-expected: API key requested at sam.gov (login.gov sign-in → Account Details → request Public API key), stored outside the repo as SAM_API_KEY. ~10 business day issuance, so the request should start well before Phase 5.
-result: [pending — NOT started. This is the one item no agent can do.]
+### 1. SAM.gov API key request (Ross-personal, Phase 5 optional feature)
+expected: API key requested at sam.gov (login.gov sign-in → Account Details → request Public API key), stored outside the repo as SAM_API_KEY.
+result: [skipped — DEFERRED by user decision 2026-07-24. Upload/local-package intake is the product's intake path; the key only gates Phase 5's optional SAM.gov fetch. No phase is blocked. Revisit only if the SAM.gov fetch feature is wanted later.]
 
 ### 2. Primary package section boundaries match the real PDF
 expected: `uv run rfp-analyzer parse tests/corpus/primary-ucf --out artifacts` reports SECTION L at pages 49-57 and SECTION M at 58-70 of `Solicitation - N4008526R0033.pdf`. Open that PDF and confirm SECTION L truly begins at page 49.
@@ -41,13 +41,13 @@ result: [pending human eyeball — machine-verified and pinned by an integration
 total: 6
 passed: 0
 issues: 0
-pending: 6
-skipped: 0
+pending: 5
+skipped: 1
 blocked: 0
 
 ## Gaps
 
 None reported. Items 2-6 have captured machine evidence in 01-06-SUMMARY.md ("Deferred human
 verification evidence") and are pinned by integration tests; they are listed here because the
-plan called for a human eyeball that autonomous mode auto-approved. Item 1 is genuine
-outstanding work only Ross can do.
+plan called for a human eyeball that autonomous mode auto-approved. Item 1 was deferred by
+user decision — the product intakes uploaded/local packages, so no SAM.gov key is needed.

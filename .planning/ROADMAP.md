@@ -57,7 +57,7 @@ Plans:
 
 - [x] 01-06-PLAN.md — CLI harness (dual output), corpus integration tests, human verification of success criteria
 
-Note: Request the SAM.gov API key during this phase — issuance reportedly takes ~10 business days and Phase 5 depends on it.
+Note: SAM.gov API key request DEFERRED by user decision (2026-07-24). Upload / local-package intake is the product's intake path; the key only gates Phase 5's optional SAM.gov fetch. Phase 5 ships its public demo and hardening on upload intake alone — SAM.gov fetch becomes an optional add-on if a key is obtained later. No phase is blocked on it.
 
 ### Phase 2: Requirement Extraction & Grounding
 

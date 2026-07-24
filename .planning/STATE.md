@@ -75,17 +75,16 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 1]: Request SAM.gov API key at phase start — ~10 business days issuance; Phase 5 depends on it
 - [Phase 2]: Unverified whether Citations API + structured outputs combine in one call — validate during Phase 2 planning (fallback design exists)
-- [Phase 5]: SAM.gov rate limit unconfirmed (10/day to 1,000/day depending on role) — confirm empirically before Phase 5 planning
 
 ## Deferred Items
 
-Items acknowledged and carried forward from previous milestone close:
+Items acknowledged and carried forward:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Scope | SAM.gov API key request (~10 business day issuance) | Deferred by user 2026-07-24 — upload is the intake path; key only gates the optional Phase 5 SAM.gov fetch | Phase 1 |
+| Scope | SAM.gov fetch feature + rate-limit confirmation (10/day vs 1,000/day by role) | Deferred with the key — Phase 5 ships demo + hardening on upload intake alone; SAM.gov fetch becomes an optional add-on if/when a key exists | Phase 1 |
 
 ## Session Continuity
 
