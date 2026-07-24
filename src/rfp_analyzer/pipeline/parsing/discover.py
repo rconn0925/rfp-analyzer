@@ -32,6 +32,7 @@ def _placeholder_file_id(path: Path) -> str:
     """Zero-prefixed identity for files that were never hashed (rejected)."""
     return "0" * 12 + "-" + _STEM_SANITIZER.sub("-", path.stem.lower()).strip("-")[:40]
 
+
 _SUFFIX_KINDS: dict[str, Literal["pdf", "docx"]] = {
     ".pdf": "pdf",
     ".docx": "docx",

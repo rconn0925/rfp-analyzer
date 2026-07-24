@@ -64,9 +64,7 @@ def _bomb_check(path: Path) -> str | None:
     return None
 
 
-def parse_docx(
-    path: Path, *, sha256: str, file_id: str, filename: str | None = None
-) -> ParsedFile:
+def parse_docx(path: Path, *, sha256: str, file_id: str, filename: str | None = None) -> ParsedFile:
     """Parse one DOCX into a ParsedFile with ordered BlockInfo blocks.
 
     ``filename`` is the discovery-assigned name — the posix path relative to

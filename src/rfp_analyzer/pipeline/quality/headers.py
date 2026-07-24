@@ -92,8 +92,7 @@ def _strip_running_lines(text: str, running: set[str]) -> str:
         line
         for index, line in enumerate(lines)
         if not (
-            (index < RUNNING_LINE_BAND or index >= last_band_start)
-            and _normalize(line) in running
+            (index < RUNNING_LINE_BAND or index >= last_band_start) and _normalize(line) in running
         )
     )
 

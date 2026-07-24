@@ -122,9 +122,7 @@ class TestRunningLineDetection:
             lines = page.text.splitlines()
             assert lines[0] != header, "band header survived stripping"
             assert lines[-1].strip() != "", "band footer line left an artifact"
-            assert header in lines, (
-                f"page {page.page_number}: mid-page body reference was deleted"
-            )
+            assert header in lines, f"page {page.page_number}: mid-page body reference was deleted"
             assert page.text.count(header) == 1
             assert "contractor shall" in page.text
 

@@ -31,9 +31,7 @@ def _page_images(page) -> list:
         return page.objects.get("image", [])
 
 
-def parse_pdf(
-    path: Path, *, sha256: str, file_id: str, filename: str | None = None
-) -> ParsedFile:
+def parse_pdf(path: Path, *, sha256: str, file_id: str, filename: str | None = None) -> ParsedFile:
     """Parse one PDF into a ParsedFile with per-page raw text and metrics.
 
     ``filename`` is the discovery-assigned name — the posix path relative to
@@ -55,9 +53,7 @@ def parse_pdf(
                 text = sanitize_text(page.extract_text(x_tolerance=3, y_tolerance=3) or "")
                 if page.page_number == 1:
                     # Must run before page.close() invalidates caches.
-                    first_page_layout_text = sanitize_text(
-                        page.extract_text(layout=True) or ""
-                    )
+                    first_page_layout_text = sanitize_text(page.extract_text(layout=True) or "")
                 pages.append(
                     PageInfo(
                         page_number=page.page_number,  # 1-indexed
