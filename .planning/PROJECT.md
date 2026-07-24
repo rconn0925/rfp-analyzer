@@ -58,7 +58,8 @@ Upload a real federal RFP and get back an accurate, fully populated compliance m
 | Fully automated pipeline (no human-in-the-loop for v1) | The wow-factor and product thesis is upload → finished matrix | — Pending |
 | Federal-only parsing for v1 | FAR structure (L/M/C) is standardized enough to parse reliably; other RFP types dilute focus | — Pending |
 | Hosted demo mode with sample RFP + fictional company profile | Job-hunt audience must experience the product in ~60 seconds without owning an RFP | — Pending |
-| Upload for v1 intake, SAM.gov fetch also in scope | Upload is the reliable baseline; SAM.gov fetch is a strong differentiator worth including | — Pending |
+| Upload for v1 intake, SAM.gov fetch also in scope | Upload is the reliable baseline; SAM.gov fetch is a strong differentiator worth including | — SAM.gov fetch + API key DEFERRED (2026-07-24); upload is the intake path, fetch is an optional Phase 5 add-on |
+| UCF structure is decisive over the cover form (2026-07-24) | A complete UCF A–M structure classifies full_ucf even under an SF1449/combined-synopsis cover, because compliance extraction keys off Sections A–M, not the cover form. Reverses the earlier Phase 1 "Open Question 1" default that treated the commercial-form signal as decisive | — Applied in Phase 1 (classify/package.py); primary golden-set package = full_ucf |
 
 ## Evolution
 
