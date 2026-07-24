@@ -19,6 +19,7 @@ from pathlib import Path
 import pdfplumber
 
 from rfp_analyzer.pipeline.models import PageInfo, ParsedFile
+from rfp_analyzer.pipeline.parsing import sanitize_text
 
 
 def _page_images(page) -> list:
@@ -48,10 +49,15 @@ def parse_pdf(
     try:
         with pdfplumber.open(path) as pdf:
             for page in pdf.pages:
-                text = page.extract_text(x_tolerance=3, y_tolerance=3) or ""
+                # Sanitize before metrics: a lone surrogate IS a glyph with no
+                # valid Unicode mapping, so counting it as a replacement char
+                # feeds the gibberish gate exactly the signal it looks for.
+                text = sanitize_text(page.extract_text(x_tolerance=3, y_tolerance=3) or "")
                 if page.page_number == 1:
                     # Must run before page.close() invalidates caches.
-                    first_page_layout_text = page.extract_text(layout=True) or ""
+                    first_page_layout_text = sanitize_text(
+                        page.extract_text(layout=True) or ""
+                    )
                 pages.append(
                     PageInfo(
                         page_number=page.page_number,  # 1-indexed

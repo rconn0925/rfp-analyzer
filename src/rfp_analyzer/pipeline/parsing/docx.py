@@ -22,6 +22,7 @@ from docx.table import Table
 from docx.text.paragraph import Paragraph
 
 from rfp_analyzer.pipeline.models import BlockInfo, ParsedFile
+from rfp_analyzer.pipeline.parsing import sanitize_text
 
 MAX_DOCX_UNCOMPRESSED = 1 * 1024**3
 """Total uncompressed-size cap (1 GiB) across all archive members."""
@@ -92,7 +93,7 @@ def parse_docx(
                     BlockInfo(
                         ordinal=i,
                         kind="paragraph",
-                        text=item.text,
+                        text=sanitize_text(item.text),
                         style=item.style.name if item.style is not None else None,
                     )
                 )
@@ -101,7 +102,9 @@ def parse_docx(
                     BlockInfo(
                         ordinal=i,
                         kind="table",
-                        table=[[cell.text for cell in row.cells] for row in item.rows],
+                        table=[
+                            [sanitize_text(cell.text) for cell in row.cells] for row in item.rows
+                        ],
                     )
                 )
     except Exception as exc:  # python-docx raises on malformed packages

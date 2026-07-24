@@ -18,6 +18,7 @@ from rfp_analyzer.pipeline.classify.forms import assign_doc_role
 from rfp_analyzer.pipeline.classify.package import classify_package
 from rfp_analyzer.pipeline.metrics import RunMetrics
 from rfp_analyzer.pipeline.models import DocumentMap, ParsedFile
+from rfp_analyzer.pipeline.parsing import sanitize_text
 from rfp_analyzer.pipeline.parsing.discover import discover_files
 from rfp_analyzer.pipeline.parsing.docx import parse_docx
 from rfp_analyzer.pipeline.parsing.pdf import parse_pdf
@@ -87,7 +88,7 @@ def run_pipeline(package_dir: Path) -> DocumentMap:
     )
 
     return DocumentMap(
-        package_name=package_dir.name,
+        package_name=sanitize_text(package_dir.name),
         classification=classification,
         classification_evidence=evidence,
         warnings=warnings,

@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Literal
 
 from rfp_analyzer.pipeline.models import ParsedFile
+from rfp_analyzer.pipeline.parsing import sanitize_text
 
 MAX_FILE_BYTES = 250 * 1024 * 1024
 """Per-file size cap. Module-level so it is corpus-tunable and test-patchable."""
@@ -113,7 +114,10 @@ def discover_files(package_dir: Path) -> list[DiscoveredFile]:
     """
     discovered: list[DiscoveredFile] = []
     for path in sorted(p for p in package_dir.rglob("*") if p.is_file()):
-        filename = path.relative_to(package_dir).as_posix()
+        # On POSIX, os.scandir surfaces undecodable filename bytes as lone
+        # surrogates (PEP 383 surrogateescape) — unserializable, same as
+        # hostile PDF text.
+        filename = sanitize_text(path.relative_to(package_dir).as_posix())
 
         # Containment first: never read a file whose real location escapes
         # the package dir (symlinks/junctions/crafted names — T-01-08).
