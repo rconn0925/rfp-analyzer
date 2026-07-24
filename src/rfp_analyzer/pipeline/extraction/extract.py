@@ -1,0 +1,204 @@
+"""Orchestration: turn chunks into grounded, atomic, typed Requirements.
+
+This is the chunk -> ground -> assemble wiring (EXTR-01/02/03). For each chunk it
+calls the model (via an injectable ``extract_fn`` so the whole path is
+CI-testable without a GPU), grounds every draft's ``verbatim_text`` through
+``build_source_ref`` (which threads ``chunk.doc_role`` onto the SourceRef on both
+the grounded and the ungroundable path), assigns content-derived stable ids, and
+reconciles each row's ``req_type`` from the owning section role.
+
+Honesty invariants preserved from the phase design:
+
+- **Ungroundable drafts are retained, never dropped** (``verified=False``,
+  ``page=None``) so hallucination and grounding bugs stay visible.
+- **Ids are deterministic and stable across re-runs**, including for ungroundable
+  rows (which have no grounded span to order by) — they fall back to the draft's
+  index within its chunk's batch.
+- **Atomic siblings share one verified SourceRef** but get distinct ids via
+  ``atomic_ord``, and link to their group's first row through ``parent_id``.
+- **``source_ref.doc_role`` survives onto the Requirement** so INTK-03 amendment
+  gating can distinguish amendment rows without re-reading the chunk.
+- **A per-chunk parse failure is isolated** — one bad chunk is skipped, the run
+  continues.
+
+Pure library code: it calls the (localhost-only) client through ``extract_fn``
+but imports no web/CLI/queue code itself.
+"""
+
+from collections import defaultdict
+from collections.abc import Callable, Iterable
+
+from rfp_analyzer.pipeline.extraction.client import ExtractionParseError, extract_chunk
+from rfp_analyzer.pipeline.grounding.normalize import normalize
+from rfp_analyzer.pipeline.grounding.verify import build_source_ref
+from rfp_analyzer.pipeline.ids import display_label, requirement_id
+from rfp_analyzer.pipeline.models import (
+    Chunk,
+    Requirement,
+    RequirementBatch,
+    RequirementDraft,
+    SourceRef,
+)
+
+ExtractFn = Callable[[str, str, int], RequirementBatch]
+"""Signature of the model-call dependency: ``(chunk_text, model, seed) -> batch``.
+Injectable so tests pass a fake batch without touching Ollama."""
+
+# EXTR-03: the COMPLETE SectionNode.role -> req_type map. Every role value the
+# schema allows is mapped explicitly; only role=None ever defers to the model's
+# type_guess. No role silently falls through.
+_ROLE_TO_REQ_TYPE: dict[str, str] = {
+    "instructions": "instruction",
+    "evaluation": "evaluation",
+    "sow_pws": "sow_pws",
+    "special_requirements": "special_requirements",
+    "clauses": "clause",
+    "attachments_list": "attachment",
+    "other": "other",
+}
+
+
+def _reconcile_type(role: str | None, type_guess: str) -> str:
+    """Return the req_type: the section role wins; type_guess only when role is None."""
+    if role is None:
+        return type_guess
+    # Every enum role value is in the map; an unexpected value degrades to the
+    # model guess rather than inventing a type.
+    return _ROLE_TO_REQ_TYPE.get(role, type_guess)
+
+
+def _root_index(drafts: list[RequirementDraft], i: int) -> int:
+    """Return the group-root draft index for draft ``i``.
+
+    A standalone or first-of-group draft (``parent_index is None``) roots itself;
+    a sibling points ``parent_index`` at the group's first row. Out-of-range or
+    self-referential parents degrade to self-rooting (defensive against a stray
+    model index).
+    """
+    parent = drafts[i].parent_index
+    if parent is None:
+        return i
+    if 0 <= parent < len(drafts) and parent != i:
+        return parent
+    return i
+
+
+def _atomic_ords(drafts: list[RequirementDraft]) -> dict[int, int]:
+    """Assign each draft its ordinal within its atomic-sibling group (0-based).
+
+    Siblings share one ``verbatim_text``; ``atomic_ord`` is what keeps their
+    otherwise-identical stable-id keys distinct. The root (smallest index) gets
+    0, later siblings 1, 2, ... in array order.
+    """
+    groups: dict[int, list[int]] = defaultdict(list)
+    for i in range(len(drafts)):
+        groups[_root_index(drafts, i)].append(i)
+    ords: dict[int, int] = {}
+    for members in groups.values():
+        for ordinal, i in enumerate(sorted(members)):
+            ords[i] = ordinal
+    return ords
+
+
+def _occurrences(drafts: list[RequirementDraft], refs: list[SourceRef]) -> dict[int, int]:
+    """Assign each draft its ``occurrence`` index for the stable-id key.
+
+    Two regimes, both deterministic and re-run-stable:
+
+    - GROUNDED (``verified``): rank of the draft's grounded ``(page, char_start)``
+      span among the distinct grounded positions of the same normalized verbatim
+      within this chunk. Identical verbatims ground to the same span, so they
+      share occurrence 0 and collapse under de-duplication — intended for
+      overlap-window dupes.
+    - UNGROUNDABLE: no grounded span to order by, so fall back to the draft's
+      index within the chunk's batch. Chunks come from deterministic
+      ``iter_chunks`` order, so unverified rows still get stable, identical ids
+      across re-runs and never collide with one another.
+    """
+    positions: dict[str, list[tuple[int, int]]] = defaultdict(list)
+    for draft, ref in zip(drafts, refs, strict=True):
+        if ref.verified:
+            key = (ref.page if ref.page is not None else -1,
+                   ref.char_start if ref.char_start is not None else -1)
+            bucket = positions[normalize(draft.verbatim_text)]
+            if key not in bucket:
+                bucket.append(key)
+    for bucket in positions.values():
+        bucket.sort()
+
+    occ: dict[int, int] = {}
+    for i, (draft, ref) in enumerate(zip(drafts, refs, strict=True)):
+        if ref.verified:
+            key = (ref.page if ref.page is not None else -1,
+                   ref.char_start if ref.char_start is not None else -1)
+            occ[i] = positions[normalize(draft.verbatim_text)].index(key)
+        else:
+            occ[i] = i
+    return occ
+
+
+def extract_requirements(
+    chunks: Iterable[Chunk],
+    model: str,
+    seed: int = 7,
+    extract_fn: ExtractFn = extract_chunk,
+) -> list[Requirement]:
+    """Assemble grounded, atomic, stably-identified Requirements from chunks.
+
+    ``extract_fn`` is the injected model call (defaults to the real Ollama
+    client); tests pass a fake that returns canned batches so the full assembly
+    runs without a GPU. Requirements are returned in chunk-then-draft order with
+    de-duplication by ``requirement_id`` (overlap-window dupes collapse).
+    """
+    out: list[Requirement] = []
+    seen: set[str] = set()
+    section_ordinals: dict[str, int] = defaultdict(int)
+
+    for chunk in chunks:
+        try:
+            batch = extract_fn(chunk.text, model, seed)
+        except ExtractionParseError:
+            # Isolated per-chunk failure (Pitfall 3): skip this chunk, keep going.
+            continue
+
+        drafts = list(batch.requirements)
+        if not drafts:
+            continue
+
+        refs = [build_source_ref(d.verbatim_text, chunk) for d in drafts]
+        atomic_ord = _atomic_ords(drafts)
+        occurrence = _occurrences(drafts, refs)
+
+        # Stable ids for every draft first, so a child can resolve its root's id.
+        draft_ids = [
+            requirement_id(chunk.file_id, d.verbatim_text, occurrence[i], atomic_ord[i])
+            for i, d in enumerate(drafts)
+        ]
+
+        for i, draft in enumerate(drafts):
+            rid = draft_ids[i]
+            if rid in seen:
+                continue  # overlap-window / duplicate extraction — collapse
+            seen.add(rid)
+
+            root = _root_index(drafts, i)
+            parent_id = draft_ids[root] if root != i else None
+
+            section_ordinals[chunk.section_label] += 1
+            label = display_label(chunk.section_label, section_ordinals[chunk.section_label])
+
+            out.append(
+                Requirement(
+                    requirement_id=rid,
+                    display_label=label,
+                    verbatim_text=draft.verbatim_text,
+                    atomic_obligation=draft.atomic_obligation,
+                    binding_keyword=draft.binding_keyword,
+                    req_type=_reconcile_type(chunk.role, draft.type_guess),
+                    source_ref=refs[i],
+                    verified=refs[i].verified,
+                    parent_id=parent_id,
+                )
+            )
+
+    return out
