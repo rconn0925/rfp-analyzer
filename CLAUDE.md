@@ -20,34 +20,33 @@ It serves Ross's own business first, doubles as a portfolio showcase for the job
 <!-- GSD:stack-start source:research/STACK.md -->
 ## Technology Stack
 
-> ### ⚠️ STACK UPDATE (2026-07-24): LLM layer is LOCAL, not the Anthropic API
+> ### ⚠️ STACK UPDATE (2026-07-24, FINAL): the extraction engine is CLAUDE CODE on Ross's subscription
 >
-> **Decision (Ross):** never use an Anthropic API key. Reason: the subscription
-> path is technically impossible and ToS-blocked for a backend/hosted app, and
-> per-token API cost is unwanted. **All Claude/Anthropic rows below are SUPERSEDED
-> for the LLM layer** — they remain only as original research context.
+> **Decision (Ross, stated repeatedly):** use his Claude subscription — no API key,
+> no per-token cost, no local model. An app cannot authenticate to Claude with a
+> Pro/Max subscription (API-key-only; hosted multi-user use is ToS-blocked), so the
+> only legitimate way to use the sub is **Claude Code itself as the extraction engine**:
+> Claude (running on Ross's sub, interactively / via a project skill) reads the parsed
+> RFP and produces the requirements. This is a **personal / interactive tool, not a
+> hosted public demo.**
 >
-> **The LLM layer (Phase 2 extraction, Phase 3 cross-mapping + compliance judgment) uses:**
-> - **Runtime:** Ollama (installed, v0.32.3), serving on `http://localhost:11434`
->   with an OpenAI-compatible `/v1` endpoint and JSON-schema structured outputs via
->   the `format` parameter. Runs on the local **AMD RX 7900 XTX (24 GB VRAM)** via
->   ROCm; Vulkan (llama.cpp/LM Studio) is the fallback if ROCm is unstable on Windows.
-> - **Model:** Qwen2.5-32B-Instruct (Q4, quality) with Qwen2.5-14B-Instruct
->   (faster fallback); the Phase 2 recall/precision evals pick the winner. NOT Sonnet 5.
-> - **Structured outputs:** SURVIVES — Ollama JSON-schema `format` keeps the Phase 1
->   Pydantic contract. Do NOT use `client.messages.parse()`.
-> - **Citations:** the Citations API is gone, but the grounding design never trusted
->   LLM citations — page refs are computed from the Phase 1 document map and
->   string-match verified. No capability lost. This is now mandatory, not optional.
-> - **Files API / Batch API:** N/A (local, no upload limits, no per-token cost).
-> - **Demo (Phase 5):** precompute the demo RFP with the local model once, serve the
->   cached result at $0. A local model cannot serve a public multi-user demo live.
+> **SUPERSEDES the earlier local-Ollama+Qwen banner AND all anthropic-API rows below.**
+> - **Extraction/judgment brain:** Claude Code on the subscription. NOT the `anthropic`
+>   SDK / `messages.parse()` (API key), NOT Ollama/Qwen (local model — abandoned).
+> - **Flow:** pure-Python pipeline parses + chunks a package → Claude Code produces
+>   requirement JSON conforming to the Pydantic `Requirement` schema → pure-Python
+>   grounding (rapidfuzz verify) + keyword sweep + amendment flagging validate/enrich
+>   → export. The eval harness scores Claude's extraction against the golden set.
+> - **Grounding:** unchanged — page refs computed from the document map + string-match
+>   verified; no LLM-generated citation trusted. Mandatory.
 >
-> **Unchanged and still authoritative:** Python 3.12 / FastAPI / Uvicorn / pdfplumber /
-> python-docx / XlsxWriter / Pydantic / SQLAlchemy+Postgres / RQ+Redis / React+Vite /
-> Railway / R2 — only the model-inference client changes. `anthropic`, `tenacity`
-> (for API 429s) and the Batch/Files/Citations rows are the parts that no longer apply.
-> Full rationale in agent memory: `local-llm-stack-decision`, `no-api-key-use-claude-subscription`.
+> **KEEP (LLM-agnostic, already built):** Phase 1 parsing; Requirement/SourceRef schema;
+> rapidfuzz grounding; chunker + keyword sweep + SF30 flagging; the golden set; the
+> recall/precision eval harness. **RETIRE:** the Ollama client and the model bake-off.
+> **Unchanged infra rows below** (pdfplumber / python-docx / XlsxWriter / Pydantic /
+> Postgres etc.) still hold where they apply; hosting (Phases 4-5) is reframed away from
+> a live multi-user inference demo. Rationale in agent memory:
+> `claude-code-is-the-extraction-engine` (decisive), `no-api-key-use-claude-subscription`.
 
 ## Big-Picture Decision: Python Backend, Not Node
 ## Recommended Stack
