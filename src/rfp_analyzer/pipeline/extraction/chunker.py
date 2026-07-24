@@ -40,13 +40,16 @@ _PAGE_JOINER = "\n"
 are therefore excluded from every page_map range."""
 
 
-def iter_chunks(document_map: DocumentMap, max_input_chars: int = 48000) -> Iterator[Chunk]:
+def iter_chunks(document_map: DocumentMap, max_input_chars: int = 24000) -> Iterator[Chunk]:
     """Yield section-scoped :class:`Chunk` windows over every ok file/section.
 
     ``max_input_chars`` caps each chunk's concatenated text; sections larger
-    than the cap are split into overlapping page windows. The default (48000)
-    is an eval-tunable budget that reserves room for model output (RESEARCH
-    Open Question 1).
+    than the cap are split into overlapping page windows. The default (24000,
+    ~6000 tokens) keeps each grammar-constrained model call small enough to
+    complete reliably — an earlier 48000-char (~12k-token) chunk stalled the
+    generation and wedged a full-corpus run. Smaller windows preserve recall
+    (every page is still covered, just across more chunks) while bounding
+    per-call latency. Eval-tunable (RESEARCH Open Question 1).
     """
     for file in document_map.files:
         if file.parse_status != "ok":

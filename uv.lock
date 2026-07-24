@@ -819,6 +819,7 @@ name = "rfp-analyzer"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "httpx" },
     { name = "ollama" },
     { name = "pdfplumber" },
     { name = "pydantic" },
@@ -835,6 +836,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "ollama", specifier = ">=0.6.2" },
     { name = "pdfplumber", specifier = ">=0.11.10" },
     { name = "pydantic", specifier = ">=2.13.4" },
