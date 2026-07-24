@@ -6,10 +6,12 @@ from rfp_analyzer.pipeline.quality.gates import (
     classify_page,
     compute_page_metrics,
 )
+from rfp_analyzer.pipeline.quality.headers import apply_quality
 
 __all__ = [
     "DEFAULT_THRESHOLDS",
     "QualityThresholds",
+    "apply_quality",
     "classify_page",
     "compute_page_metrics",
 ]

@@ -10,10 +10,12 @@ from rfp_analyzer.pipeline.quality.headers import (
     detect_running_lines,
 )
 
-WORDS = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliett"]
+WORDS = ["alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "julie"]
 
 
-def make_page(number: int, text: str, *, char_count: int | None = None, has_images: float = 0.0) -> PageInfo:
+def make_page(
+    number: int, text: str, *, char_count: int | None = None, has_images: float = 0.0
+) -> PageInfo:
     return PageInfo(
         page_number=number,
         quality="pending",
@@ -42,7 +44,7 @@ def make_pdf_file(pages: list[PageInfo], *, parse_status: str = "ok") -> ParsedF
 def body_lines(word: str) -> list[str]:
     return [
         f"The contractor shall provide services for item {word} under this solicitation package.",
-        f"Additional prose regarding deliverables {word} continues here with substantially more detail.",
+        f"Additional prose regarding deliverables {word} continues here with more detail.",
     ]
 
 
@@ -51,9 +53,7 @@ def make_running_header_file() -> ParsedFile:
     pages = []
     for i in range(1, 10):
         word = WORDS[i - 1]
-        text = "\n".join(
-            ["SOLICITATION W912DY-26-R-0012", *body_lines(word), f"Page {i} of 10"]
-        )
+        text = "\n".join(["SOLICITATION W912DY-26-R-0012", *body_lines(word), f"Page {i} of 10"])
         pages.append(make_page(i, text))
     pages.append(make_page(10, "\n".join(body_lines(WORDS[9]))))
     return make_pdf_file(pages)
