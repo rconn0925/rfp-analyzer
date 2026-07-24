@@ -122,3 +122,119 @@ class DocumentMap(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     files: list[ParsedFile] = Field(default_factory=list)
     metrics: RunMetrics = Field(default_factory=RunMetrics)
+
+
+# --- Phase 2: requirement extraction & grounding contract ---------------------
+
+
+class SourceRef(BaseModel):
+    """Computed, string-match-verified provenance for one requirement (EXTR-02).
+
+    Never a model-emitted citation: ``page``/``char_start``/``char_end`` are
+    located in the source page text after normalization. ``doc_role`` carries
+    the owning ParsedFile.doc_role so INTK-03 amendment gating can distinguish
+    amendment rows from base rows without re-reading the chunk — provenance kept
+    explicit and reusable rather than an ``is_amendment`` bool. An unverifiable
+    reference is representable (``verified=False``, ``page=None``), never forced
+    to invent a page.
+    """
+
+    file_id: str
+    filename: str
+    section_label: str | None = None
+    page: int | None = None
+    char_start: int | None = None
+    char_end: int | None = None
+    match: Literal["exact", "fuzzy", "none"]
+    score: float
+    verified: bool
+    doc_role: str
+
+
+class RequirementDraft(BaseModel):
+    """One model-extracted obligation before grounding and stable-ID assignment.
+
+    Doubles as the Ollama ``format`` schema, so it stays flat — Literal enums
+    only, no constrained numerics, no recursive nesting. ``verbatim_text`` is the
+    exact source span (this grounds); ``atomic_obligation`` is the single-duty
+    rewrite (display/analysis text, never grounded).
+    """
+
+    verbatim_text: str
+    atomic_obligation: str
+    binding_keyword: Literal["shall", "must", "will", "should", "shall not", "none"]
+    type_guess: Literal[
+        "instruction",
+        "evaluation",
+        "sow_pws",
+        "special_requirements",
+        "clause",
+        "attachment",
+        "other",
+    ]
+    parent_index: int | None = None
+
+
+class RequirementBatch(BaseModel):
+    """A chunk's worth of extracted drafts — the Ollama structured-output root."""
+
+    requirements: list[RequirementDraft] = Field(default_factory=list)
+
+
+class Chunk(BaseModel):
+    """One section-scoped extraction window plus its page-offset map (EXTR-01).
+
+    ``page_map`` records ``(char_start, char_end, page_number)`` per page so a
+    grounded span located in ``text`` maps back to a source page number.
+    """
+
+    file_id: str
+    filename: str
+    section_label: str
+    role: str | None = None
+    doc_role: str
+    text: str
+    page_map: list[tuple[int, int, int]] = Field(default_factory=list)
+
+
+class Requirement(BaseModel):
+    """A grounded, stably-identified requirement row — the extraction deliverable.
+
+    ``requirement_id`` is the content-derived stable key (never renumbered);
+    ``display_label`` is the human label (renumberable). Amendment provenance
+    (``is_amendment_change``, ``possibly_modified``, ``affects``) lets INTK-03
+    flag modified rows without silently merging them.
+    """
+
+    requirement_id: str
+    display_label: str
+    verbatim_text: str
+    atomic_obligation: str
+    binding_keyword: str
+    req_type: str
+    source_ref: SourceRef
+    verified: bool
+    parent_id: str | None = None
+    is_amendment_change: bool = False
+    possibly_modified: bool = False
+    affects: list[str] = Field(default_factory=list)
+
+
+class MissedCandidate(BaseModel):
+    """A deterministic-sweep keyword hit not covered by any extraction (EXTR-05)."""
+
+    file_id: str
+    page: int
+    verbatim_sentence: str
+    binding_keyword: str
+
+
+class RequirementSet(BaseModel):
+    """Root artifact for one extraction run — serialized to ``requirements.json``."""
+
+    schema_version: str = "1.0"
+    package_name: str = ""
+    model_name: str = ""
+    requirements: list[Requirement] = Field(default_factory=list)
+    missed_candidates: list[MissedCandidate] = Field(default_factory=list)
+    metrics: RunMetrics = Field(default_factory=RunMetrics)
