@@ -94,7 +94,9 @@ class ParsedFile(BaseModel):
     file_id: str
     filename: str
     sha256: str
-    file_type: Literal["pdf", "docx"]
+    file_type: Literal["pdf", "docx", "other"]
+    """"other" is only valid on rejected records (unsupported/blocked files);
+    parsed files are always "pdf" or "docx"."""
     parse_status: Literal["ok", "failed", "rejected"]
     error: str | None = None
     doc_role: Literal["base_solicitation", "amendment", "attachment", "unknown"] = "unknown"

@@ -43,11 +43,7 @@ def build_minimal_pdf_bytes(pages: list[str]) -> bytes:
         )
         stream = f"BT /F1 12 Tf 72 720 Td ({_pdf_escape(text)}) Tj ET".encode()
         objects.append(
-            b"<< /Length "
-            + str(len(stream)).encode()
-            + b" >>\nstream\n"
-            + stream
-            + b"\nendstream"
+            b"<< /Length " + str(len(stream)).encode() + b" >>\nstream\n" + stream + b"\nendstream"
         )
 
     out = bytearray(b"%PDF-1.4\n")
