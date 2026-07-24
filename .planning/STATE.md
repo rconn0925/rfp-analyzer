@@ -75,7 +75,8 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 2]: Unverified whether Citations API + structured outputs combine in one call — validate during Phase 2 planning (fallback design exists)
+- [Phase 2]: RESOLVED/MOOT — LLM layer moved to a local model (Ollama + Qwen2.5 on the RX 7900 XTX; no Anthropic API). No Citations API; grounding is string-match verification against the Phase 1 document map (always the design). Local inference validated 2026-07-24: 100% GPU, JSON-schema structured outputs working, ~50 tok/s at 14B.
+- [Phase 2]: Golden set — the primary RFP (N4008526R0033) must be hand-shredded into ground-truth requirements to measure recall/precision (success criterion 5). Agent can draft; human validation makes it trustworthy as ground truth. Surface as a checkpoint during Phase 2.
 
 ## Deferred Items
 
