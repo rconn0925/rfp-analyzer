@@ -3,7 +3,7 @@
     {
       "dir": "primary-ucf",
       "role": "primary",
-      "expected_classification": "partial_ucf",
+      "expected_classification": "full_ucf",
       "has_amendment": true,
       "has_scanned_pages": false,
       "solicitation_number": "N4008526R0033",

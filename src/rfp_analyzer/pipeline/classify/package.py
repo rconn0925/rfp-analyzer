@@ -9,14 +9,20 @@ carries non-empty human-readable evidence, and every non-``full_ucf``
 outcome carries at least one warning. An empty section tree plus explicit
 warnings is a legal answer; a fabricated UCF tree never is.
 
-Open Question 1 rule: form signal and structure signal are independent — an
-SF1449/combined-synopsis package WITH detected L/M sections is
-``partial_ucf``, never ``non_ucf_commercial``. "Detected sections" for this
-rule means UCF *letter* sections: role-title-only nodes (a SOW attachment,
-"Evaluation Factors" prose) are native to every FAR Part 12 package and must
-not flip a commercial package to ``partial_ucf`` (corpus evidence: the
-non-ucf-part12 specimen carries SOW and evaluation role titles but zero
-letter sections).
+Structure-is-decisive rule (Ross 2026-07-24, reversing the earlier Open
+Question 1 default): a package with a complete, well-ordered UCF A–M structure
+(Sections L, M, and C all detected) is ``full_ucf`` even when the cover form is
+an SF1449 or FAR 12.603 combined synopsis. Downstream compliance extraction
+keys off Sections A–M, not the cover form, so the actual solicitation
+organization wins over the cover-form signal. A commercial cover is recorded as
+evidence, not a downgrade. The commercial-form signal only governs where UCF
+letter structure is absent or incomplete: SF1449/combined-synopsis WITH *no*
+UCF letter sections is ``non_ucf_commercial``; WITH some-but-not-all of L/M/C it
+is ``partial_ucf``. "Detected sections" for this rule means UCF *letter*
+sections: role-title-only nodes (a SOW attachment, "Evaluation Factors" prose)
+are native to every FAR Part 12 package and must not flip a commercial package
+to ``partial_ucf`` (corpus evidence: the non-ucf-part12 specimen carries SOW and
+evaluation role titles but zero letter sections).
 """
 
 from typing import Literal
@@ -117,10 +123,20 @@ def classify_package(
                 "section ordering is not sane UCF order."
             )
 
+    if commercial_signal:
+        # A commercial cover form (SF1449/combined synopsis) is recorded but does
+        # not by itself decide the class — structure is decisive (see module
+        # docstring). It only governs the no-letter-structure case below.
+        evidence.append(
+            "Commercial cover form present (SF1449/FAR 12.603 combined synopsis); "
+            "classification driven by the solicitation's Section A–M structure, "
+            "not the cover form."
+        )
+
     if commercial_signal and not any_letter_sections:
         # Role-title content (SOW attachments, evaluation prose) is native to
-        # FAR Part 12 packages — only UCF *letter* sections contradict the
-        # commercial-form signal (Open Question 1, corpus-tuned in 01-06).
+        # FAR Part 12 packages — only UCF *letter* sections establish real UCF
+        # structure. No letter sections + a commercial form => non-UCF.
         warnings.append(
             "Non-UCF commercial package (SF1449 or FAR 12.603 combined synopsis); "
             "no Section L/M/C structure exists to extract — matrix columns that "
@@ -128,21 +144,20 @@ def classify_package(
         )
         return "non_ucf_commercial", evidence, warnings
 
-    if commercial_signal and any_letter_sections:
-        warnings.append(
-            "Commercial-form signal (SF1449/combined synopsis) found alongside "
-            "detected UCF sections; classifying partial_ucf — form and structure "
-            "signals are independent (verify package format)."
-        )
-        warnings.extend(_MISSING_WARNINGS[key] for key in ("L", "M", "C") if not has[key])
-        return "partial_ucf", evidence, warnings
-
     if has["L"] and has["M"] and has["C"]:
         if disordered:
             return "partial_ucf", evidence, warnings
+        # Complete, well-ordered UCF A–M structure => full_ucf, even under a
+        # commercial cover form (structure is decisive).
         return "full_ucf", evidence, warnings
 
     if any(has.values()):
+        if commercial_signal:
+            warnings.append(
+                "Commercial-form signal (SF1449/combined synopsis) found alongside "
+                "an incomplete UCF letter structure; classifying partial_ucf "
+                "(verify package format)."
+            )
         warnings.extend(_MISSING_WARNINGS[key] for key in ("L", "M", "C") if not has[key])
         return "partial_ucf", evidence, warnings
 

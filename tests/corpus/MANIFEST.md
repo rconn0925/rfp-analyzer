@@ -17,12 +17,13 @@ keyless attachment endpoints (`/api/prod/opps/v3/opportunities/resources/files/{
 - **Notice type:** Solicitation (RFP)
 - **Agency:** DoD / Department of the Navy / NAVFAC
 - **Title:** MCAS Beaufort and Laurel Bay Base Operation Support (services)
-- **Role:** `primary` — expected classification `partial_ucf`
-  (initially hypothesized `full_ucf`; page-1 inspection during plan 01-06 verified the base
-  solicitation is an SF1449 — "SOLICITATION/CONTRACT/ORDER FOR COMMERCIAL PRODUCTS AND
-  COMMERCIAL SERVICES" — carrying a complete UCF A–M section structure. Per the Open
-  Question 1 rule, a commercial-form signal alongside UCF letter sections classifies
-  `partial_ucf` with a "verify package format" warning — the honest answer for this hybrid.)
+- **Role:** `primary` — expected classification `full_ucf`
+  (The base solicitation is an SF1449 — "SOLICITATION/CONTRACT/ORDER FOR COMMERCIAL PRODUCTS
+  AND COMMERCIAL SERVICES" — carrying a complete UCF A–M section structure. Per the
+  structure-is-decisive rule (Ross 2026-07-24, reversing the earlier Open Question 1 default):
+  a complete, well-ordered L/M/C structure classifies `full_ucf` even under a commercial cover
+  form, because downstream compliance extraction keys off Sections A–M, not the cover form.
+  The commercial cover is recorded as evidence, not a downgrade.)
 - **Selection rationale:** Rare current DoD services RFP with real attachments hosted on SAM.gov
   (most current DoD notices are PIEE-link-only). Full UCF structure with verified extractable
   "SECTION L" and "SECTION M" headings in the base solicitation; **two** SF30 amendments (both

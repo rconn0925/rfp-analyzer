@@ -94,7 +94,9 @@ class TestClassifyPackage:
         assert any("Section M" in w for w in warnings)
 
     def test_sf1449_with_detected_lm_is_partial_not_non_ucf(self):
-        # Open Question 1: form signal and structure signal are independent.
+        # SF1449 cover + L and M but no C => partial_ucf (incomplete UCF letter
+        # structure, missing C), NOT non_ucf_commercial. The commercial form does
+        # not force non-UCF once real letter sections are present.
         base = make_file(
             "base.pdf",
             [section("L", 10, 19, role="instructions"), section("M", 20, 24, role="evaluation")],
@@ -103,6 +105,36 @@ class TestClassifyPackage:
         classification, evidence, warnings = classify_package([base])
         assert classification == "partial_ucf"
         assert any("SF1449" in e for e in evidence)
+        assert warnings
+
+    def test_sf1449_with_complete_lmc_is_full_ucf(self):
+        # Structure-is-decisive (Ross 2026-07-24): a complete, well-ordered UCF
+        # A–M structure classifies full_ucf even under an SF1449 commercial cover
+        # form — downstream extraction keys off Sections A–M, not the cover form.
+        # This is the primary corpus package's shape (N4008526R0033).
+        base = make_file("base.pdf", full_ucf_sections(), SF1449_TEXT)
+        classification, evidence, warnings = classify_package([base])
+        assert classification == "full_ucf"
+        assert any("SF1449" in e for e in evidence)
+        # The commercial cover is recorded as evidence, not a downgrade.
+        assert any("cover form" in e.lower() for e in evidence)
+        # full_ucf is the one class allowed to carry no warnings.
+        assert warnings == []
+
+    def test_disordered_lmc_under_sf1449_stays_partial(self):
+        # Structure decides, but only a *well-ordered* L/M/C is full_ucf. M before
+        # L is not sane UCF order => partial_ucf even with all three present.
+        base = make_file(
+            "base.pdf",
+            [
+                section("C", 8, 19, role="sow_pws"),
+                section("M", 30, 34, role="evaluation"),
+                section("L", 40, 49, role="instructions"),
+            ],
+            SF1449_TEXT,
+        )
+        classification, _evidence, warnings = classify_package([base])
+        assert classification == "partial_ucf"
         assert warnings
 
     def test_sf1449_with_role_only_nodes_is_non_ucf_commercial(self):
