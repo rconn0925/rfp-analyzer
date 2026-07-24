@@ -241,6 +241,39 @@ class TestTocDisambiguation:
         sections = build_section_tree(make_pdf_file(pages))
         assert {s.label for s in sections} == {"C", "J", "M"}
 
+    def test_docx_word_toc_role_title_does_not_fabricate_a_node(self):
+        # WR-07 regression: the TOC-trailing guard only covered the `heading`
+        # signal, so a Word TOC entry like "STATEMENT OF WORK .......... 12"
+        # matched match_role_title (substring) and — in a file with no letter
+        # sections — became a top-level SOW node whose locator pointed at the
+        # TOC block instead of the content.
+        blocks = [
+            BlockInfo(ordinal=0, kind="paragraph", text="TABLE OF CONTENTS", style="Normal"),
+            BlockInfo(
+                ordinal=1, kind="paragraph", text="STATEMENT OF WORK .......... 12", style="Normal"
+            ),
+            BlockInfo(
+                ordinal=2,
+                kind="paragraph",
+                text="PROPOSAL SUBMISSION INSTRUCTIONS .......... 27",
+                style="Normal",
+            ),
+        ]
+        for i in range(3, 12):
+            blocks.append(BlockInfo(ordinal=i, kind="paragraph", text=BODY, style="Normal"))
+        blocks.append(
+            BlockInfo(ordinal=12, kind="paragraph", text="STATEMENT OF WORK", style="Heading 1")
+        )
+        for i in range(13, 20):
+            blocks.append(BlockInfo(ordinal=i, kind="paragraph", text=BODY, style="Normal"))
+
+        sections = build_section_tree(make_docx_file(blocks))
+        assert len(sections) == 1
+        node = sections[0]
+        assert node.role == "sow_pws"
+        assert node.detection == "role_title"
+        assert node.locator.block_start == 12, "node anchored to the TOC block, not the content"
+
     def test_zero_candidates_yields_honest_empty_list(self):
         # Never fabricate nodes; scanned pages (text == "") contribute nothing.
         body_only = make_pdf_file([make_page(1, BODY), make_page(2, BODY)])

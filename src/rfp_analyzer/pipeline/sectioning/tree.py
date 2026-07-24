@@ -245,8 +245,9 @@ def build_section_tree(file: ParsedFile) -> list[SectionNode]:
     top-level headings must be leading lines (A7). DOCX: candidates come
     from block text — style names are unreliable in federal documents
     (Pitfall 4), so text heuristics run on every block regardless of style,
-    with TOC-style lines (dot leaders / trailing page numbers) skipped.
-    Never emits a node without a matched signal.
+    with TOC-style lines (dot leaders / trailing page numbers) skipped
+    regardless of which signal matched them. Never emits a node without a
+    matched signal.
     """
     if file.parse_status != "ok":
         return []
@@ -289,8 +290,13 @@ def build_section_tree(file: ParsedFile) -> list[SectionNode]:
             for cand in find_heading_candidates(block.text):
                 if _is_cross_reference(cand):
                     continue  # prose about a section, not the section itself
-                if cand.signal == "heading" and _TOC_TRAILING_RE.search(cand.title):
-                    continue  # Word-generated TOC line, not a section start
+                if _TOC_TRAILING_RE.search(cand.title):
+                    # Word-generated TOC line, not a section start. Applies to
+                    # every signal: a role-title entry like "STATEMENT OF WORK
+                    # .......... 12" is a substring match, so guarding only
+                    # `heading` let it become a top-level SOW node whose
+                    # locator pointed at the TOC block instead of the content.
+                    continue
                 occ = _Occurrence(pos=(block.ordinal, cand.line_index), candidate=cand)
                 if cand.signal == "heading":
                     heading_occs.append(occ)
