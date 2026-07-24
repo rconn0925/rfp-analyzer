@@ -105,6 +105,23 @@ class TestClassifyPackage:
         assert any("SF1449" in e for e in evidence)
         assert warnings
 
+    def test_sf1449_with_role_only_nodes_is_non_ucf_commercial(self):
+        # Corpus evidence (non-ucf-part12): FAR Part 12 packages natively
+        # carry SOW / evaluation role titles — role-title-only nodes must not
+        # flip a commercial package to partial_ucf. Only letter sections do.
+        base = make_file(
+            "base.pdf",
+            [
+                section("SOW", 2, 5, role="sow_pws", detection="role_title"),
+                section("EVALUATION", 15, 15, role="evaluation", detection="role_title"),
+            ],
+            SF1449_TEXT,
+        )
+        classification, evidence, warnings = classify_package([base])
+        assert classification == "non_ucf_commercial"
+        assert any("SF1449" in e for e in evidence)
+        assert warnings
+
     def test_sf1449_without_ucf_sections_is_non_ucf_commercial(self):
         base = make_file("base.pdf", [], SF1449_TEXT)
         classification, evidence, warnings = classify_package([base])

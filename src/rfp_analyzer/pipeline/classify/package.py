@@ -11,7 +11,12 @@ warnings is a legal answer; a fabricated UCF tree never is.
 
 Open Question 1 rule: form signal and structure signal are independent — an
 SF1449/combined-synopsis package WITH detected L/M sections is
-``partial_ucf``, never ``non_ucf_commercial``.
+``partial_ucf``, never ``non_ucf_commercial``. "Detected sections" for this
+rule means UCF *letter* sections: role-title-only nodes (a SOW attachment,
+"Evaluation Factors" prose) are native to every FAR Part 12 package and must
+not flip a commercial package to ``partial_ucf`` (corpus evidence: the
+non-ucf-part12 specimen carries SOW and evaluation role titles but zero
+letter sections).
 """
 
 from typing import Literal
@@ -112,7 +117,10 @@ def classify_package(
                 "section ordering is not sane UCF order."
             )
 
-    if commercial_signal and not ucf_structure:
+    if commercial_signal and not any_letter_sections:
+        # Role-title content (SOW attachments, evaluation prose) is native to
+        # FAR Part 12 packages — only UCF *letter* sections contradict the
+        # commercial-form signal (Open Question 1, corpus-tuned in 01-06).
         warnings.append(
             "Non-UCF commercial package (SF1449 or FAR 12.603 combined synopsis); "
             "no Section L/M/C structure exists to extract — matrix columns that "
@@ -120,7 +128,7 @@ def classify_package(
         )
         return "non_ucf_commercial", evidence, warnings
 
-    if commercial_signal and ucf_structure:
+    if commercial_signal and any_letter_sections:
         warnings.append(
             "Commercial-form signal (SF1449/combined synopsis) found alongside "
             "detected UCF sections; classifying partial_ucf — form and structure "
