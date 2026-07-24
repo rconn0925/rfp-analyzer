@@ -46,6 +46,11 @@ findings:
   info: 11
   total: 19
 status: issues_found
+fixes_applied: 2026-07-24
+fixes_scope: critical_warning
+fixes_fixed: 8
+fixes_skipped: 0
+fixes_deferred: 11
 ---
 
 # Phase 1: Code Review Report
@@ -65,6 +70,25 @@ The Phase 1 pipeline (discover → parse → quality → sectioning → classify
 4. The `_choose_start` heuristic does the opposite of its docstring for mid-document cross-references (WR-06).
 
 None of the quick-scan security patterns (hardcoded secrets, eval/exec, debug artifacts, empty catches) were found. The regex DoS posture (T-01-12) checks out: all patterns are anchored with bounded quantifiers, and there is an adversarial timing test.
+
+## Fix Outcomes (2026-07-24)
+
+All Critical + Warning findings were fixed; Info findings are deferred by scope.
+
+| ID | Outcome | Commit |
+|----|---------|--------|
+| CR-01 | fixed | `a01833d` |
+| WR-01 | fixed | `d4bf9fb` |
+| WR-02 | fixed | `fc4c2b6` |
+| WR-04 | fixed | `836b9ab` |
+| WR-03 | fixed | `01af513` |
+| WR-05 | fixed (adapted) | `4ff042f` |
+| WR-06 | fixed (option B) | `ecc65c0` |
+| WR-07 | fixed (adapted) | `efcf6a7` |
+| IN-01..IN-11 | deferred | out of fix scope |
+
+Suites after fixes: unit 124 passed / 1 skipped, integration 10 passed
+(real 3-package corpus), `ruff check` + `ruff format --check` clean.
 
 ## Critical Issues
 
@@ -99,6 +123,13 @@ for path in sorted(p for p in package_dir.rglob("*") if p.is_file()):
 ```
 (Reuse `size` for the cap check instead of re-calling `stat()`; see WR-01 for ordering.)
 
+**Outcome: FIXED** (`a01833d`). Confirmed accurate. `stat()` and `_file_identity`'s
+`open()` are now guarded, producing a `rejected` record with `unreadable file: {exc}`;
+`_is_within` fails closed on `resolve()` OSError; the duplicate `stat()` is gone.
+Regression tests: `test_unreadable_file_rejected_not_raised` (parametrized over
+PermissionError / FileNotFoundError / OSError, and asserting the *rest* of the package
+still parses) and `test_is_within_fails_closed_on_unresolvable_path`.
+
 ## Warnings
 
 ### WR-01: Size cap enforced only after the whole file is read and hashed — the T-01-06 pre-parse DoS guard doesn't guard
@@ -106,6 +137,20 @@ for path in sorted(p for p in package_dir.rglob("*") if p.is_file()):
 **File:** `src/rfp_analyzer/pipeline/parsing/discover.py:109-121`
 **Issue:** The docstring claims "per-file size cap before a parser ever opens it," but `_file_identity(path)` (line 109) streams and SHA-256-hashes the *entire file* before the size check on line 119 runs. A hostile 200 GB `huge.pdf` is fully read before being rejected for size — the exact resource-exhaustion the cap exists to prevent. Worse, files that will be rejected anyway (`.doc`, unsupported extensions) are also fully hashed first. The `stat()` result is also computed twice (lines 119 and 120).
 **Fix:** Reorder: check `suffix` and `path.stat().st_size` first; only compute `_file_identity` for files that pass the extension allowlist and size cap. For rejected records where a hash is still wanted, either skip hashing (sha256="") or hash only after the size check passes.
+
+**Outcome: FIXED** (`d4bf9fb`). Confirmed accurate. The cap now fires from `stat()`
+alone, before any read; oversize entries get `sha256=""` plus a placeholder `file_id`,
+matching the existing containment-rejection convention.
+
+Partial deviation: the suggested "skip hashing for extension-rejected files" was **not**
+applied. `test_every_entry_has_stable_identity` asserts every entry — including the
+`.doc` and `.txt` rejections — carries a 64-hex sha256 and a `{sha[:12]}-{stem}`
+`file_id`; skipping those hashes would have required weakening that assertion. Hashing
+is therefore gated on the size cap only, which is what the DoS guard actually needs
+(sub-cap files are bounded by definition). Side effect: an oversize *unsupported*
+file now reports the size reason rather than the extension reason — correct, since we
+refuse to read it at all. Regression test: `test_oversize_file_is_never_read` spies on
+`_file_identity` and asserts it is never called.
 
 ### WR-02: Gibberish-text-layer SF30 silently classified as `attachment` — Pitfall 5 bypassed by the corpus's own CID-garbage failure mode
 
@@ -126,11 +171,31 @@ def _page1_usable(file: ParsedFile) -> bool:
 ```
 and use `not _page1_usable(file)` for rung 2.
 
+**Outcome: FIXED** (`fc4c2b6`). Confirmed accurate. Took the second option
+(quality-aware rung 2) rather than clearing `first_page_layout_text` in `apply_quality`:
+clearing it would also strip rung 1's layout-text fallback, downgrading a `low_text`
+page-1 that still carries a readable SF30 title from `form_text` evidence to
+`filename` evidence — a real loss. Gating only rung 2 leaves rung 1 untouched, so
+form-text evidence still always wins (T-01-13 holds). Regression tests:
+`test_rung2_gibberish_layer_sf30_is_not_silently_an_attachment` (drives real CID
+garbage through `apply_quality` first, so it reproduces the corpus failure mode end to
+end) and `test_ok_page1_still_blocks_the_filename_fallback`.
+
 ### WR-03: `ParsedFile.filename` loses the relative path for parsed files — inconsistent with rejections and the discovery contract; nested same-basename files collide
 
 **File:** `src/rfp_analyzer/pipeline/run.py:48-50`; `src/rfp_analyzer/pipeline/parsing/pdf.py:65, 74`; `src/rfp_analyzer/pipeline/parsing/docx.py:36, 105`
 **Issue:** `discover_files` documents (and tests verify, `test_nested_files_discovered_with_relative_path`) that `filename` records the posix path relative to the package dir — the docstring explicitly cites nested SAM.gov zip layouts. But `run_pipeline` never passes `entry.filename` to the parsers; `parse_pdf`/`parse_docx` set `filename=path.name` (basename only). Result: rejected records carry `attachments/sow.pdf` while parsed records carry `sow.pdf` — two conventions in one document map — and two nested files with the same basename (e.g., `amd1/SF30.pdf`, `amd2/SF30.pdf`) produce indistinguishable `filename` values in the Phase 2 contract and the human report. (`file_id` stays unique via the sha prefix, which is the only reason this isn't critical.)
 **Fix:** Thread the discovered filename through: add a `filename: str` keyword to `parse_pdf`/`parse_docx` and call them as `parse_pdf(entry.path, filename=entry.filename, sha256=..., file_id=...)`.
+
+**Outcome: FIXED** (`01af513`). Confirmed accurate. The keyword is optional
+(`filename: str | None = None`, defaulting to the basename) so existing direct callers
+and their tests are unaffected. No corpus impact: all three corpus packages are flat,
+so relative path == basename there. Regression tests:
+`test_discovered_relative_filename_is_preserved` in both `test_pdf.py` and
+`test_docx.py`, plus a new pipeline-level
+`test_parsed_and_rejected_files_share_one_naming_convention` in `tests/unit/test_run.py`
+that pins the exact defect — nested `amd1/SF30.pdf` vs `amd2/SF30.pdf` staying
+distinguishable alongside a rejected `attachments/notes.txt`.
 
 ### WR-04: Running-header stripping deletes matching lines from the entire page, not just the top/bottom bands — silent content loss
 
@@ -148,17 +213,63 @@ kept = [
 page.text = "\n".join(kept)
 ```
 
+**Outcome: FIXED** (`836b9ab`). Confirmed accurate. Removal is now band-scoped exactly
+like detection, via a `_strip_running_lines` helper. Regression test:
+`test_mid_page_body_line_matching_the_header_is_not_deleted` — verified to FAIL against
+the old whole-page filter ("page 1: mid-page body reference was deleted") and pass after.
+Integration suite stayed green against the real corpus.
+
 ### WR-05: `document_map.json` write can crash on unencodable extracted text (lone surrogates from hostile PDFs)
 
 **File:** `src/rfp_analyzer/cli.py:164`
 **Issue:** Page text flows raw from pdfminer into the JSON artifact. A malformed/hostile PDF whose ToUnicode CMap maps glyphs to surrogate code points yields Python strings containing lone surrogates; `model_dump_json()` / `write_text(..., encoding="utf-8")` then raises (`UnicodeEncodeError` or a pydantic-core serialization error), crashing the run at the final step — after the entire pipeline succeeded. The CLI already hardens stdout with `errors="replace"` (cli.py:178-181) but not the artifact write, and the quality stage never sanitizes surviving "ok" text.
 **Fix:** Sanitize text at the quality stage (e.g., `text.encode("utf-8", "replace").decode("utf-8")` for ok pages), or harden the write: `map_path.write_bytes(document_map.model_dump_json(indent=2).encode("utf-8", errors="replace"))`.
 
+**Outcome: FIXED, adapted** (`4ff042f`). The crash is real (reproduced:
+`PydanticSerializationError: ... 'utf-8' codec can't encode character '\ud800'`), but
+**both suggested fixes are wrong as written**:
+
+1. Hardening the CLI write does not work. `model_dump_json()` raises *before* producing
+   any string, so there is no bytes-encoding step the CLI can harden. Sanitizing
+   upstream is the only option.
+2. `text.encode("utf-8", "replace")` substitutes `?` (0x3F), not U+FFFD — `errors=
+   "replace"` only yields U+FFFD when *decoding*. That would silently corrupt text with
+   a legitimate character. Used `encode("utf-8", "surrogatepass").decode("utf-8",
+   "replace")` instead, which does produce U+FFFD.
+
+Sanitization is applied at the parsing boundary (a shared `sanitize_text` in
+`pipeline/parsing/__init__.py`) rather than the quality stage, because the quality stage
+only touches PDF page text — DOCX paragraphs/table cells and `first_page_layout_text`
+also reach the artifact and would still have crashed the write. Also sanitizes
+`filename` and `package_name`, since POSIX surfaces undecodable filename bytes as lone
+surrogates (PEP 383 surrogateescape) — a live vector on the Railway/Linux target.
+Sanitizing before metrics means a lone surrogate counts toward
+`replacement_char_count`, which is exactly the gibberish gate's signal. Zero corpus
+risk: the corpus contains no surrogates (the existing round-trip assertion in
+`test_document_map_covers_every_file` would already have failed), and clean text takes
+an identity fast path.
+
 ### WR-06: `_choose_start` prefers the LAST qualifying occurrence, so a mid-document leading-line cross-reference beats the real section heading
 
 **File:** `src/rfp_analyzer/pipeline/sectioning/tree.py:93-103`
 **Issue:** The docstring claims the last-qualifying rule "guards against both the page-1 TOC and mid-document cross-references," but for cross-references it does the opposite. If the true `SECTION L` heading is on page 40 and page 45 begins with a line like `SECTION L of this solicitation is amended as follows` (line-start anchored, within `LEADING_LINE_LIMIT`, matches `SECTION_HEADING` with the tail captured as title), both occurrences precede Section M, so both qualify — and `qualifying[-1]` picks page 45. The section start shifts to the cross-reference and the reported span/title are wrong. The TOC case this rule targets is already handled separately by `_is_toc_page` exclusion, which weakens the justification for last-wins.
 **Fix:** Prefer the FIRST qualifying occurrence on non-TOC pages (TOC pages are already excluded before occurrences are built), or keep last-wins but reject occurrences whose captured title continues as prose (e.g., title matching `^(OF|IS|WILL|SHALL)\b`). At minimum, correct the docstring and add a corpus/unit case pinning the intended behavior.
+
+**Outcome: FIXED, option B** (`ecc65c0`). Confirmed accurate. Took the
+prose-cross-reference rejection rather than flipping to first-wins.
+
+Partial disagreement with the reviewer's framing: the claim that `_is_toc_page`
+exclusion "weakens the justification for last-wins" understates it. Last-wins still
+does real work on contents-style *listing* pages that fall **under** the TOC threshold
+(fewer than 4 distinct letters and no dot leaders) — those are not excluded as TOC
+pages, and first-wins would let them steal the section start. So last-wins is kept and
+the cross-reference class is removed at the source: `_is_cross_reference` drops any
+letter-section match whose captured title reads on as prose, in both the PDF and DOCX
+branches, before occurrences are built. Docstring corrected — it no longer claims
+last-wins guards cross-references (it actively prefers them). Regression tests:
+`test_mid_document_cross_reference_does_not_steal_the_section_start` (pins start page,
+title, and role), `test_cross_reference_alone_does_not_fabricate_a_section`, and
+`test_real_headings_are_not_mistaken_for_cross_references` as the guard-breadth check.
 
 ### WR-07: DOCX Word-generated TOC lines can fabricate `role_title` nodes — the TOC guard only covers the `heading` signal
 
@@ -172,7 +283,25 @@ if _TOC_TRAILING_RE.search(cand.title) or (
     continue
 ```
 
+**Outcome: FIXED, adapted** (`efcf6a7`). Confirmed accurate. The guard now applies to
+every signal via `cand.title`.
+
+Dropped the suggested second clause (`role_title and _TOC_TRAILING_RE.search(block.text)`)
+as redundant and actively harmful: a `role_title` candidate's `title` *is* the normalized
+line it matched, so the first clause already covers the described case. Testing the whole
+block's text instead would falsely skip a legitimate multi-line block merely because its
+*last* line ends in a number. Regression test:
+`test_docx_word_toc_role_title_does_not_fabricate_a_node` asserts exactly one node and
+that its locator anchors to the content block (12), not the TOC block (1).
+
+Note: this widens the reach of `_TOC_TRAILING_RE`'s `\s\d{1,4}$` alternative, which
+IN-10 already flags as over-broad. That is pre-existing heuristic breadth, deferred with
+IN-10 for corpus calibration.
+
 ## Info
+
+**All Info findings below are DEFERRED** — out of the Critical+Warning fix scope.
+IN-10 is additionally referenced by the WR-07 outcome note above.
 
 ### IN-01: Unreachable `parser.error` in `main`
 
