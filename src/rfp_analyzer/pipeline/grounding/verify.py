@@ -12,6 +12,7 @@ Pure library code — no HTTP, queue, or CLI imports.
 from rapidfuzz import fuzz
 
 from rfp_analyzer.pipeline.grounding.normalize import normalize
+from rfp_analyzer.pipeline.models import Chunk, SourceRef
 
 # rapidfuzz partial_ratio score at/above which a fuzzy hit is accepted. Starting
 # point from RESEARCH A2 (92.0); a module-level constant so the eval can tune it.
@@ -54,3 +55,70 @@ def ground(
     if ali is not None and ali.score >= threshold:
         return ("fuzzy", ali.dest_start, ali.dest_end, ali.score)
     return None
+
+
+def _page_for_offset(page_map: list[tuple[int, int, int]], offset: int) -> int | None:
+    """Return the page number whose char band contains ``offset``, else None.
+
+    ``page_map`` bands are ``(char_start, char_end, page_number)`` over the
+    normalized chunk text, ``char_end`` exclusive. The page is taken ONLY from
+    this map — never from any caller- or model-supplied value.
+    """
+    for char_start, char_end, page_number in page_map:
+        if char_start <= offset < char_end:
+            return page_number
+    # Fall back to the last band that starts at/before the offset (guards an
+    # offset landing exactly on the final band's exclusive end).
+    for char_start, _char_end, page_number in reversed(page_map):
+        if offset >= char_start:
+            return page_number
+    return None
+
+
+def build_source_ref(
+    verbatim: str,
+    chunk: Chunk,
+    threshold: float = DEFAULT_THRESHOLD,
+) -> SourceRef:
+    """Compute a verified :class:`SourceRef` for ``verbatim`` within ``chunk``.
+
+    Grounds ``verbatim`` against the chunk's text; on a hit, the matched char
+    offset is translated into a real page number by scanning ``chunk.page_map``
+    (the page is NEVER taken from model output). On a miss the requirement is
+    retained and flagged (``verified=False``, ``match="none"``, ``page=None``) —
+    per the "never drop silently" rule.
+
+    ``doc_role`` is copied from the chunk on BOTH paths so an ungroundable
+    amendment quote still records that it came from an amendment, keeping INTK-03
+    amendment gating correct downstream.
+    """
+    result = ground(verbatim, chunk.text, threshold)
+
+    if result is None:
+        return SourceRef(
+            file_id=chunk.file_id,
+            filename=chunk.filename,
+            section_label=chunk.section_label,
+            page=None,
+            char_start=None,
+            char_end=None,
+            match="none",
+            score=0.0,
+            verified=False,
+            doc_role=chunk.doc_role,
+        )
+
+    match_kind, start, end, score = result
+    page = _page_for_offset(chunk.page_map, start)
+    return SourceRef(
+        file_id=chunk.file_id,
+        filename=chunk.filename,
+        section_label=chunk.section_label,
+        page=page,
+        char_start=start,
+        char_end=end,
+        match=match_kind,
+        score=score,
+        verified=True,
+        doc_role=chunk.doc_role,
+    )
