@@ -38,6 +38,7 @@ like-for-like: same `file_id`, same `page`, and a `verbatim_text` that grounds.
 | `binding_keyword` | string | `shall` \| `must` \| `will` \| `should` \| `shall not` \| `none`. The obligation's binding force. |
 | `req_type` | string | `instruction` (Section L) \| `evaluation` (Section M) \| `sow_pws` (Section C / PWS annex) \| `special_requirements` \| `clause` \| `attachment` \| `other`. Mirrors `RequirementDraft.type_guess`. |
 | `parent_id` | string \| null | For atomic siblings split from one compound source statement: the `requirement_id` of the first sibling (which carries `parent_id: null`). Standalone requirements are `null`. |
+| `provenance_pass` | string | `A` = drafted in the first (draft) pass; `B` = added during the adversarial reconciliation pass (a pass-A miss). Recorded for audit; the eval matcher ignores it. |
 
 ## Two-field design (why `verbatim_text` ≠ `atomic_obligation`)
 

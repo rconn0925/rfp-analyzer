@@ -12,15 +12,19 @@
     "threshold": 90.0
   },
   "counts": {
-    "total": 57,
+    "total": 103,
     "by_section": {
-      "L": 18,
-      "M": 15,
-      "C": 4,
-      "C-Annex-SOW": 20
+      "L": 24,
+      "M": 24,
+      "C": 5,
+      "C-Annex-SOW": 50
     },
-    "unique_verbatim_spans": 45,
-    "atomic_split_groups": 7
+    "by_provenance_pass": {
+      "A": 57,
+      "B": 46
+    },
+    "unique_verbatim_spans": 90,
+    "atomic_split_groups": 8
   },
   "requirements": [
     {
@@ -33,7 +37,8 @@
       "atomic_obligation": "Submit all questions concerning any aspect of the RFP in writing.",
       "binding_keyword": "must",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-5df4c7a165",
@@ -45,7 +50,8 @@
       "atomic_obligation": "Submit all questions at least 10 days before proposals are due.",
       "binding_keyword": "must",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-de781cb8c1",
@@ -57,7 +63,8 @@
       "atomic_obligation": "Electronically send pre-proposal inquiries to Krystal Goodman and Pamela Waller at the listed email addresses.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-92de5a1bf1",
@@ -69,7 +76,8 @@
       "atomic_obligation": "Submit one (1) copy of the non-price proposal via PIEE including all solicitation submittal requirements.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-3a9cf201b4",
@@ -81,7 +89,8 @@
       "atomic_obligation": "Submit all required proposal documents in accordance with FAR 15.107.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-ab8efbd3a6",
@@ -93,7 +102,8 @@
       "atomic_obligation": "Include responses to each non-price factor in the non-price proposal as specified in Section M.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-7c2f5da31f",
@@ -105,7 +115,8 @@
       "atomic_obligation": "Do not exceed the 110-page limitation; excess pages are not considered.",
       "binding_keyword": "shall not",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-b17a17dfa8",
@@ -117,7 +128,8 @@
       "atomic_obligation": "Submit one (1) electronic copy of the price proposal via PIEE including all solicitation submittal requirements.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-2e8375d7e7",
@@ -129,7 +141,8 @@
       "atomic_obligation": "Limit pricing to two decimal places.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-c33127fc1f",
@@ -141,7 +154,8 @@
       "atomic_obligation": "Insert company name, address and telephone number in Block #17A of the SF1449.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-1b60b4370a",
@@ -153,7 +167,8 @@
       "atomic_obligation": "Acknowledge all amendments in Block #28 of the SF1449 (if applicable).",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": "GOLD-c33127fc1f"
+      "parent_id": "GOLD-c33127fc1f",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-fdcc70c26c",
@@ -165,7 +180,8 @@
       "atomic_obligation": "Insert name and title of the person authorized to sign in Block #30A of the SF1449.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": "GOLD-c33127fc1f"
+      "parent_id": "GOLD-c33127fc1f",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-f340b129bd",
@@ -177,7 +193,8 @@
       "atomic_obligation": "Provide signature in Block #30B of the SF1449.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": "GOLD-c33127fc1f"
+      "parent_id": "GOLD-c33127fc1f",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-1cf7458198",
@@ -189,7 +206,8 @@
       "atomic_obligation": "Insert offer date in Block #30C of the SF1449.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": "GOLD-c33127fc1f"
+      "parent_id": "GOLD-c33127fc1f",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-ede4b9c64d",
@@ -201,7 +219,8 @@
       "atomic_obligation": "Ensure current SAM registration at www.sam.gov, with Annual Representations and Certifications complete and updated.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-479db7acac",
@@ -213,7 +232,8 @@
       "atomic_obligation": "Provide the 10-character CMMC Unique Identifier (CMMC UID) to comply with DFARS 252.204-7021.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-ad386ddba8",
@@ -225,7 +245,8 @@
       "atomic_obligation": "Maintain SPRS registration until time of award, during performance, and through final payment.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-2858c86902",
@@ -237,7 +258,8 @@
       "atomic_obligation": "Provide the latest three complete fiscal-year financial statements for the prime contractor.",
       "binding_keyword": "shall",
       "req_type": "instruction",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-6b619d8e1e",
@@ -249,7 +271,8 @@
       "atomic_obligation": "Submit a Factor 1 narrative response demonstrating understanding of and approach to the PWS service requirements.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-4bd5bc38b3",
@@ -261,7 +284,8 @@
       "atomic_obligation": "Limit the Factor 1 narrative to no more than 25 single-sided pages.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-76c9f9c573",
@@ -273,7 +297,8 @@
       "atomic_obligation": "Include each of the listed topics in the narrative.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-d986e15d7d",
@@ -285,7 +310,8 @@
       "atomic_obligation": "Tab each of the listed topics in the non-price proposal.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": "GOLD-76c9f9c573"
+      "parent_id": "GOLD-76c9f9c573",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-4c7f72ab35",
@@ -297,7 +323,8 @@
       "atomic_obligation": "Discuss each of the listed topics separately.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": "GOLD-76c9f9c573"
+      "parent_id": "GOLD-76c9f9c573",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-939315166c",
@@ -309,7 +336,8 @@
       "atomic_obligation": "Include Project Manager, Quality Manager, Site Safety and Health Officer, and on-site supervisor(s) in the narrative and identify reporting lines.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-6073c3ec5f",
@@ -321,7 +349,8 @@
       "atomic_obligation": "Use the Corporate Experience Data Sheet (Attachment J-0200000-19) to submit contract information.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-e9b45de68f",
@@ -333,7 +362,8 @@
       "atomic_obligation": "Do not exceed three (3) single-sided pages per Corporate Experience Data Sheet.",
       "binding_keyword": "shall not",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-e704459675",
@@ -345,7 +375,8 @@
       "atomic_obligation": "Submit the DART Rate and Total Case Rate for the specified five calendar years plus a safety narrative.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-704e06183d",
@@ -357,7 +388,8 @@
       "atomic_obligation": "Do not submit DART and TCR rates for subcontractors.",
       "binding_keyword": "shall not",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-3905cd6976",
@@ -369,7 +401,8 @@
       "atomic_obligation": "Limit the Technical Approach to Safety narrative to seven (7) single-sided pages.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-e716e318ab",
@@ -381,7 +414,8 @@
       "atomic_obligation": "Address the listed elements in the Technical Approach to Safety narrative.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": "GOLD-3905cd6976"
+      "parent_id": "GOLD-3905cd6976",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-708fe5d2d4",
@@ -393,7 +427,8 @@
       "atomic_obligation": "Submit all available CPARS evaluations for each contract, not just the most recent.",
       "binding_keyword": "shall",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-6cd430fb3d",
@@ -405,7 +440,8 @@
       "atomic_obligation": "Do not submit a PPQ when CPARS evaluations are available.",
       "binding_keyword": "shall not",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-e886d86628",
@@ -417,7 +453,8 @@
       "atomic_obligation": "Do not incorporate by reference PPQs or CPARS previously submitted for other RFPs.",
       "binding_keyword": "shall not",
       "req_type": "evaluation",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-e365388946",
@@ -429,7 +466,8 @@
       "atomic_obligation": "Notify the Contracting Officer when 75% of any Non-Recurring Line Item (CLIN/SLIN/ELIN) is reached.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-de0b5c59a1",
@@ -441,7 +479,8 @@
       "atomic_obligation": "Accept orders placed by authorized Government Purchase Card users.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-e5c8ee50c3",
@@ -453,7 +492,8 @@
       "atomic_obligation": "Report all contractor and subcontractor labor hours via the secure data collection site.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-e9c169fd58",
@@ -465,7 +505,8 @@
       "atomic_obligation": "Report all ECMRA data no later than October 31 of each calendar year.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-debd209c38",
@@ -477,7 +518,8 @@
       "atomic_obligation": "Attend administrative and coordination meetings.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-8d0c1f984c",
@@ -489,7 +531,8 @@
       "atomic_obligation": "Provide sign-in sheets for all meetings.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-3ea7853be7",
@@ -501,7 +544,8 @@
       "atomic_obligation": "Prepare minutes of all meetings.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": "GOLD-8d0c1f984c"
+      "parent_id": "GOLD-8d0c1f984c",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-4b20a2b890",
@@ -513,7 +557,8 @@
       "atomic_obligation": "Pay all costs associated with the partnering effort (facilitator, meeting room, and other incidental items).",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-18c5486163",
@@ -525,7 +570,8 @@
       "atomic_obligation": "Obtain all required permits, licenses, and authorizations to perform work under this contract.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-bf4d6f3b1f",
@@ -537,7 +583,8 @@
       "atomic_obligation": "Comply with all applicable Federal, state, and local laws and regulations.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-2edbfb03dc",
@@ -549,7 +596,8 @@
       "atomic_obligation": "Request Hot Work Permits from the Fire Inspection Office.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-4b7bf906de",
@@ -561,7 +609,8 @@
       "atomic_obligation": "Submit all gas-free-service personnel certifications to the Contracting Officer within 15 days after award per Section F.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-6beb7d9fb8",
@@ -573,7 +622,8 @@
       "atomic_obligation": "Ensure the Certificate of Insurance provides at least 30 calendar days written notice to the KO prior to cancellation or material change in coverage.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-c609290997",
@@ -585,7 +635,8 @@
       "atomic_obligation": "Do not remove Government-furnished equipment from the MCAS or other associated locations, or use it on other contracts, without Contracting Officer approval.",
       "binding_keyword": "shall not",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-7e1089e476",
@@ -597,7 +648,8 @@
       "atomic_obligation": "Support initial, periodic, and final inventories of Government-Furnished Property.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-a19ce61dd1",
@@ -609,7 +661,8 @@
       "atomic_obligation": "Develop Plans of Action and Milestones (POA&Ms) per NIST SP 800-171.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-99e3f02614",
@@ -621,7 +674,8 @@
       "atomic_obligation": "Track accomplishment of the POA&Ms.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": "GOLD-a19ce61dd1"
+      "parent_id": "GOLD-a19ce61dd1",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-0f065879c7",
@@ -633,7 +687,8 @@
       "atomic_obligation": "Submit the POA&Ms to the Government per Section F.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": "GOLD-a19ce61dd1"
+      "parent_id": "GOLD-a19ce61dd1",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-44041c78c9",
@@ -645,7 +700,8 @@
       "atomic_obligation": "Do not bring materials containing asbestos, lead, or polychlorinated biphenyls (PCBs) onsite.",
       "binding_keyword": "shall not",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-304e7b5684",
@@ -657,7 +713,8 @@
       "atomic_obligation": "Provide the capability to receive, prioritize, correspond, and respond to trouble/service calls and task orders during Government regular working hours.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-634e77c071",
@@ -669,7 +726,8 @@
       "atomic_obligation": "Provide a point of contact at a local or toll-free number available outside Government regular working hours.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": "GOLD-304e7b5684"
+      "parent_id": "GOLD-304e7b5684",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-2c638a11b6",
@@ -681,7 +739,8 @@
       "atomic_obligation": "Establish a secure website for posting an electronic copy of all deliverables listed in Section F.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-48def9db67",
@@ -693,7 +752,8 @@
       "atomic_obligation": "Maintain a secure website for posting an electronic copy of all deliverables listed in Section F.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": "GOLD-2c638a11b6"
+      "parent_id": "GOLD-2c638a11b6",
+      "provenance_pass": "A"
     },
     {
       "requirement_id": "GOLD-5cef3ce03f",
@@ -705,7 +765,606 @@
       "atomic_obligation": "Make all deliverables available to authorized Government personnel 24 hours/day, 365 days/year for the contract duration.",
       "binding_keyword": "shall",
       "req_type": "sow_pws",
-      "parent_id": null
+      "parent_id": null,
+      "provenance_pass": "A"
+    },
+    {
+      "requirement_id": "GOLD-870ca10f84",
+      "section": "C",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 10,
+      "verbatim_text": "The Contractor shall be required to offer IQ pre-priced line item services to\nauthorized Government personnel when they are ordering the work directly via the Government Purchase Card Program.",
+      "atomic_obligation": "Offer IQ pre-priced line item services to authorized Government personnel ordering directly via the GPC Program.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-2186cd5528",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 50,
+      "verbatim_text": "The proposal shall\ninclude this attachment as Microsoft Excel File;",
+      "atomic_obligation": "Include Attachment J-0200000-11 (Exhibits A-H) as a Microsoft Excel file in the proposal.",
+      "binding_keyword": "shall",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-1f8a18ff33",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 50,
+      "verbatim_text": "where Exhibit Line Items/Sub Exhibit Line Items contain a quantity of zero or a blank quantity,\nunit pricing shall be provided in the event future quantities are added;",
+      "atomic_obligation": "Provide unit pricing for Exhibit Line Items with zero or blank quantity in case future quantities are added.",
+      "binding_keyword": "shall",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-f02b9b942a",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 50,
+      "verbatim_text": "Offeror shall ensure Federal Awardee Performance and Integrity Information System (FAPIIS) is\ncurrent, accurate, and complete, as required by FAR 52.209-7, Information Regarding Responsibility Matters.",
+      "atomic_obligation": "Ensure FAPIIS is current, accurate, and complete as required by FAR 52.209-7.",
+      "binding_keyword": "shall",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-4e14c193dc",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 50,
+      "verbatim_text": "Offeror shall ensure a current VETS-4212 report has been\nsubmitted to the Department of Labor (DOL) website",
+      "atomic_obligation": "Ensure a current VETS-4212 report has been submitted to the DOL website (if required to submit).",
+      "binding_keyword": "shall",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-683429c21c",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 51,
+      "verbatim_text": "An 8(a) small business joint venture Offeror must submit, with its offer, the representation in solicitation\nprovision 52.219-1, Small Business Program Representations",
+      "atomic_obligation": "8(a) small-business JV offerors: submit the FAR 52.219-1 Small Business Program Representations with the offer.",
+      "binding_keyword": "must",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-bbf129248c",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 51,
+      "verbatim_text": "In a\nseparate tab, the offeror shall provide the following information in the price proposal package:",
+      "atomic_obligation": "Provide the responsibility-determination information in a separate tab of the price proposal package.",
+      "binding_keyword": "shall",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-9671ee2335",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "your\nschedule shall address the Section F Deliverables submission requirements.",
+      "atomic_obligation": "Ensure the phase-in schedule addresses the Section F Deliverables submission requirements.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-2cb9cbe655",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "The incumbent contractor shall address the required elements of the Phase-in Transition Plan tailored to\nhow they will successfully continue services while meeting new contract requirements.",
+      "atomic_obligation": "Incumbent contractor: address the Phase-in Transition Plan elements tailored to continuing services while meeting new contract requirements.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-2d4169e7d7",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "Your proposal shall be compliant with and demonstrate an understanding of the reporting\nand dual-hatted personnel restrictions in Section C, Annex 0200000, Management and Administration Spec\nItem 2.7.1 Key Personnel and its Sub-annexes 2.7.1.1 through 2.7.1.6.",
+      "atomic_obligation": "Demonstrate compliance with and understanding of the Annex 0200000 Spec Item 2.7.1 reporting and dual-hatted personnel restrictions.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-1a82b7593c",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "Your proposal shall demonstrate a reasonable plan for having equipment to perform the contract\nrequirements in place to commence work on the performance start date.",
+      "atomic_obligation": "Demonstrate a reasonable plan for having equipment in place to commence work on the performance start date.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-3e10b8ee18",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "The work to be performed, the subcontractors to be utilized, and\ntheir roles, shall be clearly identified.",
+      "atomic_obligation": "Clearly identify the work to be performed, the subcontractors to be utilized, and their roles.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-8bb36173b8",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "The Offerors shall clearly\nstate in their narrative if they plan to self-perform 100% of the work as the prime.",
+      "atomic_obligation": "State clearly in the narrative whether the Offeror plans to self-perform 100% of the work as prime.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-a03f424097",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "Contracts with periods of performance beyond one year shall be clearly defined as multi-\nyear contracts or as base contracts with option periods.",
+      "atomic_obligation": "Clearly define submitted contracts with periods of performance beyond one year as multi-year or base-plus-option contracts.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-87d742ace5",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "the Offeror shall submit separate DART and TCR rates for the specified five\n(5) CY for each contractor who is part of the partnership/joint venture",
+      "atomic_obligation": "For a partnership/JV, submit separate DART and TCR rates for the specified five CY for each contractor.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-780f6777c8",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "Any fatalities experienced within this 5-year timeframe must be explained in detail, to include root cause and\ncorrective actions.",
+      "atomic_obligation": "Explain in detail any fatalities within the 5-year timeframe, including root cause and corrective actions.",
+      "binding_keyword": "must",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-1d090f3c29",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 9,
+      "verbatim_text": "The performance of other\nwork requirements shall be accomplished within the Government’s regular working\nhours unless the specific work requirement specified herein necessitates otherwise.",
+      "atomic_obligation": "Perform work requirements within the Government's regular working hours unless the specific requirement necessitates otherwise.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-df7b5c707e",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 9,
+      "verbatim_text": "Any other work outside Government regular working hours must be authorized by\nthe KO prior to commencement of work.",
+      "atomic_obligation": "Obtain KO authorization before commencing any work outside Government regular working hours.",
+      "binding_keyword": "must",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-fedc66e709",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 9,
+      "verbatim_text": "Comments received within two\nworking days shall be incorporated into the minutes and a copy of the final revision\nshall be submitted per Section F for concurrence.",
+      "atomic_obligation": "Incorporate comments received within two working days into the meeting minutes.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-b8aadba3e1",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 9,
+      "verbatim_text": "Comments received within two\nworking days shall be incorporated into the minutes and a copy of the final revision\nshall be submitted per Section F for concurrence.",
+      "atomic_obligation": "Submit a copy of the final revised minutes per Section F for concurrence.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": "GOLD-fedc66e709",
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-b92a0a08c6",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 10,
+      "verbatim_text": "Before the partnering session, the Contractor shall\ncoordinate with the facilitator the requirements for incidental items",
+      "atomic_obligation": "Coordinate incidental-item requirements with the facilitator before the partnering session.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-abd08a3460",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 10,
+      "verbatim_text": "The participants shall pay\ntheir own costs for meals, lodging, and transportation associated with partnering.",
+      "atomic_obligation": "Partnering participants pay their own costs for meals, lodging, and transportation.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-36c8d2a1ea",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 10,
+      "verbatim_text": "As part of the partnership agreement a project governance structure shall\nbe established following the guidelines of P-204 Facility Support Contracts\nPartnering Guide.",
+      "atomic_obligation": "Establish a project governance structure per P-204 as part of the partnership agreement.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-d46ed38f46",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "The Contractor shall submit copies of Permits and\nLicenses per Section F.",
+      "atomic_obligation": "Submit copies of Permits and Licenses per Section F.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-dac0f65ad9",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "All\npersonnel performing these duties shall be respiratory protection qualified in\naccordance with OPNAVINST 5100.23G.",
+      "atomic_obligation": "Ensure all personnel performing gas-free duties are respiratory-protection qualified per OPNAVINST 5100.23G.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-27fdf4676a",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "The Contractor shall submit a Certificate of Insurance per Section F as evidence of",
+      "atomic_obligation": "Submit a Certificate of Insurance per Section F as evidence of required insurance coverage.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-4ced8fe400",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "This\ninsurance must be maintained during the performance period.",
+      "atomic_obligation": "Maintain the required insurance during the performance period.",
+      "binding_keyword": "must",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-3343033535",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "The Contractor shall procure and maintain, during the entire period of performance",
+      "atomic_obligation": "Procure and maintain the specified minimum insurance coverage during the entire period of performance.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-61bf9fd5b6",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "During execution of the work, the Contractor shall protect Government property.",
+      "atomic_obligation": "Protect Government property during execution of the work.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-b8ce3ce89d",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "The Contractor shall comply with the most\ncurrent version of directives, instructions, and references including versions\npublished during the term of the contract.",
+      "atomic_obligation": "Comply with the most current version of applicable directives, instructions, and references, including versions published during the contract term.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-11c1d849cb",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "Invoices shall be submitted in a format compatible with the most recent\nGovernment installed Microsoft Office Version (currently 2016).",
+      "atomic_obligation": "Submit invoices in a format compatible with the most recent Government-installed Microsoft Office version.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-36cc17365d",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 11,
+      "verbatim_text": "Invoice data\nshall be capable of being sorted by CLIN, annex/sub-annex, spec item, spec item\ntitle, and ELIN/Sub-ELIN.",
+      "atomic_obligation": "Ensure invoice data can be sorted by CLIN, annex/sub-annex, spec item, spec item title, and ELIN/Sub-ELIN.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-fb4a837f95",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 12,
+      "verbatim_text": "The total or partial breakdown or failure of\nGovernment-Furnished Items shall not relieve the Contractor of the responsibility\nto perform the requirements of this contract.",
+      "atomic_obligation": "Remain responsible for performing the contract despite total or partial breakdown/failure of Government-Furnished Items.",
+      "binding_keyword": "shall not",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-809de0509f",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 12,
+      "verbatim_text": "The Contractor and designated Government representatives shall conduct a joint\ninventory no later than 30 calendar days before commencing work under this\ncontract to verify the quantity and condition of the facilities, equipment, tools,\nmaterials, and supplies to be turned over to the Contractor.",
+      "atomic_obligation": "Conduct a joint inventory with Government representatives no later than 30 calendar days before commencing work to verify quantity and condition of turned-over items.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-605016c487",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 12,
+      "verbatim_text": "The Contractor shall provide periodic servicing,\nmaintenance, and repair of the Government-Furnished Items accepted for use at no\nadditional cost to the Government.",
+      "atomic_obligation": "Provide periodic servicing, maintenance, and repair of accepted Government-Furnished Items at no additional cost.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-2d85d44e01",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 12,
+      "verbatim_text": "At the completion of the contract, all Government-Furnished Items shall be\nreturned to the Government in the same condition as received, except for\nreasonable wear and tear.",
+      "atomic_obligation": "Return all Government-Furnished Items at contract completion in the same condition as received, except reasonable wear and tear.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-0d8620af19",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 14,
+      "verbatim_text": "The Contractor shall not allow\npersonal Internet or email resources on Government furnished hardware or on\nContractor provided hardware connected to a Government furnished network/LAN\nto be utilized for personal use.",
+      "atomic_obligation": "Do not allow personal Internet/email use on Government-furnished hardware or Contractor hardware connected to a Government network/LAN.",
+      "binding_keyword": "shall not",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-6764c59bbe",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 14,
+      "verbatim_text": "Inadequate or unsafe items\nshall be removed and replaced by the Contractor at no cost to the Government.",
+      "atomic_obligation": "Remove and replace inadequate or unsafe Contractor-furnished items at no cost to the Government.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-6724b892c6",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 14,
+      "verbatim_text": "Energy efficient tools and equipment shall be used when\navailable.",
+      "atomic_obligation": "Use energy-efficient tools and equipment when available.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-053459c70b",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 14,
+      "verbatim_text": "The Contractor shall safeguard controlled unclassified information and information",
+      "atomic_obligation": "Safeguard controlled unclassified information and information associated with Government property per the cited standards.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-c47fa4ddc1",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 14,
+      "verbatim_text": "this information shall be protected at the moderate confidentiality level\nas defined in NIST SP 800-171.",
+      "atomic_obligation": "Protect the information at the moderate confidentiality level as defined in NIST SP 800-171.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-48c8844f4b",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 14,
+      "verbatim_text": "Contractor information and data systems that contain information associated with\nGovernment property shall comply with DoD Risk Management Framework\n(RMF).",
+      "atomic_obligation": "Ensure Contractor information/data systems holding Government-property information comply with the DoD Risk Management Framework.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-8b241657af",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 15,
+      "verbatim_text": "The Contractor shall implement all necessary work control procedures to ensure\ntimely accomplishment of work requirements, as well as to permit tracking and\nreporting of work in progress.",
+      "atomic_obligation": "Implement all necessary work-control procedures for timely accomplishment and tracking/reporting of work in progress.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-d6daf12bb2",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 15,
+      "verbatim_text": "The Contractor shall plan and schedule work to\nassure material, labor, and equipment are available to complete work requirements\nwithin the specified time limits and in conformance with the quality standards\nestablished herein.",
+      "atomic_obligation": "Plan and schedule work so material, labor, and equipment are available to meet requirements within time limits and quality standards.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-0edf3e9186",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 15,
+      "verbatim_text": "A status update of any item of work must be\nprovided within two hours of the inquiry during regular working hours, and by\n0800 the following work day for inquiries after regular working hours.",
+      "atomic_obligation": "Provide a work-status update within two hours of an inquiry during regular hours, or by 0800 the next work day after hours.",
+      "binding_keyword": "must",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
+    },
+    {
+      "requirement_id": "GOLD-b2092104f1",
+      "section": "C-Annex-SOW",
+      "file_id": "d360f634d987-n4008526r0033-section-c-annexes",
+      "filename": "N4008526R0033 Section C Annexes.pdf",
+      "page": 15,
+      "verbatim_text": "The Contractor shall provide work schedules for both Recurring and Non-\nRecurring Work per Section F.",
+      "atomic_obligation": "Provide work schedules for both Recurring and Non-Recurring Work per Section F.",
+      "binding_keyword": "shall",
+      "req_type": "sow_pws",
+      "parent_id": null,
+      "provenance_pass": "B"
     }
   ]
 }
