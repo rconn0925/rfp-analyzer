@@ -9,10 +9,13 @@ as a plain attachment):
 
 1. Page-1 SF30 title text → ``amendment`` with evidence ``form_text``;
    amendment number extracted near the Block 2 label (``None`` accepted).
-2. No page-1 text layer AND the filename matches amendment patterns →
-   ``amendment`` with evidence ``filename`` (rendered downstream as
-   "unverified — scanned, matched by filename"; T-01-13: this rung fires
-   ONLY when there is no text layer, and form-text evidence always wins).
+2. No *usable* page-1 text layer AND the filename matches amendment
+   patterns → ``amendment`` with evidence ``filename`` (rendered downstream
+   as "unverified — scanned, matched by filename"; T-01-13: this rung fires
+   ONLY when there is no usable text layer, and form-text evidence always
+   wins). "Usable" means the quality stage classified page 1 ``ok``: a
+   scanned page and a broken-font gibberish page are equally unreadable, and
+   both must reach this rung rather than fall through to ``attachment``.
 3. Neither → ``base_solicitation`` when SF33/SF1449 matched (or the file
    carries FAR 12.603 combined-synopsis markers — the notice text IS the
    solicitation), else ``attachment``.
@@ -94,6 +97,22 @@ def _has_page1_text(file: ParsedFile) -> bool:
     return bool(_page1_text(file).strip()) or bool((file.first_page_layout_text or "").strip())
 
 
+def _page1_usable(file: ParsedFile) -> bool:
+    """True when page 1 carries a text layer the quality stage judged usable.
+
+    ``apply_quality`` empties a non-ok page's ``text`` but deliberately keeps
+    ``first_page_layout_text``, which was captured from the same raw page and
+    therefore holds the same garbage (``(cid:0)(cid:2)...`` soup on a
+    broken-font page, a stray stamp on a scanned one). Counting that garbage
+    as "has a text layer" skipped rung 2 and dropped a gibberish-layer SF30
+    straight through to ``attachment`` — the exact Pitfall 5 failure this
+    ladder exists to prevent. An unusable text layer counts as none at all.
+    """
+    if file.file_type == "pdf" and file.pages and file.pages[0].quality != "ok":
+        return False
+    return _has_page1_text(file)
+
+
 def detect_form(file: ParsedFile) -> FormMatch | None:
     """Recognized SF form on page 1, or None.
 
@@ -146,8 +165,9 @@ def assign_doc_role(file: ParsedFile) -> ParsedFile:
         file.amendment_number = _extract_amendment_number(file)
         return file
 
-    # Rung 2: no page-1 text layer (scanned SF30 specimen) + filename match.
-    if not _has_page1_text(file) and AMENDMENT_FILENAME_RE.search(PurePath(file.filename).stem):
+    # Rung 2: no usable page-1 text layer (scanned or gibberish SF30
+    # specimen) + filename match.
+    if not _page1_usable(file) and AMENDMENT_FILENAME_RE.search(PurePath(file.filename).stem):
         file.doc_role = "amendment"
         file.amendment_evidence = "filename"
         return file

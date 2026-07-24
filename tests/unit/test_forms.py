@@ -14,6 +14,7 @@ from rfp_analyzer.pipeline.classify.forms import (
     detect_form,
 )
 from rfp_analyzer.pipeline.models import PageInfo, ParsedFile
+from rfp_analyzer.pipeline.quality.headers import apply_quality
 
 
 def make_file(
@@ -146,6 +147,48 @@ class TestSf30Ladder:
         result = assign_doc_role(file)
         assert result.doc_role == "amendment"
         assert result.amendment_evidence == "filename"
+
+    def test_rung2_gibberish_layer_sf30_is_not_silently_an_attachment(self):
+        # WR-02 regression: a broken-font page 1 (CID soup — the corpus's
+        # Planset failure mode) leaves first_page_layout_text full of garbage
+        # even after apply_quality empties page.text. That garbage used to
+        # count as "has a text layer", skipping rung 2 and dropping a real
+        # SF30 through to `attachment` with no evidence trail.
+        garbage = "(cid:0)(cid:2)(cid:15)(cid:3)(cid:9)(cid:1)(cid:7)(cid:11)" * 20
+        raw = ParsedFile(
+            file_id="abc123def456-amendment-0002",
+            filename="Amendment_0002.pdf",
+            sha256="0" * 64,
+            file_type="pdf",
+            parse_status="ok",
+            page_count=1,
+            pages=[
+                PageInfo(
+                    page_number=1,
+                    quality="pending",
+                    char_count=len(garbage),
+                    metrics={"cid_count": float(garbage.count("(cid:")), "has_images": 0.0},
+                    text=garbage,
+                )
+            ],
+            first_page_layout_text=garbage,
+        )
+        file = apply_quality(raw)
+        assert file.pages[0].quality == "gibberish"
+        assert file.pages[0].text == ""
+        assert file.first_page_layout_text  # still garbage — parse-time capture
+
+        result = assign_doc_role(file)
+        assert result.doc_role == "amendment"
+        assert result.amendment_evidence == "filename"
+
+    def test_ok_page1_still_blocks_the_filename_fallback(self):
+        # T-01-13 must not regress: a readable page 1 means filename evidence
+        # is never used, even for an amendment-shaped filename.
+        file = make_file("Amendment_0001.pdf", "The contractor shall provide widgets.")
+        result = assign_doc_role(file)
+        assert result.doc_role == "attachment"
+        assert result.amendment_evidence is None
 
     def test_rung3_scanned_non_amendment_filename_is_not_amendment(self):
         file = make_file("attachment_J1.pdf", "", scanned=True)
