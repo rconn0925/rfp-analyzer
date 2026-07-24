@@ -12,6 +12,10 @@
       "title": "MCAS Beaufort and Laurel Bay Base Operation Support",
       "file_count": 7,
       "total_pages": 290,
+      "ground_truth": {
+        "comment": "Section start pages in Solicitation - N4008526R0033.pdf, confirmed by an independent pdfplumber read of the source PDF (01-VERIFICATION.md SC2): p49 = 'Section L - Instructions...', p58 = 'Section M - Evaluation...'. Pins the boundary-correctness contract so the integration test cannot pass on a wrong page.",
+        "section_page_starts": {"L": 49, "M": 58}
+      },
       "files": [
         {"name": "Cover Letter.pdf", "sha256": "8f401c9c9bf556dd8c2c8d78d22b5ac534d6854a08abb7d77b31fb09b72d8f54", "size": 105765, "pages": 2},
         {"name": "N4008526R0033 Section C Annexes.pdf", "sha256": "d360f634d987f8b5b0d8e8ff094f66a69f40ee8f6f9a024d5da8e290808b7675", "size": 1323790, "pages": 161},

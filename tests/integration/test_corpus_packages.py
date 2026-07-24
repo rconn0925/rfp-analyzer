@@ -63,8 +63,16 @@ def test_document_map_covers_every_file(pkg, pipeline_map):
 
 @pytest.mark.parametrize("pkg", PRIMARY)
 def test_primary_package_ucf_boundaries(pkg, pipeline_map):
-    """SC2 (standard): L and M sections detected with page_start > 1 (TOC
-    guard) plus a C / sow_pws node; classification matches the manifest."""
+    """SC2 (standard): L and M sections are detected at their real ground-truth
+    start pages (not merely off page 1), plus a C / sow_pws node; classification
+    matches the manifest.
+
+    The expected page starts come from ``ground_truth.section_page_starts`` in
+    manifest.json (independently confirmed with pdfplumber), so the assertion is
+    corpus-portable and cannot silently pass on a wrong boundary — the weaker
+    ``page_start > 1`` check would have passed with Section L mis-detected at
+    page 12 or 30.
+    """
     dmap = pipeline_map(pkg)
     top = [node for file in dmap.files for node in file.sections]
     l_nodes = [n for n in top if n.label == "L"]
@@ -73,6 +81,18 @@ def test_primary_package_ucf_boundaries(pkg, pipeline_map):
     assert l_nodes, "no Section L detected in primary package"
     assert m_nodes, "no Section M detected in primary package"
     assert c_nodes, "no Section C / sow_pws content detected in primary package"
+
+    expected_starts = pkg.get("ground_truth", {}).get("section_page_starts", {})
+    assert expected_starts, "primary package manifest is missing ground_truth.section_page_starts"
+    by_label = {"L": l_nodes, "M": m_nodes}
+    for label, want_start in expected_starts.items():
+        nodes = by_label[label]
+        starts = {n.locator.page_start for n in nodes if n.locator.kind == "pages"}
+        assert want_start in starts, (
+            f"Section {label} expected to start on page {want_start} "
+            f"(manifest ground truth); detected starts were {sorted(starts)}"
+        )
+
     for node in l_nodes + m_nodes:
         assert node.locator.kind == "pages"
         assert node.locator.page_start > 1, (

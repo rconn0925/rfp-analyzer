@@ -43,6 +43,15 @@ keyless attachment endpoints (`/api/prod/opps/v3/opportunities/resources/files/{
 
 **Package total:** 7 files, 290 pages.
 
+**Ground truth (UCF boundaries).** `manifest.json` carries a `ground_truth.section_page_starts`
+map for this package: `{"L": 49, "M": 58}`. These are the 1-indexed pages in
+`Solicitation - N4008526R0033.pdf` where `Section L - Instructions...` and
+`Section M - Evaluation...` begin, confirmed by an independent pdfplumber read of the source
+PDF during Phase 1 verification (01-VERIFICATION.md, SC2). The integration test
+`test_primary_package_ucf_boundaries` asserts the pipeline detects these exact start pages, so a
+regression that mis-anchors a section (e.g. Section L at the TOC page) fails the suite rather than
+slipping past a weaker `page_start > 1` check.
+
 ---
 
 ## 2. hostile-scanned — HOSTILE (scanned/image-only pages)
