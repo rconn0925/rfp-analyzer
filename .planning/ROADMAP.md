@@ -72,11 +72,11 @@ Note: SAM.gov API key request DEFERRED by user decision (2026-07-24). Upload / l
   4. SF30 amendment change statements appear as their own extracted rows with potentially modified requirements flagged — no silent merging
   5. Extraction recall/precision against a hand-shredded golden-set RFP is measured and reported on every run
 
-**Plans:** 7 plans
+**Plans:** 1/7 plans executed
 
 Plans:
 **Wave 1**
-- [ ] 02-01-PLAN.md — Requirement schema + shared normalizer + stable content-hash IDs (foundation contract)
+- [x] 02-01-PLAN.md — Requirement schema + shared normalizer + stable content-hash IDs (foundation contract)
 
 **Wave 2** *(blocked on Wave 1)*
 - [ ] 02-02-PLAN.md — Verbatim grounding: rapidfuzz string-match verify + computed SourceRef (EXTR-02)
@@ -147,7 +147,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Parsing & Structure Foundation | 6/6 | Complete   | 2026-07-24 |
-| 2. Requirement Extraction & Grounding | 0/7 | Not started | - |
+| 2. Requirement Extraction & Grounding | 1/7 | In Progress|  |
 | 3. Analysis & Export | 0/TBD | Not started | - |
 | 4. Web App & Job Orchestration | 0/TBD | Not started | - |
 | 5. Public Demo, Hardening & SAM.gov Fetch | 0/TBD | Not started | - |
