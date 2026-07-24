@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Low-quality or scanned pages are caught by per-page quality gates and surfaced, never passed through as silent garbage text
   4. SF30 amendment files within a package are identified and labeled as amendments
 
-**Plans:** 2/6 plans executed
+**Plans:** 4/6 plans executed
 
 Plans:
 **Wave 1**
@@ -42,12 +42,12 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — 3-package SAM.gov corpus acquisition + MANIFEST (human-assisted; surfaces SAM.gov API key request)
+- [x] 01-02-PLAN.md — 3-package SAM.gov corpus acquisition + MANIFEST (human-assisted; surfaces SAM.gov API key request)
 - [x] 01-03-PLAN.md — Parsing layer: file discovery + hostile-input guards, pdfplumber PDF, python-docx DOCX
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-04-PLAN.md — Per-page quality gates + header/footer stripping (flag-and-surface, no OCR)
+- [x] 01-04-PLAN.md — Per-page quality gates + header/footer stripping (flag-and-surface, no OCR)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -127,7 +127,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Parsing & Structure Foundation | 2/6 | In Progress|  |
+| 1. Parsing & Structure Foundation | 4/6 | In Progress|  |
 | 2. Requirement Extraction & Grounding | 0/TBD | Not started | - |
 | 3. Analysis & Export | 0/TBD | Not started | - |
 | 4. Web App & Job Orchestration | 0/TBD | Not started | - |
