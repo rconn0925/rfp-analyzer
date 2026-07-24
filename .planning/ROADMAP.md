@@ -72,7 +72,7 @@ Note: SAM.gov API key request DEFERRED by user decision (2026-07-24). Upload / l
   4. SF30 amendment change statements appear as their own extracted rows with potentially modified requirements flagged — no silent merging
   5. Extraction recall/precision against a hand-shredded golden-set RFP is measured and reported on every run
 
-**Plans:** 3/7 plans executed
+**Plans:** 5/7 plans executed
 
 Plans:
 **Wave 1**
@@ -81,11 +81,11 @@ Plans:
 **Wave 2** *(blocked on Wave 1)*
 - [x] 02-02-PLAN.md — Verbatim grounding: rapidfuzz string-match verify + computed SourceRef (EXTR-02)
 - [x] 02-03-PLAN.md — Section chunker + deterministic keyword sweep/reconcile + SF30 amendment flagging (EXTR-03/04/05, INTK-03)
-- [ ] 02-04-PLAN.md — Golden set: agent-drafted + adversarially-validated ground truth for N4008526R0033
+- [x] 02-04-PLAN.md — Golden set: agent-drafted + adversarially-validated ground truth for N4008526R0033
 - [ ] (02-02 carries a blocking-human rapidfuzz legitimacy gate)
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 02-05-PLAN.md — Ollama client (num_ctx guard) + prompt + extract orchestration (EXTR-01/02/03)
+- [x] 02-05-PLAN.md — Ollama client (num_ctx guard) + prompt + extract orchestration (EXTR-01/02/03)
 
 **Wave 4** *(blocked on Wave 3)*
 - [ ] 02-06-PLAN.md — run_extraction pipeline entry + `extract` CLI subcommand + corpus e2e (EXTR-01/04/05, INTK-03)
@@ -147,7 +147,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Parsing & Structure Foundation | 6/6 | Complete   | 2026-07-24 |
-| 2. Requirement Extraction & Grounding | 3/7 | In Progress|  |
+| 2. Requirement Extraction & Grounding | 5/7 | In Progress|  |
 | 3. Analysis & Export | 0/TBD | Not started | - |
 | 4. Web App & Job Orchestration | 0/TBD | Not started | - |
 | 5. Public Demo, Hardening & SAM.gov Fetch | 0/TBD | Not started | - |
