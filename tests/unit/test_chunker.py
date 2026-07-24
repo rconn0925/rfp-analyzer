@@ -127,7 +127,7 @@ def test_oversize_section_is_windowed_with_overlap():
 
     Each chunk's page_map must be correct for its OWN text (offsets from 0).
     """
-    # Ten pages, ~30 chars each; max_input_chars=60 forces ~2 pages/window.
+    # Ten pages, 30 chars each; max_input_chars=70 fits 2 pages/window (61) not 3 (92).
     pages = [_page(n, f"page {n:02d} " + "x" * 22) for n in range(1, 11)]
     f = _pdf(
         "f",
@@ -136,7 +136,7 @@ def test_oversize_section_is_windowed_with_overlap():
         pages=pages,
         sections=[_section("C", "sow_pws", 1, 10)],
     )
-    chunks = list(iter_chunks(DocumentMap(files=[f]), max_input_chars=60))
+    chunks = list(iter_chunks(DocumentMap(files=[f]), max_input_chars=70))
     assert len(chunks) > 1
     # Overlap: consecutive windows share at least one page number.
     for a, b in zip(chunks, chunks[1:], strict=False):
