@@ -1,0 +1,64 @@
+{
+  "packages": [
+    {
+      "dir": "primary-ucf",
+      "role": "primary",
+      "expected_classification": "full_ucf",
+      "has_amendment": true,
+      "has_scanned_pages": false,
+      "solicitation_number": "N4008526R0033",
+      "notice_url": "https://sam.gov/opp/e333dd6c76ca4f4d9b52bed3ea8f305e/view",
+      "agency": "DoD / Department of the Navy / NAVFAC",
+      "title": "MCAS Beaufort and Laurel Bay Base Operation Support",
+      "file_count": 7,
+      "total_pages": 290,
+      "files": [
+        {"name": "Cover Letter.pdf", "sha256": "8f401c9c9bf556dd8c2c8d78d22b5ac534d6854a08abb7d77b31fb09b72d8f54", "size": 105765, "pages": 2},
+        {"name": "N4008526R0033 Section C Annexes.pdf", "sha256": "d360f634d987f8b5b0d8e8ff094f66a69f40ee8f6f9a024d5da8e290808b7675", "size": 1323790, "pages": 161},
+        {"name": "N4008526R0033 SECTION F ANNEX.pdf", "sha256": "f4524e75003b1b49318ee2bdd331e020723646682c77815d8317becf5240f18d", "size": 339565, "pages": 18},
+        {"name": "Solicitation - N4008526R0033.pdf", "sha256": "475828d11085d63340939fba10fd94f881f0de717d9d10a32f40c9dd523a21de", "size": 2034006, "pages": 70},
+        {"name": "Solicitation Amendment N4008526R00330001 SF 30.pdf", "sha256": "0ae96ace946cb1a3cc2f958bc64a218e17b4f214da66db7f7b2308ec5b9704bb", "size": 590607, "pages": 5},
+        {"name": "Solicitation Amendment N4008526R00330002 SF 30.pdf", "sha256": "406c911e7d3777e1bb25e5a83bcb8bc1a3925125cb3ce197b9b1ae9d30569fe0", "size": 639115, "pages": 17},
+        {"name": "Solicitation N4008526R0033 Amendment 0002.pdf", "sha256": "5aa82301df5e2d8859f09e97acee118eabb5c7485a8bf33acf20e7ba386eb551", "size": 252123, "pages": 17}
+      ]
+    },
+    {
+      "dir": "hostile-scanned",
+      "role": "hostile",
+      "expected_classification": "unknown",
+      "has_amendment": false,
+      "has_scanned_pages": true,
+      "solicitation_number": "W9127N26BA016",
+      "notice_url": "https://sam.gov/opp/1d4a11931e894dcabb313e0aa9d1a44a/view",
+      "agency": "DoD / Department of the Army / USACE Portland District",
+      "title": "Miller-Rice Islands Pile Dike System Repairs",
+      "file_count": 3,
+      "total_pages": 408,
+      "scanned_page_evidence": "Specifications.pdf pages 2-3 return empty extract_text() with 36 raster images each; Planset.pdf extracts CID-garbage text",
+      "files": [
+        {"name": "Bid Abstract - W9127N26BA016_KO APPROVED 20260723.pdf", "sha256": "1b2b805f691cb69367d76b5d966273098a8610c75108622be1573db53af409f6", "size": 341195, "pages": 2},
+        {"name": "W9127N26BA016 Miller-Rice Islands Pile Dike System Repairs_Planset.pdf", "sha256": "ce68a44be4280b66d7dd20d1d53facff6dcb95b7d6d73a8edd3a0c28f3d98c46", "size": 6347247, "pages": 36},
+        {"name": "W9127N26BA016 Miller-Rice Islands Pile Dike System Repairs_Specifications.pdf", "sha256": "749cd9a6424c092f3456d9a9bc7549a0eddf1a8f0d08e7d19a7cef41ee6a3b80", "size": 13001662, "pages": 370}
+      ]
+    },
+    {
+      "dir": "non-ucf-part12",
+      "role": "non_ucf",
+      "expected_classification": "non_ucf_commercial",
+      "has_amendment": false,
+      "has_scanned_pages": false,
+      "solicitation_number": "FA441826Q0079",
+      "notice_url": "https://sam.gov/opp/98e9dffa4ce54668b93210d9e7c80709/view",
+      "agency": "DoD / Department of the Air Force / Air Mobility Command (JB Charleston)",
+      "title": "FY26 841st Dock Fender Repair",
+      "file_count": 4,
+      "total_pages": 35,
+      "files": [
+        {"name": "Attachment 01. Statement of Work.pdf", "sha256": "d4f7dc5549ba33ddf9fe05dc89b9a90a027892ea81b5f3c20f79a514624562d6", "size": 556550, "pages": 4},
+        {"name": "Attachment 02. JB CHS Form 111 Contractor Access Worksheet.pdf", "sha256": "0226fffa8ffbcd7b907ab6f3fdc1e061d0bfa3a6851b6ad6766c73e7c2e1ee85", "size": 415493, "pages": 1},
+        {"name": "Attachment 03. SCA Wage Determinations 15-4427.pdf", "sha256": "8f29b17c0c5117c7012739f409ccc2a3ff0449237619bdc4e828dbd95c6e0d8e", "size": 70837, "pages": 15},
+        {"name": "Solicitation - FA441826Q0079.pdf", "sha256": "05f06a998d5071c4e677bd3fb501138b0d32238cfffde9b528e3f4ff59171d3c", "size": 508104, "pages": 15}
+      ]
+    }
+  ]
+}
