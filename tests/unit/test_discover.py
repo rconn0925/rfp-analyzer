@@ -90,6 +90,33 @@ def test_oversize_file_rejected(tmp_path: Path, monkeypatch, make_minimal_pdf):
     assert "size" in entry.rejection.error.lower()
 
 
+def test_oversize_file_is_never_read(tmp_path: Path, monkeypatch, make_minimal_pdf):
+    """WR-01 regression: the size cap fires from stat() alone, before hashing.
+
+    A hostile 200 GB file must be rejected without streaming its bytes, so
+    _file_identity must never be called for an oversize entry.
+    """
+    monkeypatch.setattr(discover, "MAX_FILE_BYTES", 64)
+    pkg = tmp_path / "package"
+    pkg.mkdir()
+    make_minimal_pdf(pkg / "big.pdf", ["This PDF body is comfortably larger than 64 bytes"])
+
+    hashed: list[Path] = []
+    real_identity = discover._file_identity
+
+    def spy_identity(path: Path):
+        hashed.append(path)
+        return real_identity(path)
+
+    monkeypatch.setattr(discover, "_file_identity", spy_identity)
+
+    entries = discover_files(pkg)
+    assert len(entries) == 1
+    assert entries[0].kind == "rejected"
+    assert "size" in entries[0].rejection.error.lower()
+    assert hashed == [], "oversize file was hashed — the cap read the whole file"
+
+
 def test_containment_check_rejects_outside_paths(tmp_path: Path, monkeypatch):
     """A path whose resolve() is not under package_dir.resolve() is rejected."""
     pkg = tmp_path / "package"

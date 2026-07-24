@@ -5,7 +5,12 @@ Threats addressed (see plan 01-03 threat model):
 
 - T-01-08 path traversal: ``resolve()``-containment check rejects any file
   (e.g. via symlink/junction) whose real path escapes the package dir.
-- T-01-06 pre-parse DoS: per-file size cap before a parser ever opens it.
+- T-01-06 pre-parse DoS: per-file size cap enforced from ``stat()`` alone,
+  before the file is hashed and long before a parser opens it — an oversize
+  file's bytes are never read.
+
+Every filesystem call is guarded: unreadable, locked, vanished, or
+unresolvable entries become ``rejected`` records, so discovery never raises.
 """
 
 import hashlib
@@ -85,6 +90,19 @@ def _rejection(
     )
 
 
+def _unreadable(path: Path, filename: str, exc: OSError) -> DiscoveredFile:
+    """Rejected entry for a file the filesystem would not let us read."""
+    file_id = _placeholder_file_id(path)
+    return DiscoveredFile(
+        path=path,
+        filename=filename,
+        sha256="",
+        file_id=file_id,
+        kind="rejected",
+        rejection=_rejection(filename, "", file_id, "other", f"unreadable file: {exc}"),
+    )
+
+
 def discover_files(package_dir: Path) -> list[DiscoveredFile]:
     """Discover every file under package_dir, classified pdf/docx/rejected.
 
@@ -119,14 +137,25 @@ def discover_files(package_dir: Path) -> list[DiscoveredFile]:
             )
             continue
 
-        # Every filesystem touch is guarded: a file locked by another process,
-        # permission-denied, or deleted between rglob() and here must become a
+        suffix = path.suffix.lower()
+        kind = _SUFFIX_KINDS.get(suffix)
+
+        # Size cap BEFORE any read: stat() is O(1), so a hostile 200 GB file
+        # is rejected without ever being streamed through the hasher (T-01-06).
+        # Every filesystem touch is guarded — a file locked by another process,
+        # permission-denied, or deleted between rglob() and here becomes a
         # rejected record, never a crashed run (per-file isolation).
         try:
             size = path.stat().st_size
-            sha256, file_id = _file_identity(path)
         except OSError as exc:
+            discovered.append(_unreadable(path, filename, exc))
+            continue
+
+        if size > MAX_FILE_BYTES:
+            # Size wins over the extension reason: we refuse to read the file
+            # at all, so "too big" is the only thing we honestly know.
             file_id = _placeholder_file_id(path)
+            error = f"file size {size} bytes exceeds cap of {MAX_FILE_BYTES} bytes"
             discovered.append(
                 DiscoveredFile(
                     path=path,
@@ -134,15 +163,16 @@ def discover_files(package_dir: Path) -> list[DiscoveredFile]:
                     sha256="",
                     file_id=file_id,
                     kind="rejected",
-                    rejection=_rejection(
-                        filename, "", file_id, "other", f"unreadable file: {exc}"
-                    ),
+                    rejection=_rejection(filename, "", file_id, kind or "other", error),
                 )
             )
             continue
 
-        suffix = path.suffix.lower()
-        kind = _SUFFIX_KINDS.get(suffix)
+        try:
+            sha256, file_id = _file_identity(path)
+        except OSError as exc:
+            discovered.append(_unreadable(path, filename, exc))
+            continue
 
         if suffix == ".doc":
             error = ".doc legacy Word not supported — convert to .docx and re-upload"
@@ -150,9 +180,6 @@ def discover_files(package_dir: Path) -> list[DiscoveredFile]:
         elif kind is None:
             error = f"unsupported file type: {suffix or '(no extension)'}"
             rejection = _rejection(filename, sha256, file_id, "other", error)
-        elif size > MAX_FILE_BYTES:
-            error = f"file size {size} bytes exceeds cap of {MAX_FILE_BYTES} bytes"
-            rejection = _rejection(filename, sha256, file_id, kind, error)
         else:
             discovered.append(
                 DiscoveredFile(
