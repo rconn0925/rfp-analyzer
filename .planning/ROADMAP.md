@@ -13,7 +13,7 @@ Build the pipeline inside-out: prove parsing and section detection on hostile re
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Parsing & Structure Foundation** - Multi-file federal packages parse into a structural document map with UCF section detection, quality gates, and SF30 identification (pure library + CLI)
+- [x] **Phase 1: Parsing & Structure Foundation** - Multi-file federal packages parse into a structural document map with UCF section detection, quality gates, and SF30 identification (pure library + CLI) (completed 2026-07-24)
 - [ ] **Phase 2: Requirement Extraction & Grounding** - Every requirement extracted verbatim with verified source references, type/keyword classification, keyword-sweep reconciliation, and golden-set evals
 - [ ] **Phase 3: Analysis & Export** - Cross-mapping, proposal outline, compliance judgment, and practitioner-standard Excel/CSV export — full pipeline end-to-end via CLI
 - [ ] **Phase 4: Web App & Job Orchestration** - Proven pipeline wrapped in an async web app: upload, background jobs with progress, profile authoring, persistent results
@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Low-quality or scanned pages are caught by per-page quality gates and surfaced, never passed through as silent garbage text
   4. SF30 amendment files within a package are identified and labeled as amendments
 
-**Plans:** 5/6 plans executed
+**Plans:** 6/6 plans complete
 
 Plans:
 **Wave 1**
@@ -55,7 +55,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-06-PLAN.md — CLI harness (dual output), corpus integration tests, human verification of success criteria
+- [x] 01-06-PLAN.md — CLI harness (dual output), corpus integration tests, human verification of success criteria
 
 Note: Request the SAM.gov API key during this phase — issuance reportedly takes ~10 business days and Phase 5 depends on it.
 
@@ -127,7 +127,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Parsing & Structure Foundation | 5/6 | In Progress|  |
+| 1. Parsing & Structure Foundation | 6/6 | Complete   | 2026-07-24 |
 | 2. Requirement Extraction & Grounding | 0/TBD | Not started | - |
 | 3. Analysis & Export | 0/TBD | Not started | - |
 | 4. Web App & Job Orchestration | 0/TBD | Not started | - |

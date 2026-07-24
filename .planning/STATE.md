@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 1 context gathered
-last_updated: "2026-07-23T06:06:00.563Z"
-last_activity: 2026-07-23 -- Phase 01 execution started
+stopped_at: Completed 01-06-PLAN.md
+last_updated: "2026-07-24T01:15:18.402Z"
+last_activity: 2026-07-24
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 6
-  completed_plans: 0
-  percent: 0
+  completed_plans: 6
+  percent: 20
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 ## Current Position
 
 Phase: 01 (Parsing & Structure Foundation) — EXECUTING
-Plan: 1 of 6
-Status: Executing Phase 01
-Last activity: 2026-07-23 -- Phase 01 execution started
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-07-24
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01 P06 | 45min | 4 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,9 @@ Recent decisions affecting current work:
 - [Roadmap]: 5 coarse phases reconciled from research's 7 — Analysis+Export merged (both consume the extracted set); Demo/Hardening+SAM.gov merged (both gate/extend the public app)
 - [Research]: Python/FastAPI + pdfplumber (MIT, no AGPL PyMuPDF) + Claude Sonnet 5; Postgres-backed job queue, Cloudflare R2 files, Railway deploy (web + worker + Postgres)
 - [Research]: Verbatim-quote verification and stable requirement IDs must land in the *first* extraction implementation (Phase 2) — retrofitting is a rewrite
+- [Phase 01]: Commercial-form packages with role-title-only section nodes classify non_ucf_commercial — only UCF letter sections trigger the Open Question 1 partial_ucf rule (corpus evidence from non-ucf-part12)
+- [Phase 01]: primary-ucf ground truth corrected full_ucf -> partial_ucf: base solicitation verified as a genuine SF1449 carrying a complete UCF A-M structure; partial_ucf with a verify-package-format warning is the honest classification
+- [Phase 01]: SF30 Block 2 amendment numbers are AcroForm field values invisible to the text layer — amendment_number=None is the honest Phase 1 outcome; Phase 2 candidate: read AcroForm fields
 
 ### Pending Todos
 
@@ -85,6 +89,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-07-23T05:31:33.566Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-parsing-structure-foundation/01-CONTEXT.md
+Last session: 2026-07-24T01:15:01.021Z
+Stopped at: Completed 01-06-PLAN.md
+Resume file: None

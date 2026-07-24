@@ -15,8 +15,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Parsing & Structure
 
-- [ ] **PARS-01**: System parses hostile real-world federal PDFs (tables, multi-column, SF forms) into text with a structural document map (section hierarchy + page numbers)
-- [ ] **PARS-02**: System detects UCF section boundaries (L, M, C/SOW/PWS, H, etc.) and degrades honestly when a package doesn't follow clean UCF structure (e.g., FAR Part 12 combined synopsis)
+- [x] **PARS-01**: System parses hostile real-world federal PDFs (tables, multi-column, SF forms) into text with a structural document map (section hierarchy + page numbers)
+- [x] **PARS-02**: System detects UCF section boundaries (L, M, C/SOW/PWS, H, etc.) and degrades honestly when a package doesn't follow clean UCF structure (e.g., FAR Part 12 combined synopsis)
 
 ### Extraction
 
@@ -92,8 +92,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INTK-01 | Phase 4 | Pending |
 | INTK-02 | Phase 5 | Pending |
 | INTK-03 | Phase 2 | Pending |
-| PARS-01 | Phase 1 | Pending |
-| PARS-02 | Phase 1 | Pending |
+| PARS-01 | Phase 1 | Complete |
+| PARS-02 | Phase 1 | Complete |
 | EXTR-01 | Phase 2 | Pending |
 | EXTR-02 | Phase 2 | Pending |
 | EXTR-03 | Phase 2 | Pending |
