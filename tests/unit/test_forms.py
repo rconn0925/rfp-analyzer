@@ -64,6 +64,15 @@ class TestDetectForm:
         assert match is not None
         assert match.form == "sf1449"
 
+    def test_signature_table_carries_both_sf1449_variants(self):
+        from rfp_analyzer.pipeline.classify.forms import FORM_SIGNATURES
+
+        sf1449_titles = [sig for form, sig in FORM_SIGNATURES if form == "sf1449"]
+        assert "SOLICITATION/CONTRACT/ORDER FOR COMMERCIAL PRODUCTS AND COMMERCIAL SERVICES" in (
+            sf1449_titles
+        )
+        assert "SOLICITATION/CONTRACT/ORDER FOR COMMERCIAL ITEMS" in sf1449_titles
+
     def test_sf30_title_matches_across_line_wrap(self):
         file = make_file("mod.pdf", "AMENDMENT OF SOLICITATION/\nMODIFICATION OF CONTRACT")
         match = detect_form(file)

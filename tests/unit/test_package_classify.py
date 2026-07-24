@@ -39,9 +39,7 @@ def make_file(
         file_type="pdf",
         parse_status="ok",
         page_count=60,
-        pages=[
-            PageInfo(page_number=1, quality="ok", char_count=len(page1_text), text=page1_text)
-        ],
+        pages=[PageInfo(page_number=1, quality="ok", char_count=len(page1_text), text=page1_text)],
         sections=sections or [],
     )
 
