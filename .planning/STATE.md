@@ -5,7 +5,7 @@ milestone_name: milestone
 status: milestone-complete
 stopped_at: v1.0 milestone complete — Phases 1-5 delivered
 last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-25 -- Phases 3, 4 and 5 delivered: matrix workbook, one-command run, static showcase
+last_activity: 2026-07-25 -- all three quality items done: parser fix, factor anchoring, exhaustive golden scope
 progress:
   total_phases: 5
   completed_phases: 5
@@ -21,7 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** Upload a real federal RFP and get back an accurate, fully populated compliance matrix with no manual shredding.
-**Current focus:** v1.0 delivered end-to-end. Next best work: make the golden set exhaustive (unlocks a real precision number), factor-anchored cross-mapping, and the annex two-column parser defect.
+**Current focus:** v1.0 delivered and the three follow-up quality items are done.
+Measured: precision 0.860 / recall 1.000 inside the exhaustive scope (Section L
+p49-51); 277 requirements, 277 grounded. Next best work: widen the exhaustive
+scope to Sections M and the SOW annex, ideally with a second reader (ground truth
+and extractor currently share an author); extend extraction beyond the 19 scoped
+chunks to the full 97.
 
 ## Current Position
 
@@ -78,9 +83,9 @@ None yet.
 
 - [Phase 2]: RESOLVED — the engine is Claude Code on Ross's subscription, reached through a file-mediated replay seam (chunks.jsonl -> Claude -> drafts.jsonl -> extract). Ollama/Qwen fully retired: no dependency, no client, no network call anywhere in the extraction stage. Grounding remains string-match verification against the Phase 1 document map.
 - [Phase 2]: RESOLVED — golden set built (02-04) and scored (02-07): recall 0.971, precision 0.426 (in scope), 277/277 grounded. See tests/eval/EVAL.md.
-- [Phase 3]: NEW — the golden set is a validated SAMPLE, not an exhaustive shred of its pages, so precision is a lower bound and not an error rate. Making it exhaustive over a defined page range is the highest-value eval improvement.
-- [Phase 3]: RESOLVED (actor typing, commit ab63d8b) — was: L<->M cross-mapping by text similarity did not work on the primary package and is not a tuning problem. Section L DELEGATES its content to Section M ("responses to each non-price factor as specified in Section M"), so M carries the real submittal instructions (topic coverage: phase-in L=0/M=3, safety L=0/M=15, experience L=0/M=5). Similarity reports those as m_without_l gaps, which is wrong. No stable threshold exists (45.0 maps 95%, 55.0 maps 22%, 65.0 maps 4%). Fix = anchor on the evaluation FACTOR, which needs (a) sub-section structure carried onto Requirement (section_label is L/M/C only today) and (b) a req_type rule splitting M's submittal subsections from its evaluation criteria — both reach back into Phase 1/2. FIXED by typing requirements by ACTOR (offeror vs Government) instead of by section, plus dedup keeping the deepest section path. 29 M rows reclassified. REMAINING (advisory-only until fixed): no per-factor anchor, so structurally similar sentences about different factors still link; needs sub-section structure below M.2 that the Phase 1 sectioner does not emit. Award-process statements also land in m_without_l when they are not gaps.
-- [Phase 3]: NEW — parser defect: the Section C Annexes two-column spec table injects the TITLE column mid-sentence ("authorizations to Licenses perform work"). Corrupts exported requirement text even when grounding succeeds. Needs column-aware annex extraction + running-header suppression.
+- [Phase 3]: RESOLVED (fe6939c) — golden set now declares an exhaustive_scope (Section L p49-51, pass-C audit); precision inside it is a true error rate of 0.860. Outside it precision remains a labelled lower bound. Remaining: widen the scope, and get a second reader for independence.
+- [Phase 3]: RESOLVED (actor typing ab63d8b + factor anchoring a6f1199) — was: L<->M cross-mapping by text similarity did not work on the primary package and is not a tuning problem. Section L DELEGATES its content to Section M ("responses to each non-price factor as specified in Section M"), so M carries the real submittal instructions (topic coverage: phase-in L=0/M=3, safety L=0/M=15, experience L=0/M=5). Similarity reports those as m_without_l gaps, which is wrong. No stable threshold exists (45.0 maps 95%, 55.0 maps 22%, 65.0 maps 4%). Fix = anchor on the evaluation FACTOR, which needs (a) sub-section structure carried onto Requirement (section_label is L/M/C only today) and (b) a req_type rule splitting M's submittal subsections from its evaluation criteria — both reach back into Phase 1/2. FIXED by typing requirements by ACTOR (offeror vs Government) instead of by section, plus dedup keeping the deepest section path. 29 M rows reclassified. REMAINING (advisory-only until fixed): no per-factor anchor, so structurally similar sentences about different factors still link; needs sub-section structure below M.2 that the Phase 1 sectioner does not emit. Award-process statements also land in m_without_l when they are not gaps.
+- [Phase 3]: RESOLVED (b4e1233) — the annex two-column spec table defect and the multi-regime running-header failure are both fixed (parsing/columns.py + absolute repetition floor).
 
 ## Deferred Items
 
