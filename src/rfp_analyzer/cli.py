@@ -37,7 +37,7 @@ from collections import Counter
 from pathlib import Path
 
 from rfp_analyzer.analysis_report import render_matrix_report
-from rfp_analyzer.eval.scoring import format_score_line, score
+from rfp_analyzer.eval.scoring import format_score_line, score, score_exhaustive
 from rfp_analyzer.pipeline.analysis.export import write_csv, write_workbook
 from rfp_analyzer.pipeline.analysis.judge import (
     DEMO_PROFILE,
@@ -428,6 +428,16 @@ def _golden_line(requirement_set: RequirementSet, golden_path: str | None) -> st
 
     result = score(requirement_set.requirements, golds)
     line = format_score_line(result)
+
+    # Inside a range the golden set claims to annotate exhaustively, an unmatched
+    # prediction really is an error — so that precision is a rate, not a floor.
+    strict = score_exhaustive(requirement_set.requirements, doc) if isinstance(doc, dict) else None
+    if strict and strict["total_golds"]:
+        line += (
+            f"\n  exhaustive scope ({strict['scope_pages']} pages): "
+            f"precision={strict['precision']:.3f}, recall={strict['recall']:.3f}, "
+            f"F1={strict['f1']:.3f} — a true error rate, not a lower bound"
+        )
 
     # Guard against scoring a run against a DIFFERENT package's ground truth,
     # which would print a confidently meaningless number. Compare file_ids, not

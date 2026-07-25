@@ -48,7 +48,7 @@ def render_matrix_report(matrix: ComplianceMatrix) -> str:
     # Cross-mapping — gaps first, they are the finding.
     gaps = gap_summary(matrix.cross_mappings)
     lines.append("")
-    lines.append(f"Cross-mapping (ADVISORY — similarity-based): {gaps.get('mapped', 0)} mapped")
+    lines.append(f"Cross-mapping (factor-anchored): {gaps.get('mapped', 0)} mapped")
     for kind, text in _GAP_TEXT.items():
         lines.append(f"  {text}: {gaps.get(kind, 0)}")
 

@@ -379,8 +379,9 @@ _PAGE = """<title>RFP Compliance Matrix — a real federal solicitation, shredde
   <h2>Cross-mapping L ↔ M ↔ SOW</h2>
   <p class="sub">
     A proposal is lost in the gaps: work that is instructed but never scored, or
-    scored but never instructed. This pass is similarity-based and still advisory —
-    see the caveats below.
+    scored but never instructed. Anchored on the evaluation factor and on who owes
+    the duty, so structurally similar sentences about different factors no longer
+    link.
   </p>
   {gap_rows}
 
@@ -405,19 +406,22 @@ _PAGE = """<title>RFP Compliance Matrix — a real federal solicitation, shredde
   </p>
   <div class="caveats">
     <ul>
-      <li><b>Recall 0.971, precision 0.426</b> against a hand-built golden set of 103
-        requirements. Precision is a <b>lower bound, not an error rate</b>: the golden
-        set annotates ~22 of 290 pages and is a validated sample, not an exhaustive
-        shred, so most "false positives" are real requirements it simply never
-        recorded.</li>
-      <li><b>Cross-mapping is advisory.</b> No per-factor anchor yet, so structurally
-        similar sentences about different evaluation factors can still link.</li>
+      <li><b>Precision 0.860, recall 1.000</b> inside the page range the golden set
+        annotates exhaustively (Section L, pages 49-51) — there, an unmatched
+        prediction really is an error, so this is a true error rate. Across the whole
+        golden set precision is 0.532 and remains a <b>lower bound</b>: outside the
+        exhaustive range an unmatched prediction may be a requirement the ground truth
+        never recorded. An audit of 29 such rows found 25 were exactly that.</li>
+      <li><b>Ground truth and extractor share an author</b>, so the accuracy figures
+        measure self-consistency of judgment, not agreement with an independent human
+        shredder. Widening the exhaustive scope with a second reader is the next real
+        improvement.</li>
+      <li><b>Cross-mapping is factor-anchored</b> but rows where neither side carries
+        an evaluation factor still rest on similarity alone — worth a glance before
+        acting on them.</li>
       <li><b>{not_judged} of {total} rows are not judged</b> and say so explicitly. An
         unjudged row is never rendered as compliant — a team believing it is covered
         because nobody looked is the costliest failure this tool could cause.</li>
-      <li><b>A parser defect is open.</b> The annex two-column spec tables interleave
-        the title column into sentence text, which corrupts some requirement text even
-        when grounding succeeds.</li>
       <li><b>Coverage of this run was scoped</b> to the golden-annotated sections, so
         this matrix is not the whole 290-page package.</li>
     </ul>

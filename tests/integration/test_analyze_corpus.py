@@ -77,7 +77,9 @@ def test_unassigned_stays_a_small_minority(analysis):
 
 def test_cross_mapping_names_every_disposition(analysis):
     kinds = {m.gap_kind for m in analysis.cross_mappings}
-    assert kinds <= {"mapped", "l_without_m", "m_without_l", "sow_without_either"}
+    assert kinds <= {
+        "mapped", "l_without_m", "m_without_l", "sow_without_either", "evaluation_process",
+    }
 
 
 def test_workbook_and_csv_are_written_and_wellformed(analysis, tmp_path):

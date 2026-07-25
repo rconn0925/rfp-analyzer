@@ -1,58 +1,72 @@
 # Extraction Accuracy — Claude Code engine, package N4008526R0033
 
-Measured 2026-07-24 (Phase 02, plan 02-07). Replaces the retired Qwen 14B-vs-32B
-bake-off, which died with the local-model engine.
+First measured 2026-07-24 (plan 02-07); re-measured 2026-07-25 after the parser
+fix, factor anchoring and the pass-C exhaustive audit. Replaces the retired Qwen
+14B-vs-32B bake-off, which died with the local-model engine.
 
 ## Result
 
+Re-measured 2026-07-25 after the column-aware parser fix, factor anchoring, and a
+pass-C exhaustive audit of Section L pages 49-51.
+
 | Metric | Value |
 |---|---|
-| **Recall** | **0.971** (100 of 103 golden requirements matched) |
-| **Precision (in scope)** | **0.426** (100 of 235 in-scope predictions matched) — *see caveat, this is a lower bound and not an error rate* |
-| **F1** | 0.592 |
+| **Precision (exhaustive scope, L p49-51)** | **0.860** — *a true error rate* |
+| **Recall (exhaustive scope)** | **1.000** (49 of 49) |
+| **F1 (exhaustive scope)** | **0.925** |
+| Precision (whole golden set) | 0.532 — still a lower bound, see below |
+| Recall (whole golden set) | 0.977 (125 of 128) |
 | Requirements produced | 277 |
-| **Grounded / verified** | **277 / 277 (100%)** — every row string-matched to a computed page reference |
-| Ungroundable (hallucinated or drifted quotes) | **0** |
-| Chunks extracted | 19 of 98 (the golden-annotated scope; see *Scope*) |
-| Predictions on unannotated pages | 42 (not scored) |
+| **Grounded / verified** | **277 / 277 (100%)**, 0 ungroundable |
 
 Reproduce exactly:
 
 ```
-rfp-analyzer extract artifacts/primary-ucf \
-  --drafts tests/eval/fixtures/golden_drafts.jsonl \
-  --golden tests/eval/golden/golden_set.json
+rfp-analyzer extract artifacts/primary-ucf \n  --drafts tests/eval/fixtures/golden_drafts.jsonl \n  --golden tests/eval/golden/golden_set.json
 ```
 
-## How to read these numbers
+## Precision finally means something
 
-**Recall (0.971) is the trustworthy headline.** Every golden requirement is in
-scope by construction, so nothing about the scoping method can inflate it.
+The previous 0.426 was **uninterpretable**, and the audit proved why rather than
+assuming it. Of 29 distinct unmatched predictions on Section L pages 49-51, **25
+were genuine binding requirements the golden set had simply never recorded** —
+cover-page contents, the 110-page limit, SPRS registration, the bank reference,
+the responsibility-determination submissions. Only 4 were true false positives:
 
-**Precision (0.426) is a lower bound, not an error rate.** Investigated rather
-than reported at face value:
+| Rejected prediction | Why it is not a requirement |
+|---|---|
+| "Prospective offerors are **requested to** submit written questions specifying the section and paragraph…" | Advisory, not mandatory |
+| "All inquires will be answered in writing." | Government action, no offeror duty |
+| "Proposals from unsuccessful offerors will not be returned… shall be destroyed by the Contracting Officer." | Government process |
+| "No certificate of destruction will be issued." | Government process |
 
-- Of 135 unmatched in-scope predictions, only **10** are atomic siblings of a
-  matched row (a compound obligation split into more rows than the golden set
-  splits it into). Sibling over-splitting is therefore *not* the explanation.
-- The other **125 have genuinely distinct verbatim spans**, and **65 carry a hard
-  binding keyword** (`shall` / `must` / `shall not`). A random sample of 18 was
-  inspected by hand; they are real obligations, e.g.:
-  - "Include a cover page with Solicitation Number, Solicitation Title, Prime Contractor Name…" (L, p49, *shall*)
-  - "Inadequate or unsafe items shall be removed and replaced by the Contractor at no cost to the Government." (Annex, p14)
-  - "Government personnel access shall be limited to viewing and downloading of deliverables, but restricted from posting to the website." (Annex, p16)
-  - "No work will commence until appropriate certification and permits have been obtained." (Annex, p11)
+Those 25 are now ground truth (`provenance_pass: "C"`), and `golden_set.json`
+declares an `exhaustive_scope` naming the page ranges it annotates completely.
+Inside that scope an unmatched prediction really is an error, so precision is a
+rate: **0.860**. Outside it, precision remains a lower bound and is labelled as
+one — that is the honest reading, not a hedge.
 
-**Conclusion: the golden set is a validated _sample_ of its pages, not an
-exhaustive shred of them.** Its own `build_method` says "agent-drafted (pass A) +
-adversarially validated (pass B)" — nothing claims completeness. So most
-"false positives" are requirements the ground truth simply does not record.
-Precision cannot be interpreted as extraction error until the golden set is made
-exhaustive over a defined page range. **That is the single highest-value fix to
-this eval** and is the recommended next step.
+Simply adding the 25 audited rows moved whole-set precision 0.426 -> 0.532 on
+identical extraction output, which is itself the cleanest evidence that the
+original number measured annotation coverage rather than extraction quality.
 
-Collapsing atomic siblings to one row per unique verbatim gives P=0.437 / R=0.835
-— the recall drop confirms atomic splitting is doing real work, not padding.
+**Independence caveat, stated plainly:** ground truth and extractor share an
+author. This measures self-consistency of judgment, not agreement with an
+independent human shredder. Extending the exhaustive scope — ideally with a
+second pair of eyes — is the next real improvement.
+
+## What the parser fix changed
+
+The annex two-column defect is gone: descriptions are contiguous, and no
+requirement text carries an interleaved title token ("authorizations to
+**Licenses** perform work"). Running headers now strip correctly too — the
+frequency test assumed one header regime per file, but this annex concatenates
+six sub-annexes each with its own column header, so none cleared the 40%
+threshold. An absolute repetition floor fixed it.
+
+Extraction accuracy was unaffected by the change (277 requirements, 277
+grounded), which is the expected result: the fix removed corruption from the text
+rather than changing what counts as a requirement.
 
 ## Scope
 
@@ -78,7 +92,7 @@ unaffected.
 All three are traceable to one root cause — **verbatim spans broken by PDF
 line-wrap hyphenation**:
 
-| Missed | Root cause |
+| Missed (of the pre-audit 103) | Root cause |
 |---|---|
 | M p63 — "…total length for each Corporate Experience Data Sheet shall not exceed three (3) single-sided pages." | Plain oversight; the sentence was read but not emitted. |
 | M p63 — "Contracts with periods of performance beyond one year shall be clearly defined as multi-<br>year contracts…" | `multi-\nyear` de-hyphenates to `multiyear` on normalize. Skipped rather than emit a quote that would not ground. |
@@ -90,7 +104,8 @@ were avoidable.
 
 **These three were NOT added to the drafts artifact after being identified.**
 Doing so would make recall reflect knowledge of the answer key rather than
-extraction quality. 0.971 is the honest measured number.
+extraction quality. They remain the 3 misses behind whole-set recall 0.977; inside
+the exhaustive scope, recall is 1.000 because none of the three falls in it.
 
 ## Known measurement caveats
 
@@ -103,32 +118,24 @@ extraction quality. 0.971 is the honest measured number.
    verbatim text, so when a compound sentence is split into more rows than ground
    truth splits it into, the extra siblings score as false positives even when the
    split is correct. Affects 10 rows here.
-3. **Minor contamination, disclosed:** while inspecting the golden file's *shape*
+3. **Ground truth and extractor share an author.** The pass-C audit promoted
+   audited predictions to ground truth, so the exhaustive-scope number measures
+   self-consistency of judgment, not agreement with an independent shredder.
+4. **Minor contamination, disclosed:** while inspecting the golden file's *shape*
    (keys, counts, match rule) before extracting, one of its 103 entries was
    visible. That single requirement was subsequently extracted. Effect on recall
-   is at most 1/103 (≈0.01). The remaining 102 were never read before extraction.
-4. Extraction was performed from the exported chunks only, never from
+   is at most 1/128 (<0.01). The rest were never read before extraction.
+5. Extraction was performed from the exported chunks only, never from
    `golden_set.json`'s requirement text.
 
-## Parser defect found (Phase 1, worth fixing)
+## Parser defect — FIXED 2026-07-25
 
-The Section C Annexes use a **two-column spec-item table** (Spec Item / Title /
-Description). Flattening injects the *title* column into the middle of description
-sentences:
-
-- "…authorizations to **Licenses** perform work under this contract…"
-- "…at least 30 calendar days written **Insurance** notice to the KO…"
-- "…shall provide sign-in sheets and prepare minutes of all meetings and **Meetings** submit per Section F…"
-
-10 of 70 annex spans required the interleaved token to be reproduced in order to
-ground. This corrupts requirement text in the exported matrix even when grounding
-succeeds, and it will read as gibberish to a proposal manager. Page-break running
-headers ("0200000 - Management and Administration / Spec Item Title Description")
-similarly split sentences mid-span, making some obligations unquotable as a single
-contiguous run.
-
-**Recommendation:** carry this into Phase 3 as a parsing backlog item —
-column-aware extraction for annex spec tables, and running-header suppression.
+The annex two-column spec table used to inject the Title column mid-sentence
+("authorizations to **Licenses** perform work"), corrupting requirement text even
+where grounding succeeded, and running headers survived into the text of 40
+pages. Both are fixed (`parsing/columns.py`, absolute-repetition header floor).
+The 17 recorded draft spans that had encoded the corruption were repaired, and one
+golden verbatim carrying a de-hyphenation artifact was corrected.
 
 ## Reproducibility
 

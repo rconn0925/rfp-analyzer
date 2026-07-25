@@ -160,6 +160,42 @@ def score(
     }
 
 
+def score_exhaustive(
+    preds: Sequence[Any] | Iterable[Any],
+    golden_doc: dict[str, Any],
+    thresh: float = MATCH_THRESHOLD,
+) -> dict[str, Any] | None:
+    """Score only inside the golden set's declared exhaustive scope.
+
+    Returns ``None`` when the set declares no such scope. Everywhere else,
+    precision is a lower bound — an unmatched prediction may be a real
+    requirement the ground truth never recorded, which is exactly what an audit
+    of this corpus found. Inside a range the set claims to annotate completely,
+    an unmatched prediction really is an error, so the number means what people
+    assume precision means.
+    """
+    scope = golden_doc.get("exhaustive_scope")
+    if not scope or not scope.get("ranges"):
+        return None
+
+    allowed: set[tuple[str, int]] = set()
+    for entry in scope["ranges"]:
+        for page in entry.get("pages", []):
+            allowed.add((entry.get("file_id"), page))
+    if not allowed:
+        return None
+
+    golds = [
+        g
+        for g in golden_doc.get("requirements", [])
+        if (g.get("file_id"), g.get("page")) in allowed
+    ]
+    in_scope = [p for p in preds if (_fields(p)[0], _fields(p)[1]) in allowed]
+    result = score(in_scope, golds, thresh, scoped=False)
+    result["scope_pages"] = len(allowed)
+    return result
+
+
 def format_score_line(result: dict[str, Any]) -> str:
     """One-line human summary with precision and recall stated SEPARATELY.
 
