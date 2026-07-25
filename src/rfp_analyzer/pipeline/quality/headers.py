@@ -31,13 +31,33 @@ HEADER_FREQ_THRESHOLD = 0.4
 """A normalized line must appear on >= this fraction of a file's OK pages to
 count as a running header/footer (A2 — corpus-tunable)."""
 
-RUNNING_LINE_BAND = 2
+RUNNING_LINE_BAND = 3
 """How many physical lines at the top and bottom of each page are candidate
-running-header/footer positions (A2 — corpus-tunable)."""
+running-header/footer positions (A2 — corpus-tunable).
+
+Raised from 2 to 3 for the SOW annexes, which stack three running lines: the
+section marker ("Section C"), the annex title ("0200000 - Management and
+Administration") and the spec-table column header ("Spec Item Title
+Description"). At 2 the column header survived into every chunk and then into
+extracted requirement text."""
 
 MIN_VOTING_PAGES = 2
 """Below this many voting pages, frequency is meaningless — a 'running'
 line needs repetition, so short files get no stripping."""
+
+MIN_ABSOLUTE_REPEATS = 8
+"""Band repetitions that make a line a running header regardless of file share.
+
+The fraction test alone assumes one header regime per file. A SOW annex bundle
+breaks that: this corpus's annex file concatenates six sub-annexes, each with its
+own column header, so the most common one reaches only 39% and NONE clears 40% —
+leaving "Spec Item Title Description" in the text of 40 pages, from where it flowed
+into extracted requirements.
+
+Repetition is the actual evidence. A line appearing at the top or bottom of eight
+separate pages is a running header whatever share of a heterogeneous file that is.
+Detection stays band-scoped, so a body line that happens to match is never removed.
+"""
 
 _DIGITS = str.maketrans("", "", "0123456789")
 
@@ -72,7 +92,11 @@ def detect_running_lines(pages: Iterable[PageInfo]) -> set[str]:
     if voters < MIN_VOTING_PAGES:
         return set()
     cutoff = HEADER_FREQ_THRESHOLD * voters
-    return {key for key, n in counts.items() if n >= cutoff}
+    return {
+        key
+        for key, n in counts.items()
+        if n >= cutoff or n >= MIN_ABSOLUTE_REPEATS
+    }
 
 
 def _strip_running_lines(text: str, running: set[str]) -> str:

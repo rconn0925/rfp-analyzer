@@ -20,6 +20,7 @@ import pdfplumber
 
 from rfp_analyzer.pipeline.models import PageInfo, ParsedFile
 from rfp_analyzer.pipeline.parsing import sanitize_text
+from rfp_analyzer.pipeline.parsing.columns import extract_text_columnar_aware
 
 
 def _page_images(page) -> list:
@@ -43,6 +44,7 @@ def parse_pdf(path: Path, *, sha256: str, file_id: str, filename: str | None = N
     """
     name = path.name if filename is None else filename
     pages: list[PageInfo] = []
+    columnar_pages: list[int] = []
     first_page_layout_text: str | None = None
     try:
         with pdfplumber.open(path) as pdf:
@@ -50,7 +52,16 @@ def parse_pdf(path: Path, *, sha256: str, file_id: str, filename: str | None = N
                 # Sanitize before metrics: a lone surrogate IS a glyph with no
                 # valid Unicode mapping, so counting it as a replacement char
                 # feeds the gibberish gate exactly the signal it looks for.
-                text = sanitize_text(page.extract_text(x_tolerance=3, y_tolerance=3) or "")
+                # Column-aware first: SOW annex spec tables are three-column, and
+                # reading them line-by-line splices the wrapping Title column into
+                # the middle of Description sentences. Falls through to the normal
+                # reading for any page that is not a recognisable column table.
+                raw, used_columns = extract_text_columnar_aware(
+                    page, page.extract_text(x_tolerance=3, y_tolerance=3) or ""
+                )
+                text = sanitize_text(raw)
+                if used_columns:
+                    columnar_pages.append(page.page_number)
                 if page.page_number == 1:
                     # Must run before page.close() invalidates caches.
                     first_page_layout_text = sanitize_text(page.extract_text(layout=True) or "")
