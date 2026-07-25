@@ -62,6 +62,7 @@ from rfp_analyzer.pipeline.models import (
     SectionNode,
 )
 from rfp_analyzer.pipeline.run import run_pipeline
+from rfp_analyzer.showcase import load_matrix, write_showcase
 
 QUALITY_NOTES: dict[str, str] = {
     "scanned": "scanned image, no text layer",
@@ -207,6 +208,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run_cmd.add_argument(
         "--out", default="artifacts", help="Artifacts root (default: artifacts)."
+    )
+
+    showcase_cmd = subparsers.add_parser(
+        "showcase",
+        help="Render a self-contained HTML showcase of a completed analysis.",
+    )
+    showcase_cmd.add_argument(
+        "artifacts_dir", help="Directory containing matrix.json produced by `analyze`."
+    )
+    showcase_cmd.add_argument(
+        "--out", default=None, help="Path for showcase.html (default: alongside matrix.json)."
     )
     return parser
 
@@ -730,6 +742,28 @@ def _run_chunks_quiet(args: argparse.Namespace) -> int:
     return 0
 
 
+def _run_showcase(args: argparse.Namespace) -> int:
+    """Render the static portfolio showcase from a completed analysis."""
+    artifacts_dir = Path(args.artifacts_dir)
+    matrix_path = artifacts_dir / "matrix.json"
+    if not matrix_path.exists():
+        print(
+            f"error: no matrix.json in {artifacts_dir} — run `analyze` first",
+            file=sys.stderr,
+        )
+        return 2
+    try:
+        matrix = load_matrix(matrix_path)
+    except ValueError as exc:
+        print(f"error: matrix.json failed schema validation: {exc}", file=sys.stderr)
+        return 2
+
+    out_path = Path(args.out) if args.out else artifacts_dir / "showcase.html"
+    write_showcase(matrix, out_path)
+    print(f"Showcase written to {out_path}")
+    return 0
+
+
 def _load_document_map(raw: str) -> DocumentMap | None:
     """Validate raw document_map.json text; return None (after an error) if unusable.
 
@@ -811,6 +845,8 @@ def main() -> None:
         sys.exit(_run_analyze(args))
     if args.command == "run":
         sys.exit(_run_all(args))
+    if args.command == "showcase":
+        sys.exit(_run_showcase(args))
     parser.error(f"unknown command: {args.command}")
 
 

@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Phase 03 in progress — 03-01/02 done incl. actor-typing fix; 03-03..06 remain
+status: milestone-complete
+stopped_at: v1.0 milestone complete — Phases 1-5 delivered
 last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-24 -- actor-based req_type unblocked cross-mapping; Phases 4-5 reframed
+last_activity: 2026-07-25 -- Phases 3, 4 and 5 delivered: matrix workbook, one-command run, static showcase
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 13
-  completed_plans: 15
-  percent: 45
+  completed_phases: 5
+  total_plans: 19
+  completed_plans: 19
+  percent: 100
 ---
 
 # Project State
@@ -21,13 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** Upload a real federal RFP and get back an accurate, fully populated compliance matrix with no manual shredding.
-**Current focus:** Phase 03 — outline, judgment, export (03-03..03-06)
+**Current focus:** v1.0 delivered end-to-end. Next best work: make the golden set exhaustive (unlocks a real precision number), factor-anchored cross-mapping, and the annex two-column parser defect.
 
 ## Current Position
 
-Phase: 03 (analysis-export) — IN PROGRESS
-Plan: 2 of 6 (03-01 schema, 03-02 cross-mapping + actor typing)
-Status: unblocked. Next: 03-03 outline, 03-04 judgment, 03-05 export, 03-06 CLI e2e
+Phase: ALL PHASES DELIVERED (1-5)
+Plan: 6 of 6 in Phase 03; Phases 04-05 delivered as reframed
+Status: v1.0 complete. `rfp-analyzer run <pkg>` produces a compliance workbook;
+`showcase` renders the portfolio page. Open items are quality improvements, not gaps.
 Last activity: 2026-07-24 -- 02-07 shipped the eval harness + Claude Code engine seam
 
 Progress: [██████████] 100%

@@ -16,8 +16,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Parsing & Structure Foundation** - Multi-file federal packages parse into a structural document map with UCF section detection, quality gates, and SF30 identification (pure library + CLI) (completed 2026-07-24)
 - [x] **Phase 2: Requirement Extraction & Grounding** - Every requirement extracted verbatim with verified source references, type/keyword classification, keyword-sweep reconciliation, and golden-set evals
 - [x] **Phase 3: Analysis & Export** - Cross-mapping, proposal outline, compliance judgment, and practitioner-standard Excel/CSV export — full pipeline end-to-end via CLI
-- [ ] **Phase 4: Local Tool Polish** - The pipeline as Ross's own working tool: one-command run, profile authoring, persistent local results (REFRAMED 2026-07-24 — no hosted multi-user app)
-- [ ] **Phase 5: Static Portfolio Showcase** - A precomputed, published walkthrough of a real analysis — zero live inference, zero hosting cost (REFRAMED 2026-07-24)
+- [x] **Phase 4: Local Tool Polish** - The pipeline as Ross's own working tool: one-command run, profile authoring, persistent local results (REFRAMED 2026-07-24 — no hosted multi-user app)
+- [x] **Phase 5: Static Portfolio Showcase** - A precomputed, published walkthrough of a real analysis — zero live inference, zero hosting cost (REFRAMED 2026-07-24)
 
 ## Phase Details
 
@@ -145,8 +145,15 @@ Plans:
   4. A completed analysis persists locally — re-export to Excel/CSV without re-running the pipeline
   5. The two-step Claude Code handoff is ergonomic enough to use on a real bid without friction
 
-**Plans**: TBD
-**UI hint**: no (CLI/local)
+**Delivered:** `rfp-analyzer run <package-dir>` chains parse -> chunks -> extract -> analyze.
+A first run stops at the Claude Code handoff and prints the next command (exit 0 — a
+handoff is not an error); once recordings exist the same command runs straight through.
+`--profile` loads a real capabilities profile; an unreadable one FAILS rather than
+silently judging against the fictional demo. Artifacts persist under `artifacts/<pkg>/`,
+so `analyze` re-exports without re-running extraction.
+
+**Partial:** stage-level progress is printed per step (`[1/4]`..`[4/4]`) but a long run is
+not resumable mid-stage — the recordings make a re-run cheap instead.
 
 ### Phase 5: Static Portfolio Showcase
 
@@ -166,10 +173,13 @@ Plans:
   3. The accuracy evidence (recall/precision, grounding rate, and the honest caveats from EVAL.md) is presented, not hidden — the measurement discipline IS the portfolio piece
   4. It is unmistakably a showcase of a real analysis, never a live service promising to process a visitor's own RFP
 
-**Deferred**: DEMO-03 moot (no live inference to bound); INTK-02 SAM.gov fetch stays deferred with the API key
+**Delivered:** `rfp-analyzer showcase <artifacts-dir>` renders a self-contained
+`showcase.html` from `matrix.json` — no external hosts (CSP-safe), both light and dark
+themes, real rows with real page citations, the fictional profile disclosed up front, and
+the measured accuracy shown WITH its caveats (precision stated as a lower bound, the
+unjudged count named, the open parser defect listed).
 
-**Plans**: TBD
-**UI hint**: yes (static)
+**Deferred**: DEMO-03 moot (no live inference to bound); INTK-02 SAM.gov fetch stays deferred with the API key
 
 ## Progress
 
