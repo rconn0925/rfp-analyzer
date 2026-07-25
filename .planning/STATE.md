@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 02 complete (7/7 plans)
+stopped_at: Phase 03 blocked on a cross-mapping design decision (03-01, 03-02 done)
 last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-24 -- Phase 02 complete: eval harness + Claude Code engine seam
+last_activity: 2026-07-24 -- 03-02 surfaced a blocking L<->M cross-mapping finding
 progress:
   total_phases: 5
   completed_phases: 2
   total_plans: 13
-  completed_plans: 13
-  percent: 40
+  completed_plans: 15
+  percent: 45
 ---
 
 # Project State
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** Upload a real federal RFP and get back an accurate, fully populated compliance matrix with no manual shredding.
-**Current focus:** Phase 03 — analysis + export (Phase 02 complete)
+**Current focus:** Phase 03 — blocked on the L<->M cross-mapping approach
 
 ## Current Position
 
-Phase: 02 (requirement-extraction-grounding) — COMPLETE
-Plan: 7 of 7
-Status: Phase 02 closed; Phase 03 (analysis + export) is next
+Phase: 03 (analysis-export) — BLOCKED on a design decision
+Plan: 2 of 6 (03-01 schema, 03-02 cross-mapping)
+Status: 03-03..03-06 held pending Ross's call on cross-mapping (see Blockers)
 Last activity: 2026-07-24 -- 02-07 shipped the eval harness + Claude Code engine seam
 
 Progress: [██████████] 100%
@@ -78,6 +78,7 @@ None yet.
 - [Phase 2]: RESOLVED — the engine is Claude Code on Ross's subscription, reached through a file-mediated replay seam (chunks.jsonl -> Claude -> drafts.jsonl -> extract). Ollama/Qwen fully retired: no dependency, no client, no network call anywhere in the extraction stage. Grounding remains string-match verification against the Phase 1 document map.
 - [Phase 2]: RESOLVED — golden set built (02-04) and scored (02-07): recall 0.971, precision 0.426 (in scope), 277/277 grounded. See tests/eval/EVAL.md.
 - [Phase 3]: NEW — the golden set is a validated SAMPLE, not an exhaustive shred of its pages, so precision is a lower bound and not an error rate. Making it exhaustive over a defined page range is the highest-value eval improvement.
+- [Phase 3]: **BLOCKING** — L<->M cross-mapping by text similarity does not work on the primary package and is not a tuning problem. Section L DELEGATES its content to Section M ("responses to each non-price factor as specified in Section M"), so M carries the real submittal instructions (topic coverage: phase-in L=0/M=3, safety L=0/M=15, experience L=0/M=5). Similarity reports those as m_without_l gaps, which is wrong. No stable threshold exists (45.0 maps 95%, 55.0 maps 22%, 65.0 maps 4%). Fix = anchor on the evaluation FACTOR, which needs (a) sub-section structure carried onto Requirement (section_label is L/M/C only today) and (b) a req_type rule splitting M's submittal subsections from its evaluation criteria — both reach back into Phase 1/2. NEEDS A SCOPE DECISION.
 - [Phase 3]: NEW — parser defect: the Section C Annexes two-column spec table injects the TITLE column mid-sentence ("authorizations to Licenses perform work"). Corrupts exported requirement text even when grounding succeeds. Needs column-aware annex extraction + running-header suppression.
 
 ## Deferred Items
