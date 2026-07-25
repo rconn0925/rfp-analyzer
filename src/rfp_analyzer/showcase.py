@@ -406,12 +406,15 @@ _PAGE = """<title>RFP Compliance Matrix — a real federal solicitation, shredde
   </p>
   <div class="caveats">
     <ul>
-      <li><b>Precision 0.860, recall 1.000</b> inside the page range the golden set
-        annotates exhaustively (Section L, pages 49-51) — there, an unmatched
-        prediction really is an error, so this is a true error rate. Across the whole
-        golden set precision is 0.532 and remains a <b>lower bound</b>: outside the
-        exhaustive range an unmatched prediction may be a requirement the ground truth
-        never recorded. An audit of 29 such rows found 25 were exactly that.</li>
+      <li><b>Precision 0.950, recall 0.985</b> across the 16 pages the golden set
+        annotates exhaustively (Sections L and M) — there an unmatched prediction really
+        is an error, so this is a true error rate, and all 7 false positives are named
+        in the eval writeup. Across the whole golden set precision is 0.714 and remains
+        a <b>lower bound</b>: outside the exhaustive range an unmatched prediction may
+        be a requirement the ground truth never recorded, which an audit showed is
+        usually what it is.</li>
+      <li><b>The SOW annex is not exhaustively annotated yet</b>, so requirements found
+        there are not part of the measured error rate.</li>
       <li><b>Ground truth and extractor share an author</b>, so the accuracy figures
         measure self-consistency of judgment, not agreement with an independent human
         shredder. Widening the exhaustive scope with a second reader is the next real

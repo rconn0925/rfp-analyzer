@@ -12,7 +12,7 @@
     "threshold": 90.0
   },
   "counts": {
-    "total": 128,
+    "total": 190,
     "by_section": {
       "L": 24,
       "M": 24,
@@ -1368,7 +1368,7 @@
       "provenance_note": "verbatim repaired 2026-07-25 after the column-aware parser fix; the old text encoded a de-hyphenation artifact ('NonRecurring') produced by the pre-fix reader"
     },
     {
-      "requirement_id": "GOLD-73642b6cc7",
+      "requirement_id": "GOLD-2299967be2",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1381,7 +1381,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-4244eb4595",
+      "requirement_id": "GOLD-af9735d284",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1394,7 +1394,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-bdf678ee72",
+      "requirement_id": "GOLD-f4ee1ea02a",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1407,7 +1407,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-6d0efdd807",
+      "requirement_id": "GOLD-6e2894aaf1",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1420,7 +1420,20 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-3b56990179",
+      "requirement_id": "GOLD-18fda90f04",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 49,
+      "verbatim_text": "In addition, non-price/technical information included in the price proposal will not be considered, likewise, price information included in the non-price/technical proposal will not be considered.",
+      "atomic_obligation": "Do not put price information in the non-price/technical proposal; it is not considered.",
+      "binding_keyword": "will",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-79d84cd1c8",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1433,7 +1446,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-41b14258f1",
+      "requirement_id": "GOLD-58ace97c88",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1446,7 +1459,20 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-bc9bf25c50",
+      "requirement_id": "GOLD-88e865bc72",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 49,
+      "verbatim_text": "110-page limit (inclusive of all charts, forms and other documentation responsive to the solicitation requirements except as noted below), pages sequentially numbered;",
+      "atomic_obligation": "Number pages sequentially.",
+      "binding_keyword": "shall",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-e37c5b85f0",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1459,7 +1485,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-8cb176cd65",
+      "requirement_id": "GOLD-34a5c36c43",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1472,7 +1498,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-bd31705bd4",
+      "requirement_id": "GOLD-f2bf25bb6f",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1485,7 +1511,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-c0ef8d73c3",
+      "requirement_id": "GOLD-34f5237050",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1498,7 +1524,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-069a5074d2",
+      "requirement_id": "GOLD-54976c5b6d",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1511,7 +1537,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-73046387b0",
+      "requirement_id": "GOLD-ce7db97819",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1524,7 +1550,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-f153f57a24",
+      "requirement_id": "GOLD-0b1118f220",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1537,7 +1563,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-5c2b78a7d4",
+      "requirement_id": "GOLD-a2998d1bda",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1550,7 +1576,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-126b92d4ad",
+      "requirement_id": "GOLD-fac62f3951",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1563,7 +1589,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-85844c6ad3",
+      "requirement_id": "GOLD-7d3967212f",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1576,7 +1602,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-fd51764827",
+      "requirement_id": "GOLD-ee283b3a3a",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1589,7 +1615,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-0bade1292f",
+      "requirement_id": "GOLD-191355500a",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1602,7 +1628,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-2144dacc29",
+      "requirement_id": "GOLD-cfc81eea6f",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1615,7 +1641,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-4d181ad556",
+      "requirement_id": "GOLD-a7197e6a78",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1628,7 +1654,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-5f3cd834a5",
+      "requirement_id": "GOLD-e118fd260d",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1641,7 +1667,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-f9a330a60a",
+      "requirement_id": "GOLD-cc50fe50ab",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1654,7 +1680,20 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-7023a55a17",
+      "requirement_id": "GOLD-1a34d0be6f",
+      "section": "L",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 51,
+      "verbatim_text": "For Joint Venture arrangements, submit the latest three complete fiscal year financial statements for each company in the Joint Venture and discuss the financial responsibilities among the companies.",
+      "atomic_obligation": "For a Joint Venture, discuss the financial responsibilities among the member companies.",
+      "binding_keyword": "none",
+      "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-6fadf4cef7",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1667,7 +1706,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-a293e9a82f",
+      "requirement_id": "GOLD-6572508c47",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1680,7 +1719,7 @@
       "provenance_pass": "C"
     },
     {
-      "requirement_id": "GOLD-163a42d482",
+      "requirement_id": "GOLD-50ab5e0427",
       "section": "L",
       "file_id": "475828d11085-solicitation-n4008526r0033",
       "filename": "Solicitation - N4008526R0033.pdf",
@@ -1689,6 +1728,773 @@
       "atomic_obligation": "If not submitting responsibility information via PIEE, email it to the Factor 4 point of contact.",
       "binding_keyword": "shall",
       "req_type": "instruction",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-bcf0d787bd",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 58,
+      "verbatim_text": "This assessment must provide the rationale for proceeding to award without discussions.",
+      "atomic_obligation": "Document the rationale for proceeding to award without discussions.",
+      "binding_keyword": "must",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-9b6c8289d7",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 59,
+      "verbatim_text": "Award will be made to the responsible Offeror whose offer conforms to the solicitation and represents the best value to the Government, price and non-price factors considered.",
+      "atomic_obligation": "Award goes to the responsible Offeror whose conforming offer is the best value.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-6906e671d3",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 59,
+      "verbatim_text": "The Government will evaluate price based on the total price.",
+      "atomic_obligation": "Price is evaluated on total price.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-b8c9cbb04f",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "Your proposal shall be compliant with and demonstrate an understanding of the reporting and dual-hatted personnel restrictions in Section C, Annex 0200000, Management and Administration Spec Item 2.7.1 Key Personnel and its Sub-annexes 2.7.1.1 through 2.7.1.6.",
+      "atomic_obligation": "Demonstrate understanding of those reporting and dual-hatted personnel restrictions.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-720ff26e9d",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "The work to be performed, the subcontractors to be utilized, and their roles, shall be clearly identified.",
+      "atomic_obligation": "Clearly identify the subcontractors to be utilized.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-f1f8d65b95",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "The work to be performed, the subcontractors to be utilized, and their roles, shall be clearly identified.",
+      "atomic_obligation": "Clearly identify the subcontractors' roles.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-0e24debd22",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 60,
+      "verbatim_text": "Offerors are advised they will be responsible for being compliant with FAR 52.219-14, Limitation on Subcontracting, during contract performance.",
+      "atomic_obligation": "Comply with FAR 52.219-14 Limitation on Subcontracting during performance.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-9861ba5199",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 61,
+      "verbatim_text": "The Management Approach factor shall be evaluated based upon the following criteria.",
+      "atomic_obligation": "The Management Approach factor is evaluated on the listed criteria.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-ffc441180f",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 61,
+      "verbatim_text": "The Government will evaluate the feasibility of the Offeror's Phase-In Transition Plan as a means of evaluating the capability of the Offeror to successfully meet the requirements of the RFP.",
+      "atomic_obligation": "The Government evaluates the feasibility of the Phase-In Transition Plan.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-31e093232c",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 61,
+      "verbatim_text": "Note: The evaluation of the incumbent contractor's Phase-in Transition Plan shall be focused on how they will successfully continue services while meeting new contract requirements.",
+      "atomic_obligation": "An incumbent's Phase-in Transition Plan is evaluated on continuity of services under new requirements.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-80aa3c551f",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 61,
+      "verbatim_text": "The Government will evaluate the feasibility of the Offeror's workforce management narrative as a means of evaluating the capability of the Offeror to successfully meet the requirements of the RFP.",
+      "atomic_obligation": "The Government evaluates the feasibility of the workforce management narrative.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-154361f687",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "The Offeror shall submit the following information.",
+      "atomic_obligation": "Submit the listed Corporate Experience information.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-d234cd2ebc",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "Experience of the Offeror or its corporate affiliate(s) performed as a subcontractor will not be considered.",
+      "atomic_obligation": "Subcontractor experience is not considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-6c2b6aa209",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "Contracts submitted in excess of the maximum will not be considered.",
+      "atomic_obligation": "Contracts beyond the five-contract maximum are not considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-672f00b8e6",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "Additionally, the Government will consider only the first five contracts if more are submitted.",
+      "atomic_obligation": "Only the first five contracts submitted are considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-44c751411a",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "Offerors are only permitted to submit one contract per Corporate Experience Data Sheet.",
+      "atomic_obligation": "Submit only one contract per Corporate Experience Data Sheet.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-56470caba4",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "If the Offeror submits more than one contract on one Corporate Experience Data Sheet, the contract will be considered Not Relevant.",
+      "atomic_obligation": "More than one contract on a single Data Sheet renders the contract Not Relevant.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-282526b655",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "The Government will not consider information submitted in addition to this form nor will the Government consider information submitted via any other medium.",
+      "atomic_obligation": "Information submitted in addition to the Data Sheet form is not considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-5ec1bec5c7",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "The Government will not consider information submitted in addition to this form nor will the Government consider information submitted via any other medium.",
+      "atomic_obligation": "Information submitted via any other medium is not considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-097ec4e218",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "If more than three (3) single-sided pages are submitted, the Government will only consider the first three (3) single-sided pages.",
+      "atomic_obligation": "Only the first three single-sided pages of a Data Sheet are considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-1a099b4b0e",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "If the contract has option periods, state which contract period is in progress (e.g. base, 1st option, etc.).",
+      "atomic_obligation": "State which contract period is in progress when the contract has option periods.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-f10e3fa8bc",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 63,
+      "verbatim_text": "Size: A contract with a yearly value of at least $5,000,000 for recurring services.",
+      "atomic_obligation": "A relevant contract has a yearly value of at least $5,000,000 for recurring services.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-5272a82088",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "For all submitted contracts, the description of the contract shall clearly describe the scope of work performed and the relevancy to the requirements of this RFP as it relates to Size and Scope/Complexity, as defined above, or the Government may consider the contract Not Relevant.",
+      "atomic_obligation": "Describe clearly for each submitted contract the scope of work performed and its relevancy to this RFP.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-3dd3258223",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "If an Offeror intends to submit recurring work completed/issued off an Indefinite Quantity/Indefinite Delivery (IDIQ) contract as a qualifying contract, the Offeror is limited to submitting the IDIQ contract itself.",
+      "atomic_obligation": "Submit the IDIQ contract itself, not work issued under it, as a qualifying contract.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-d94b7fa0e9",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "The Government will not consider or evaluate any task orders whether submitted individually or collectively.",
+      "atomic_obligation": "Task orders are not considered or evaluated.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-0414b39983",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "In order to utilize the experience of a small business first-tier subcontractor(s), the offeror must specifically identify the proposed small business first tier contractor(s) in its proposal in accordance with this Factor.",
+      "atomic_obligation": "Specifically identify any small business first-tier subcontractor whose experience is being used.",
+      "binding_keyword": "must",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-2f8cae2dc4",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "The Offeror or its small business first-tier subcontractor, shall have been the prime contractor on all submitted contracts.",
+      "atomic_obligation": "Ensure the Offeror or its small business first-tier subcontractor was prime on all submitted contracts.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-e7471c3e7f",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "The Offeror is not permitted to use the experience of a large business subcontractor or large business corporate affiliate in place of its own experience if the Offeror cannot independently satisfy the experience requirement as defined above.",
+      "atomic_obligation": "Do not substitute a large business subcontractor's or affiliate's experience for the Offeror's own.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-4ffd1c99a8",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "Offerors proposing as Mentor-Protege Joint Ventures shall provide a copy of the letter from SBA approving their Mentor-Protege Agreement and submit their proposal in accordance with SBA regulations for approved Mentor-Protege agreements.",
+      "atomic_obligation": "Provide the SBA letter approving the Mentor-Protege Agreement.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-67fcd8522e",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "Offerors proposing as Mentor-Protege Joint Ventures shall provide a copy of the letter from SBA approving their Mentor-Protege Agreement and submit their proposal in accordance with SBA regulations for approved Mentor-Protege agreements.",
+      "atomic_obligation": "Submit the proposal in accordance with SBA regulations for approved Mentor-Protege agreements.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-7fead820ca",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "Failure to provide a copy of the SBA approval letter will result in a Deficiency.",
+      "atomic_obligation": "Omitting the SBA approval letter results in a Deficiency.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-066e6b063d",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "The Offeror shall submit a signed copy of the partnership agreement, teaming agreement, or letter of commitment.",
+      "atomic_obligation": "Submit a signed partnership agreement, teaming agreement, or letter of commitment.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-311716ab33",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "The copy shall be signed by both the Offeror and the corporate affiliate or first-tier small business sub-contractor.",
+      "atomic_obligation": "Have the agreement signed by both the Offeror and the affiliate or first-tier small business subcontractor.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-1d971cf126",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "The proposal shall include a narrative that clearly demonstrates that the corporate affiliates or first-tier small business sub-contractors will have meaningful involvement in the performance of the contract.",
+      "atomic_obligation": "Include a narrative demonstrating meaningful involvement of affiliates or first-tier small business subcontractors.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-57024857a8",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 64,
+      "verbatim_text": "The following shall be included in the narrative:",
+      "atomic_obligation": "Include the listed elements in the meaningful-involvement narrative.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-4f743cae66",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 65,
+      "verbatim_text": "The Government will not consider any contract submitted for this Factor 2 if it was performed by a firm other than the Offeror and there is no supporting partnership agreement, teaming agreement, or letter of commitment.",
+      "atomic_obligation": "A contract performed by another firm without a supporting agreement is not considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-dcf288005d",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 65,
+      "verbatim_text": "At least one relevant contract shall also meet the compliance requirements of this Factor as defined above.",
+      "atomic_obligation": "Ensure at least one relevant contract meets the Factor's compliance requirements.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-a8559beb57",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 65,
+      "verbatim_text": "A Deficiency will be assigned to any Offeror that does not meet the minimum requirements of at least one (1) relevant contract as defined above and as such will receive a rating of UNACCEPTABLE.",
+      "atomic_obligation": "Failing to submit at least one relevant contract yields a Deficiency and an UNACCEPTABLE rating.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-dd463ea0f2",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 65,
+      "verbatim_text": "An Offeror with an UNACCEPTABLE rating in any Factor will not be eligible for award.",
+      "atomic_obligation": "An UNACCEPTABLE rating in any Factor makes the Offeror ineligible for award.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-fe67bddaf6",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "The Offeror shall submit the following information: The Days Away from Work, Restricted Duty, or Job Transfer (DART) Rate and Total Case Rate (TCR) for the specified five (5) Calendar Years (CY) as well as a safety narrative, as described further below.",
+      "atomic_obligation": "Submit the Total Case Rate (TCR) for the specified five calendar years.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-459ef2ac0d",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "The Offeror shall submit the following information: The Days Away from Work, Restricted Duty, or Job Transfer (DART) Rate and Total Case Rate (TCR) for the specified five (5) Calendar Years (CY) as well as a safety narrative, as described further below.",
+      "atomic_obligation": "Submit a safety narrative.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-13cd536aab",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "DART Rate: Submit five (5) previous complete calendar years' worth of data (not an overall average).",
+      "atomic_obligation": "Submit five previous complete calendar years of DART data, not an average.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-008bfd0d27",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "If the Offeror has no DART rate, for any year, affirmatively state so and explain why.",
+      "atomic_obligation": "Affirmatively state any year with no DART rate.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-e1b1d689a6",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "If the Offeror has no DART rate, for any year, affirmatively state so and explain why.",
+      "atomic_obligation": "Explain why there is no DART rate for that year.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-167a4f1d94",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "TCR Rate: Submit five (5) previous complete calendar years' worth of data (not an overall average).",
+      "atomic_obligation": "Submit five previous complete calendar years of TCR data, not an average.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-ef729bd578",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "If the Offeror has no TCR rate, for any year, affirmatively state so and explain why.",
+      "atomic_obligation": "Affirmatively state any year with no TCR rate.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-feda09f913",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 66,
+      "verbatim_text": "If the Offeror has no TCR rate, for any year, affirmatively state so and explain why.",
+      "atomic_obligation": "Explain why there is no TCR rate for that year.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-64a5b62dea",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 68,
+      "verbatim_text": "Information on pages beyond this will not be considered.",
+      "atomic_obligation": "Content beyond the seven-page safety narrative limit is not considered.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-0b642b1f87",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 68,
+      "verbatim_text": "A Technical Approach to Safety narrative, missing in its entirety will result in a Deficiency.",
+      "atomic_obligation": "Omitting the Technical Approach to Safety narrative results in a Deficiency.",
+      "binding_keyword": "will",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-555d42966d",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 69,
+      "verbatim_text": "IF CPARS EVALUATION ARE AVAILABLE, THEY SHALL BE SUBMITTED WITH THE PROPOSAL.",
+      "atomic_obligation": "Submit available CPARS evaluations with the proposal.",
+      "binding_keyword": "shall",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-23b2dca314",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 69,
+      "verbatim_text": "Ensure correct phone numbers and email addresses are provided for the client point of contact.",
+      "atomic_obligation": "Provide correct phone numbers and email addresses for the client point of contact.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-e3bd0078c1",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 69,
+      "verbatim_text": "Completed PPQs should be submitted with your proposal.",
+      "atomic_obligation": "Submit completed Past Performance Questionnaires with the proposal.",
+      "binding_keyword": "should",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-e796301747",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 69,
+      "verbatim_text": "Offerors should follow-up with clients/references to ensure timely submittal of questionnaires.",
+      "atomic_obligation": "Follow up with clients and references to ensure questionnaires are submitted on time.",
+      "binding_keyword": "should",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-6593c3fb36",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 69,
+      "verbatim_text": "While the Government may elect to consider data from other sources, the burden of providing detailed, current, accurate, and complete past performance information rests with the Offeror.",
+      "atomic_obligation": "Bear the burden of providing detailed, current, accurate and complete past performance information.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-4d5f4abf6e",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 69,
+      "verbatim_text": "IMPORTANT: It is the responsibility of the Offeror to provide accurate points of contact for each identified contract and current telephone numbers and/or email addresses.",
+      "atomic_obligation": "Provide accurate points of contact and current phone/email for each identified contract.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-9dfe8b34bd",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 67,
+      "verbatim_text": "Missing data without an explanation is considered a Deficiency.",
+      "atomic_obligation": "Missing DART/TCR data without an explanation is a Deficiency.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-d3c5c861d8",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 69,
+      "verbatim_text": "Failure to provide requested data, accessible points of contact, or invalid phone number could result in a firm being considered less qualified.",
+      "atomic_obligation": "Provide requested data, accessible points of contact and valid phone numbers.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-9749871db2",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 70,
+      "verbatim_text": "Such explanations shall not exceed two (2) double-sided pages (or four (4) single-sided pages) in total.",
+      "atomic_obligation": "Limit adverse past performance explanations to two double-sided (or four single-sided) pages.",
+      "binding_keyword": "shall not",
+      "req_type": "evaluation",
+      "parent_id": null,
+      "provenance_pass": "C"
+    },
+    {
+      "requirement_id": "GOLD-66727eaa06",
+      "section": "M",
+      "file_id": "475828d11085-solicitation-n4008526r0033",
+      "filename": "Solicitation - N4008526R0033.pdf",
+      "page": 70,
+      "verbatim_text": "The Government reserves the right to contact references for verification or additional information.",
+      "atomic_obligation": "The Government may contact references for verification or additional information.",
+      "binding_keyword": "none",
+      "req_type": "evaluation",
       "parent_id": null,
       "provenance_pass": "C"
     }
@@ -1705,9 +2511,29 @@
           51
         ],
         "section": "L"
+      },
+      {
+        "file_id": "475828d11085-solicitation-n4008526r0033",
+        "filename": "Solicitation - N4008526R0033.pdf",
+        "pages": [
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70
+        ],
+        "section": "M"
       }
     ],
-    "method": "pass C, 2026-07-25: every prediction in range adversarially audited as binding-obligation or not; 25 genuine requirements promoted to ground truth, 4 rejected (one advisory 'requested to', three Government process statements imposing no offeror duty)",
+    "method": "pass C, 2026-07-25: every prediction in range adversarially audited against a single standard — does it obligate the offeror, or state a measure the proposal is judged by? Genuine requirements promoted to ground truth INCLUDING atomic siblings, so the one-to-one match rule is not penalised for correct splitting. 6 rejected: 2 advisory/permissive ('are requested to', 'may include'), 3 Government process statements imposing no duty, 1 legal disclaimer.",
     "independence_caveat": "ground truth and extractor share an author, so this measures self-consistency of judgment, not agreement with an independent human shredder"
   }
 }

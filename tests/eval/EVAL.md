@@ -7,66 +7,78 @@ fix, factor anchoring and the pass-C exhaustive audit. Replaces the retired Qwen
 ## Result
 
 Re-measured 2026-07-25 after the column-aware parser fix, factor anchoring, and a
-pass-C exhaustive audit of Section L pages 49-51.
+pass-C exhaustive audit of Sections L and M (16 pages).
 
 | Metric | Value |
 |---|---|
-| **Precision (exhaustive scope, L p49-51)** | **0.860** — *a true error rate* |
-| **Recall (exhaustive scope)** | **1.000** (49 of 49) |
-| **F1 (exhaustive scope)** | **0.925** |
-| Precision (whole golden set) | 0.532 — still a lower bound, see below |
-| Recall (whole golden set) | 0.977 (125 of 128) |
+| **Precision (exhaustive scope)** | **0.950** — *a true error rate* |
+| **Recall (exhaustive scope)** | **0.985** (133 of 135) |
+| **F1 (exhaustive scope)** | **0.967** |
+| Precision (whole golden set) | 0.714 — still a lower bound outside the scope |
+| Recall (whole golden set) | 0.984 (187 of 190) |
 | Requirements produced | 277 |
 | **Grounded / verified** | **277 / 277 (100%)**, 0 ungroundable |
 
-Reproduce exactly:
+Exhaustive scope: solicitation pages 49–51 (Section L) and 58–70 (Section M) —
+16 pages, 135 ground-truth rows. Reproduce with:
 
 ```
-rfp-analyzer extract artifacts/primary-ucf \n  --drafts tests/eval/fixtures/golden_drafts.jsonl \n  --golden tests/eval/golden/golden_set.json
+rfp-analyzer extract artifacts/primary-ucf   --drafts tests/eval/fixtures/golden_drafts.jsonl   --golden tests/eval/golden/golden_set.json
 ```
 
-## Precision finally means something
+## Precision means something now
 
-The previous 0.426 was **uninterpretable**, and the audit proved why rather than
-assuming it. Of 29 distinct unmatched predictions on Section L pages 49-51, **25
-were genuine binding requirements the golden set had simply never recorded** —
-cover-page contents, the 110-page limit, SPRS registration, the bank reference,
-the responsibility-determination submissions. Only 4 were true false positives:
+The original 0.426 was uninterpretable. The audit proved why instead of assuming
+it: every prediction inside the scope was judged against one standard — *does it
+obligate the offeror, or state a measure the proposal is judged by?* The
+overwhelming majority were genuine requirements the golden set had never
+recorded. Exactly **7 were not**, and they are the whole of the false-positive
+count:
 
 | Rejected prediction | Why it is not a requirement |
 |---|---|
-| "Prospective offerors are **requested to** submit written questions specifying the section and paragraph…" | Advisory, not mandatory |
+| "Prospective offerors are **requested to** submit written questions…" | Advisory, not mandatory |
 | "All inquires will be answered in writing." | Government action, no offeror duty |
-| "Proposals from unsuccessful offerors will not be returned… shall be destroyed by the Contracting Officer." | Government process |
+| "Proposals from unsuccessful offerors will not be returned… shall be destroyed…" (2 atomic rows) | Government process |
 | "No certificate of destruction will be issued." | Government process |
+| "…Evaluation of Options will not obligate the Government to exercise the option(s)." | Legal disclaimer |
+| "The Offeror **may** include performance recognition documents…" | Permissive option |
 
-Those 25 are now ground truth (`provenance_pass: "C"`), and `golden_set.json`
-declares an `exhaustive_scope` naming the page ranges it annotates completely.
-Inside that scope an unmatched prediction really is an error, so precision is a
-rate: **0.860**. Outside it, precision remains a lower bound and is labelled as
-one — that is the honest reading, not a hedge.
+The two remaining misses are the known PDF line-wrap hyphenation cases (see
+below), not extraction failures of judgment.
 
-Simply adding the 25 audited rows moved whole-set precision 0.426 -> 0.532 on
-identical extraction output, which is itself the cleanest evidence that the
-original number measured annotation coverage rather than extraction quality.
+**Atomic siblings are in ground truth too.** When a compound sentence is split
+into several single-duty rows, the golden set now carries the same siblings, so
+the one-to-one match rule is not penalised for splitting correctly. Promoting
+deduplicated verbatims only (the first attempt) understated precision at 0.757;
+this is a measurement artifact worth naming, not a quality change.
+
+Progression on identical extraction output, which is the cleanest evidence that
+the early numbers measured annotation coverage rather than extraction quality:
+**0.426 → 0.532 → 0.757 → 0.950**.
 
 **Independence caveat, stated plainly:** ground truth and extractor share an
-author. This measures self-consistency of judgment, not agreement with an
-independent human shredder. Extending the exhaustive scope — ideally with a
-second pair of eyes — is the next real improvement.
+author. Inside the exhaustive scope this measures *self-consistency of judgment*,
+not agreement with an independent human shredder. A second reader is the single
+biggest remaining improvement to this eval, and no amount of further self-audit
+substitutes for it.
+
+**Not yet exhaustive:** the SOW annex (pages 9–16 of the annex file, 50 golden
+rows) is still sample-annotated, so predictions there remain outside the scope
+and precision over them stays a lower bound.
 
 ## What the parser fix changed
 
 The annex two-column defect is gone: descriptions are contiguous, and no
 requirement text carries an interleaved title token ("authorizations to
-**Licenses** perform work"). Running headers now strip correctly too — the
-frequency test assumed one header regime per file, but this annex concatenates
-six sub-annexes each with its own column header, so none cleared the 40%
-threshold. An absolute repetition floor fixed it.
+**Licenses** perform work"). Running headers strip correctly too — the frequency
+test assumed one header regime per file, but this annex concatenates six
+sub-annexes each with its own column header, so none cleared the 40% threshold.
+An absolute repetition floor fixed it.
 
-Extraction accuracy was unaffected by the change (277 requirements, 277
-grounded), which is the expected result: the fix removed corruption from the text
-rather than changing what counts as a requirement.
+Extraction accuracy was unaffected (277 requirements, 277 grounded): the fix
+removed corruption from the text rather than changing what counts as a
+requirement.
 
 ## Scope
 

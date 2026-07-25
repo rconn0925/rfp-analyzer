@@ -5,7 +5,7 @@ milestone_name: milestone
 status: milestone-complete
 stopped_at: v1.0 milestone complete — Phases 1-5 delivered
 last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-25 -- all three quality items done: parser fix, factor anchoring, exhaustive golden scope
+last_activity: 2026-07-25 -- exhaustive scope widened to Sections L+M: precision 0.950, recall 0.985
 progress:
   total_phases: 5
   completed_phases: 5
@@ -22,11 +22,18 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** Upload a real federal RFP and get back an accurate, fully populated compliance matrix with no manual shredding.
 **Current focus:** v1.0 delivered and the three follow-up quality items are done.
-Measured: precision 0.860 / recall 1.000 inside the exhaustive scope (Section L
-p49-51); 277 requirements, 277 grounded. Next best work: widen the exhaustive
-scope to Sections M and the SOW annex, ideally with a second reader (ground truth
-and extractor currently share an author); extend extraction beyond the 19 scoped
-chunks to the full 97.
+Measured: precision 0.950 / recall 0.985 / F1 0.967 across the 16 exhaustively
+annotated pages (Section L p49-51 + Section M p58-70, 135 ground-truth rows);
+277 requirements, 277 grounded. All 7 false positives are named in EVAL.md.
+
+Next best work, in order:
+1. A SECOND READER for the exhaustive scope. Ground truth and extractor share an
+   author, so 0.950 measures self-consistency of judgment. No further self-audit
+   improves this — it needs someone else's eyes.
+2. Extend the exhaustive scope to the SOW annex (annex p9-16), still
+   sample-annotated.
+3. Extract the remaining 78 of 97 chunks so the matrix covers the whole 290-page
+   package rather than the scoped sections.
 
 ## Current Position
 
