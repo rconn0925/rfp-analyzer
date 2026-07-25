@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 2 context gathered
-last_updated: "2026-07-24T06:27:00.634Z"
-last_activity: 2026-07-24 -- Phase 02 execution started
+stopped_at: Phase 02 complete (7/7 plans)
+last_updated: "2026-07-24T00:00:00.000Z"
+last_activity: 2026-07-24 -- Phase 02 complete: eval harness + Claude Code engine seam
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 13
-  completed_plans: 6
-  percent: 20
+  completed_plans: 13
+  percent: 40
 ---
 
 # Project State
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** Upload a real federal RFP and get back an accurate, fully populated compliance matrix with no manual shredding.
-**Current focus:** Phase 02 — requirement-extraction-grounding
+**Current focus:** Phase 03 — analysis + export (Phase 02 complete)
 
 ## Current Position
 
-Phase: 02 (requirement-extraction-grounding) — EXECUTING
-Plan: 1 of 7
-Status: Executing Phase 02
-Last activity: 2026-07-24 -- Phase 02 execution started
+Phase: 02 (requirement-extraction-grounding) — COMPLETE
+Plan: 7 of 7
+Status: Phase 02 closed; Phase 03 (analysis + export) is next
+Last activity: 2026-07-24 -- 02-07 shipped the eval harness + Claude Code engine seam
 
 Progress: [██████████] 100%
 
@@ -75,8 +75,10 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 2]: RESOLVED/MOOT — LLM layer moved to a local model (Ollama + Qwen2.5 on the RX 7900 XTX; no Anthropic API). No Citations API; grounding is string-match verification against the Phase 1 document map (always the design). Local inference validated 2026-07-24: 100% GPU, JSON-schema structured outputs working, ~50 tok/s at 14B.
-- [Phase 2]: Golden set — the primary RFP (N4008526R0033) must be hand-shredded into ground-truth requirements to measure recall/precision (success criterion 5). Agent can draft; human validation makes it trustworthy as ground truth. Surface as a checkpoint during Phase 2.
+- [Phase 2]: RESOLVED — the engine is Claude Code on Ross's subscription, reached through a file-mediated replay seam (chunks.jsonl -> Claude -> drafts.jsonl -> extract). Ollama/Qwen fully retired: no dependency, no client, no network call anywhere in the extraction stage. Grounding remains string-match verification against the Phase 1 document map.
+- [Phase 2]: RESOLVED — golden set built (02-04) and scored (02-07): recall 0.971, precision 0.426 (in scope), 277/277 grounded. See tests/eval/EVAL.md.
+- [Phase 3]: NEW — the golden set is a validated SAMPLE, not an exhaustive shred of its pages, so precision is a lower bound and not an error rate. Making it exhaustive over a defined page range is the highest-value eval improvement.
+- [Phase 3]: NEW — parser defect: the Section C Annexes two-column spec table injects the TITLE column mid-sentence ("authorizations to Licenses perform work"). Corrupts exported requirement text even when grounding succeeds. Needs column-aware annex extraction + running-header suppression.
 
 ## Deferred Items
 
