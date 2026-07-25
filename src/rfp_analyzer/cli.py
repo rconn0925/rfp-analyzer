@@ -1,11 +1,16 @@
 """Command-line interface for rfp-analyzer.
 
-Extraction is a TWO-STEP flow, because the engine is Claude Code on Ross's
-subscription rather than an in-process model call (see ``extraction.replay``):
+The whole pipeline in one command:
 
-    rfp-analyzer chunks  <artifacts-dir> --out chunks.jsonl   # what to extract
-    (Claude Code reads chunks.jsonl and writes drafts.jsonl)
-    rfp-analyzer extract <artifacts-dir> --drafts drafts.jsonl  # ground + score
+    rfp-analyzer run <package-dir>                        # parse + emit chunks
+    (Claude Code reads chunks.jsonl -> drafts.jsonl)
+    rfp-analyzer run <package-dir> --drafts drafts.jsonl  # ...through to the workbook
+
+The Claude Code handoff cannot be automated away — the engine is a personal
+subscription, not an API — so a first run stops after writing chunks.jsonl and
+prints exactly what to do next. Once the recordings exist the same command runs
+end to end. The individual stages (`parse`, `chunks`, `extract`, `judgments`,
+`analyze`) remain available for working on one step at a time.
 
 ``rfp-analyzer parse <package-dir> --out <artifacts-dir>`` (D-06) runs the
 full Phase 1 pipeline and emits both D-05 artifacts every run:
@@ -49,6 +54,7 @@ from rfp_analyzer.pipeline.extraction.replay import (
 )
 from rfp_analyzer.pipeline.extraction.run_extraction import DEFAULT_MODEL, run_extraction
 from rfp_analyzer.pipeline.models import (
+    CapabilityProfile,
     DocumentMap,
     PageInfo,
     ParsedFile,
@@ -173,6 +179,34 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         default=None,
         help="Directory for matrix.json / matrix.xlsx / matrix.csv (default: artifacts_dir).",
+    )
+    analyze_cmd.add_argument(
+        "--profile",
+        default=None,
+        help="Capabilities profile JSON to judge against (default: the fictional demo profile).",
+    )
+
+    run_cmd = subparsers.add_parser(
+        "run",
+        help="One command: package directory -> compliance workbook.",
+    )
+    run_cmd.add_argument("package_dir", help="Directory containing the RFP package files.")
+    run_cmd.add_argument(
+        "--drafts",
+        default=None,
+        help=(
+            "drafts.jsonl recorded by Claude Code. Omit on a first run: the pipeline "
+            "parses, writes chunks.jsonl, and stops with the handoff instructions."
+        ),
+    )
+    run_cmd.add_argument(
+        "--verdicts", default=None, help="verdicts.jsonl recorded by Claude Code (optional)."
+    )
+    run_cmd.add_argument(
+        "--profile", default=None, help="Capabilities profile JSON (default: demo profile)."
+    )
+    run_cmd.add_argument(
+        "--out", default="artifacts", help="Artifacts root (default: artifacts)."
     )
     return parser
 
@@ -546,6 +580,24 @@ def _run_judgments(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_profile(path: str | None) -> CapabilityProfile | None:
+    """Load a capabilities profile, or return the demo profile when none is given.
+
+    Returns ``None`` only on an unreadable file, so a typo in ``--profile`` fails
+    the run rather than silently judging against the fictional demo profile and
+    exporting verdicts that look real.
+    """
+    if not path:
+        return DEMO_PROFILE
+    try:
+        return CapabilityProfile.model_validate_json(
+            Path(path).read_text(encoding="utf-8")
+        )
+    except (OSError, ValueError) as exc:
+        print(f"error: could not read capabilities profile {path}: {exc}", file=sys.stderr)
+        return None
+
+
 def _run_analyze(args: argparse.Namespace) -> int:
     """Build the compliance matrix and write the workbook + CSV."""
     artifacts_dir = Path(args.artifacts_dir)
@@ -556,6 +608,10 @@ def _run_analyze(args: argparse.Namespace) -> int:
     if requirement_set is None:
         return 2
 
+    profile = _load_profile(getattr(args, "profile", None))
+    if profile is None:
+        return 2
+
     verdicts = None
     if args.verdicts:
         try:
@@ -564,7 +620,7 @@ def _run_analyze(args: argparse.Namespace) -> int:
             print(f"error: {exc}", file=sys.stderr)
             return 2
 
-    matrix = run_analysis(document_map, requirement_set, verdicts=verdicts)
+    matrix = run_analysis(document_map, requirement_set, profile=profile, verdicts=verdicts)
 
     out_dir = Path(args.out) if args.out is not None else artifacts_dir
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -575,6 +631,102 @@ def _run_analyze(args: argparse.Namespace) -> int:
     print(render_matrix_report(matrix))
     print(f"\nWorkbook written to {xlsx_path}")
     print(f"CSV written to {csv_path}")
+    return 0
+
+
+def _run_all(args: argparse.Namespace) -> int:
+    """Package directory -> compliance workbook in one command.
+
+    Chains parse -> chunks -> extract -> analyze. The Claude Code handoffs cannot
+    be automated away (the engine is a subscription, not an API), so a first run
+    stops after writing chunks.jsonl and prints exactly what to do next. Once the
+    recordings exist, the same command runs the whole thing.
+    """
+    package_dir = Path(args.package_dir)
+    if not package_dir.is_dir():
+        print(f"error: not a directory: {package_dir}", file=sys.stderr)
+        return 2
+
+    package_name = package_dir.resolve().name or "package"
+    artifacts_dir = Path(args.out) / package_name
+
+    print(f"[1/4] parsing {package_dir} ...")
+    parse_args = argparse.Namespace(package_dir=str(package_dir), out=args.out)
+    if _run_parse_quiet(parse_args) != 0:
+        return 1
+
+    print(f"[2/4] exporting chunks -> {artifacts_dir / 'chunks.jsonl'}")
+    chunks_args = argparse.Namespace(artifacts_dir=str(artifacts_dir), out=None)
+    if _run_chunks_quiet(chunks_args) != 0:
+        return 2
+
+    if not args.drafts:
+        print(
+            "\nStopping here: extraction needs Claude Code.\n"
+            f"  1. Have Claude Code read {artifacts_dir / 'chunks.jsonl'} and write drafts.jsonl\n"
+            f"  2. Re-run: rfp-analyzer run {package_dir} --drafts drafts.jsonl"
+        )
+        return 0
+
+    print(f"[3/4] extracting with recorded drafts ({args.drafts}) ...")
+    extract_args = argparse.Namespace(
+        artifacts_dir=str(artifacts_dir), drafts=args.drafts, golden=None,
+        model=DEFAULT_MODEL, seed=7, out=None,
+    )
+    if _run_extract(extract_args) != 0:
+        return 2
+
+    print("\n[4/4] analyzing -> compliance workbook ...")
+    analyze_args = argparse.Namespace(
+        artifacts_dir=str(artifacts_dir), verdicts=args.verdicts,
+        profile=args.profile, out=None,
+    )
+    return _run_analyze(analyze_args)
+
+
+def _run_parse_quiet(args: argparse.Namespace) -> int:
+    """`parse` without the full section-tree report — `run` prints its own progress."""
+    package_dir = Path(args.package_dir)
+    document_map = run_pipeline(package_dir)
+    package_name = package_dir.resolve().name or "package"
+    out_dir = Path(args.out) / package_name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "document_map.json").write_text(
+        document_map.model_dump_json(indent=2), encoding="utf-8"
+    )
+    files_ok = sum(1 for f in document_map.files if f.parse_status == "ok")
+    print(
+        f"      {files_ok}/{len(document_map.files)} files parsed, "
+        f"classification={document_map.classification}"
+    )
+    total_sections = sum(len(f.sections) for f in document_map.files)
+    if document_map.classification == "unknown" and total_sections == 0:
+        print("error: nothing structural detected in this package", file=sys.stderr)
+        return 1
+    return 0
+
+
+def _run_chunks_quiet(args: argparse.Namespace) -> int:
+    """`chunks` without the next-step banner — `run` sequences the steps itself."""
+    artifacts_dir = Path(args.artifacts_dir)
+    document_map = _resolve_document_map(artifacts_dir)
+    if document_map is None:
+        return 2
+    out_path = artifacts_dir / "chunks.jsonl"
+    count = 0
+    with out_path.open("w", encoding="utf-8", newline="\n") as handle:
+        for chunk in iter_chunks(document_map):
+            handle.write(json.dumps({
+                "chunk_key": chunk_key(chunk.text),
+                "file_id": chunk.file_id,
+                "filename": chunk.filename,
+                "section_label": chunk.section_label,
+                "role": chunk.role,
+                "doc_role": chunk.doc_role,
+                "text": chunk.text,
+            }, ensure_ascii=False) + "\n")
+            count += 1
+    print(f"      {count} chunks")
     return 0
 
 
@@ -657,6 +809,8 @@ def main() -> None:
         sys.exit(_run_judgments(args))
     if args.command == "analyze":
         sys.exit(_run_analyze(args))
+    if args.command == "run":
+        sys.exit(_run_all(args))
     parser.error(f"unknown command: {args.command}")
 
 

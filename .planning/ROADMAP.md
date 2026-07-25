@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Parsing & Structure Foundation** - Multi-file federal packages parse into a structural document map with UCF section detection, quality gates, and SF30 identification (pure library + CLI) (completed 2026-07-24)
 - [x] **Phase 2: Requirement Extraction & Grounding** - Every requirement extracted verbatim with verified source references, type/keyword classification, keyword-sweep reconciliation, and golden-set evals
-- [ ] **Phase 3: Analysis & Export** - Cross-mapping, proposal outline, compliance judgment, and practitioner-standard Excel/CSV export — full pipeline end-to-end via CLI
+- [x] **Phase 3: Analysis & Export** - Cross-mapping, proposal outline, compliance judgment, and practitioner-standard Excel/CSV export — full pipeline end-to-end via CLI
 - [ ] **Phase 4: Local Tool Polish** - The pipeline as Ross's own working tool: one-command run, profile authoring, persistent local results (REFRAMED 2026-07-24 — no hosted multi-user app)
 - [ ] **Phase 5: Static Portfolio Showcase** - A precomputed, published walkthrough of a real analysis — zero live inference, zero hosting cost (REFRAMED 2026-07-24)
 
@@ -106,24 +106,24 @@ Plans:
   4. The exported .xlsx contains a compliance matrix sheet with practitioner-standard columns, a cross-reference matrix sheet, and a shred checklist sheet; the matrix is also downloadable as raw CSV
   5. The full pipeline runs CLI end-to-end on a real federal RFP: package in, populated matrix workbook out, no manual steps
 
-**Plans:** 0/6 plans complete
+**Plans:** 6/6 plans complete
 
 Plans:
 **Wave 1**
-- [ ] 03-01-PLAN.md — Analysis schema: CrossMapping, OutlineNode, ComplianceJudgment, CapabilityProfile, ComplianceMatrix (foundation contract)
+- [x] 03-01-PLAN.md — Analysis schema: CrossMapping, OutlineNode, ComplianceJudgment, CapabilityProfile, ComplianceMatrix (foundation contract)
 
 **Wave 2** *(blocked on Wave 1)*
-- [ ] 03-02-PLAN.md — Deterministic cross-mapping: L<->M<->C gaps and orphans (ANLZ-01)
-- [ ] 03-03-PLAN.md — Proposal outline derived from Section L structure + requirement->node mapping (ANLZ-02)
+- [x] 03-02-PLAN.md — Deterministic cross-mapping: L<->M<->C gaps and orphans (ANLZ-01)
+- [x] 03-03-PLAN.md — Proposal outline derived from Section L structure + requirement->node mapping (ANLZ-02)
 
 **Wave 3** *(blocked on Wave 2)*
-- [ ] 03-04-PLAN.md — Compliance judgment via the Claude Code replay seam + fictional demo capabilities profile (ANLZ-04)
+- [x] 03-04-PLAN.md — Compliance judgment via the Claude Code replay seam + fictional demo capabilities profile (ANLZ-04)
 
 **Wave 4** *(blocked on Wave 3)*
-- [ ] 03-05-PLAN.md — Excel workbook (matrix / cross-reference / shred checklist sheets) + CSV export (EXPT-01..04)
+- [x] 03-05-PLAN.md — Excel workbook (matrix / cross-reference / shred checklist sheets) + CSV export (EXPT-01..04)
 
 **Wave 5** *(blocked on Wave 4)*
-- [ ] 03-06-PLAN.md — `analyze` CLI end-to-end on the real package: package in, workbook out (success criterion 5)
+- [x] 03-06-PLAN.md — `analyze` CLI end-to-end on the real package: package in, workbook out (success criterion 5)
 
 ### Phase 4: Local Tool Polish
 
