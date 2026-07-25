@@ -16,8 +16,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Parsing & Structure Foundation** - Multi-file federal packages parse into a structural document map with UCF section detection, quality gates, and SF30 identification (pure library + CLI) (completed 2026-07-24)
 - [x] **Phase 2: Requirement Extraction & Grounding** - Every requirement extracted verbatim with verified source references, type/keyword classification, keyword-sweep reconciliation, and golden-set evals
 - [ ] **Phase 3: Analysis & Export** - Cross-mapping, proposal outline, compliance judgment, and practitioner-standard Excel/CSV export — full pipeline end-to-end via CLI
-- [ ] **Phase 4: Web App & Job Orchestration** - Proven pipeline wrapped in an async web app: upload, background jobs with progress, profile authoring, persistent results
-- [ ] **Phase 5: Public Demo, Hardening & SAM.gov Fetch** - Publicly hosted 60-second demo with cost controls, plus SAM.gov solicitation fetch
+- [ ] **Phase 4: Local Tool Polish** - The pipeline as Ross's own working tool: one-command run, profile authoring, persistent local results (REFRAMED 2026-07-24 — no hosted multi-user app)
+- [ ] **Phase 5: Static Portfolio Showcase** - A precomputed, published walkthrough of a real analysis — zero live inference, zero hosting cost (REFRAMED 2026-07-24)
 
 ## Phase Details
 
@@ -125,36 +125,51 @@ Plans:
 **Wave 5** *(blocked on Wave 4)*
 - [ ] 03-06-PLAN.md — `analyze` CLI end-to-end on the real package: package in, workbook out (success criterion 5)
 
-### Phase 4: Web App & Job Orchestration
+### Phase 4: Local Tool Polish
 
-**Goal**: The proven pipeline library runs as an async web application — upload to download with no manual steps, results that persist
+> **REFRAMED 2026-07-24 (Ross's decision).** The original scope assumed a hosted
+> multi-user web app. That cannot work: the extraction engine is Claude Code on a
+> personal Pro/Max subscription, which an app cannot authenticate to and which is
+> ToS-blocked for hosted multi-user use. Phase 4 becomes the tool Ross actually
+> uses; Phase 5 becomes a static showcase. INTK-01/PIPE-01..03 are reinterpreted
+> for a local single-user tool (no upload endpoint, no queue, no Postgres).
+
+**Goal**: The pipeline is a comfortable daily tool — one command from package to workbook, with a stored capabilities profile and results that persist locally
 **Depends on**: Phase 3
 **Requirements**: INTK-01, ANLZ-03, PIPE-01, PIPE-02, PIPE-03
 **Success Criteria** (what must be TRUE):
 
-  1. User can upload a multi-file federal RFP package (PDF/DOCX: base, SF30 amendments, attachments) via the web UI and start an analysis
-  2. Analysis runs as an async background job with stage-level progress visible in the UI while it processes
-  3. User can author a company capabilities profile by pasting free text in the UI and edit it later
-  4. A completed analysis persists — user can return later to view results and re-download Excel/CSV exports without re-running the pipeline
-  5. The full flow (upload → processing → populated matrix → download) completes with zero manual intervention
+  1. A single command takes a package directory through parse → chunks → (Claude Code) → extract → analyze → workbook
+  2. Stage progress is visible while it runs, and a long run can be resumed rather than restarted
+  3. Ross can author and edit a real capabilities profile stored on disk, and judgments run against it
+  4. A completed analysis persists locally — re-export to Excel/CSV without re-running the pipeline
+  5. The two-step Claude Code handoff is ergonomic enough to use on a real bid without friction
 
 **Plans**: TBD
-**UI hint**: yes
+**UI hint**: no (CLI/local)
 
-### Phase 5: Public Demo, Hardening & SAM.gov Fetch
+### Phase 5: Static Portfolio Showcase
 
-**Goal**: The app is live at a public URL where a recruiter can experience the full product in ~60 seconds, with API costs bounded and SAM.gov as a second intake path
+> **REFRAMED 2026-07-24 (Ross's decision).** No live hosted inference: a
+> precomputed showcase of a real analysis. Costs nothing to run, has no ToS
+> exposure, and still demonstrates the product end-to-end. DEMO-03 (rate limits +
+> spend kill-switch) is MOOT — there is no live inference to bound. SAM.gov fetch
+> (INTK-02) stays deferred with the API key.
+
+**Goal**: A recruiter or GovCon reader can see a real federal RFP become a real compliance matrix in about a minute, with the accuracy evidence visible
 **Depends on**: Phase 4
 **Requirements**: DEMO-01, DEMO-02, DEMO-03, INTK-02
 **Success Criteria** (what must be TRUE):
 
-  1. The app is reachable at a stable public URL
-  2. An anonymous visitor can experience the full demo (precomputed sample-RFP analysis + fictional company profile, zero live LLM calls) in ~60 seconds
-  3. Live (non-demo) processing is protected by per-IP rate limiting and a daily spend kill-switch that bounds public API cost
-  4. User can paste a SAM.gov solicitation number or link and the package (notice + attachments) is fetched into the same pipeline, with graceful degradation to upload when fetch fails or quota is exhausted
+  1. The showcase is reachable at a stable public URL and costs $0/month to serve
+  2. A visitor sees the real N4008526R0033 analysis — extracted requirements with page citations, the compliance matrix, and the downloadable workbook — in ~60 seconds
+  3. The accuracy evidence (recall/precision, grounding rate, and the honest caveats from EVAL.md) is presented, not hidden — the measurement discipline IS the portfolio piece
+  4. It is unmistakably a showcase of a real analysis, never a live service promising to process a visitor's own RFP
+
+**Deferred**: DEMO-03 moot (no live inference to bound); INTK-02 SAM.gov fetch stays deferred with the API key
 
 **Plans**: TBD
-**UI hint**: yes
+**UI hint**: yes (static)
 
 ## Progress
 
