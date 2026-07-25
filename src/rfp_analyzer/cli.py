@@ -335,13 +335,19 @@ def _golden_line(requirement_set: RequirementSet, golden_path: str | None) -> st
     except (json.JSONDecodeError, KeyError, TypeError) as exc:
         return f"vs golden set: ERROR — unreadable golden file {path}: {exc}"
 
-    package = doc.get("package") if isinstance(doc, dict) else None
     result = score(requirement_set.requirements, golds)
     line = format_score_line(result)
-    if package and package not in (requirement_set.package_name or ""):
-        # Scoring a run against another package's ground truth is meaningless;
-        # say so rather than printing a confidently wrong number.
-        line += f"  [WARNING: golden set is for package {package!r}]"
+
+    # Guard against scoring a run against a DIFFERENT package's ground truth,
+    # which would print a confidently meaningless number. Compare file_ids, not
+    # names: the golden set's "package" is a solicitation number while
+    # package_name is the corpus directory, so a name comparison always
+    # mismatches. A file_id is content-derived and shared by both sides.
+    gold_files = {g.get("file_id") for g in golds if isinstance(g, dict)}
+    run_files = {r.source_ref.file_id for r in requirement_set.requirements}
+    if gold_files and run_files and not (gold_files & run_files):
+        package = doc.get("package") if isinstance(doc, dict) else "unknown"
+        line += f"  [WARNING: golden set ({package}) shares no source file with this run]"
     return line
 
 

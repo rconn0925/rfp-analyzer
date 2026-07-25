@@ -95,12 +95,25 @@ def test_unreadable_golden_file_is_reported(tmp_path):
     assert "ERROR" in report
 
 
-def test_mismatched_package_is_warned_not_silently_scored(tmp_path):
-    """Scoring against another package's ground truth is meaningless — say so."""
-    golden = _golden_file(tmp_path, [_entry(SENTENCE)], package="some-other-package")
+def test_golden_set_for_a_different_package_is_warned(tmp_path):
+    """Scoring against another package's ground truth is meaningless — say so.
+
+    Detected by file_id overlap, not by name: the golden set's "package" is a
+    solicitation number while package_name is the corpus directory, so a name
+    comparison would fire on every legitimate run.
+    """
+    other = {"file_id": "totally-different-file", "page": 49, "verbatim_text": SENTENCE}
+    golden = _golden_file(tmp_path, [other], package="some-other-package")
     report = render_requirements_report(_set([_req(SENTENCE)]), golden_path=str(golden))
     assert "WARNING" in report
     assert "some-other-package" in report
+
+
+def test_matching_package_is_not_warned(tmp_path):
+    """The real golden set must not trip the guard (it did when compared by name)."""
+    golden = _golden_file(tmp_path, [_entry(SENTENCE)], package="N4008526R0033")
+    report = render_requirements_report(_set([_req(SENTENCE)]), golden_path=str(golden))
+    assert "WARNING" not in report
 
 
 def test_unextracted_chunks_are_warned_in_the_report():

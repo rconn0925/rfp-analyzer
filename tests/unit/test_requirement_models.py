@@ -113,8 +113,8 @@ def test_requirement_set_mutable_defaults_are_independent():
     assert b.requirements == []
 
 
-def test_requirement_batch_schema_has_no_ollama_forbidden_keywords():
-    """RequirementBatch is the Ollama `format` schema — must be flat.
+def test_requirement_batch_schema_has_no_forbidden_keywords():
+    """RequirementBatch is the structured-output schema — must be flat.
 
     Grammar-constrained decoding rejects constrained numerics and recursive
     $ref cycles; assert the generated schema carries none.

@@ -55,7 +55,7 @@ def _single_page_map(page_text: str, *, doc_role: str = "base_solicitation") -> 
 
 
 def _fake_fn(batch: RequirementBatch):
-    """An extract_fn that returns a fixed batch for any chunk (Ollama-free)."""
+    """An extract_fn that returns a fixed batch for any chunk (engine-free)."""
 
     def fn(chunk_text: str, model: str, seed: int) -> RequirementBatch:
         return batch
