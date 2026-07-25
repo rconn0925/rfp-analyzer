@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 03 blocked on a cross-mapping design decision (03-01, 03-02 done)
+stopped_at: Phase 03 in progress — 03-01/02 done incl. actor-typing fix; 03-03..06 remain
 last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-24 -- 03-02 surfaced a blocking L<->M cross-mapping finding
+last_activity: 2026-07-24 -- actor-based req_type unblocked cross-mapping; Phases 4-5 reframed
 progress:
   total_phases: 5
   completed_phases: 2
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** Upload a real federal RFP and get back an accurate, fully populated compliance matrix with no manual shredding.
-**Current focus:** Phase 03 — blocked on the L<->M cross-mapping approach
+**Current focus:** Phase 03 — outline, judgment, export (03-03..03-06)
 
 ## Current Position
 
-Phase: 03 (analysis-export) — BLOCKED on a design decision
-Plan: 2 of 6 (03-01 schema, 03-02 cross-mapping)
-Status: 03-03..03-06 held pending Ross's call on cross-mapping (see Blockers)
+Phase: 03 (analysis-export) — IN PROGRESS
+Plan: 2 of 6 (03-01 schema, 03-02 cross-mapping + actor typing)
+Status: unblocked. Next: 03-03 outline, 03-04 judgment, 03-05 export, 03-06 CLI e2e
 Last activity: 2026-07-24 -- 02-07 shipped the eval harness + Claude Code engine seam
 
 Progress: [██████████] 100%
@@ -78,7 +78,7 @@ None yet.
 - [Phase 2]: RESOLVED — the engine is Claude Code on Ross's subscription, reached through a file-mediated replay seam (chunks.jsonl -> Claude -> drafts.jsonl -> extract). Ollama/Qwen fully retired: no dependency, no client, no network call anywhere in the extraction stage. Grounding remains string-match verification against the Phase 1 document map.
 - [Phase 2]: RESOLVED — golden set built (02-04) and scored (02-07): recall 0.971, precision 0.426 (in scope), 277/277 grounded. See tests/eval/EVAL.md.
 - [Phase 3]: NEW — the golden set is a validated SAMPLE, not an exhaustive shred of its pages, so precision is a lower bound and not an error rate. Making it exhaustive over a defined page range is the highest-value eval improvement.
-- [Phase 3]: **BLOCKING** — L<->M cross-mapping by text similarity does not work on the primary package and is not a tuning problem. Section L DELEGATES its content to Section M ("responses to each non-price factor as specified in Section M"), so M carries the real submittal instructions (topic coverage: phase-in L=0/M=3, safety L=0/M=15, experience L=0/M=5). Similarity reports those as m_without_l gaps, which is wrong. No stable threshold exists (45.0 maps 95%, 55.0 maps 22%, 65.0 maps 4%). Fix = anchor on the evaluation FACTOR, which needs (a) sub-section structure carried onto Requirement (section_label is L/M/C only today) and (b) a req_type rule splitting M's submittal subsections from its evaluation criteria — both reach back into Phase 1/2. NEEDS A SCOPE DECISION.
+- [Phase 3]: RESOLVED (actor typing, commit ab63d8b) — was: L<->M cross-mapping by text similarity did not work on the primary package and is not a tuning problem. Section L DELEGATES its content to Section M ("responses to each non-price factor as specified in Section M"), so M carries the real submittal instructions (topic coverage: phase-in L=0/M=3, safety L=0/M=15, experience L=0/M=5). Similarity reports those as m_without_l gaps, which is wrong. No stable threshold exists (45.0 maps 95%, 55.0 maps 22%, 65.0 maps 4%). Fix = anchor on the evaluation FACTOR, which needs (a) sub-section structure carried onto Requirement (section_label is L/M/C only today) and (b) a req_type rule splitting M's submittal subsections from its evaluation criteria — both reach back into Phase 1/2. FIXED by typing requirements by ACTOR (offeror vs Government) instead of by section, plus dedup keeping the deepest section path. 29 M rows reclassified. REMAINING (advisory-only until fixed): no per-factor anchor, so structurally similar sentences about different factors still link; needs sub-section structure below M.2 that the Phase 1 sectioner does not emit. Award-process statements also land in m_without_l when they are not gaps.
 - [Phase 3]: NEW — parser defect: the Section C Annexes two-column spec table injects the TITLE column mid-sentence ("authorizations to Licenses perform work"). Corrupts exported requirement text even when grounding succeeds. Needs column-aware annex extraction + running-header suppression.
 
 ## Deferred Items
@@ -87,6 +87,7 @@ Items acknowledged and carried forward:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
+| Scope | Phases 4-5 reframed 2026-07-24: local tool + static showcase, no hosted app (subscription cannot be used by a hosted service) | Decided by Ross | Phase 3 |
 | Scope | SAM.gov API key request (~10 business day issuance) | Deferred by user 2026-07-24 — upload is the intake path; key only gates the optional Phase 5 SAM.gov fetch | Phase 1 |
 | Scope | SAM.gov fetch feature + rate-limit confirmation (10/day vs 1,000/day by role) | Deferred with the key — Phase 5 ships demo + hardening on upload intake alone; SAM.gov fetch becomes an optional add-on if/when a key exists | Phase 1 |
 
