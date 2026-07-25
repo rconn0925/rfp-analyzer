@@ -11,12 +11,13 @@ pass-C exhaustive audit of Sections L and M (16 pages).
 
 | Metric | Value |
 |---|---|
-| **Precision (exhaustive scope)** | **0.950** — *a true error rate* |
-| **Recall (exhaustive scope)** | **0.864** |
-| **F1 (exhaustive scope)** | **0.905** |
-| Precision (whole golden set) | 0.714 — still a lower bound outside the scope |
-| Recall (whole golden set) | 0.895 (187 of 209) |
-| Requirements produced | 277 |
+| **Precision (exhaustive scope, excl. p62)** | **0.937** — *a true error rate* |
+| **Recall (exhaustive scope, excl. p62)** | **0.985** |
+| **F1 (exhaustive scope, excl. p62)** | **0.960** |
+| Including page 62 (contaminated, see below) | P 0.943 / R 0.974 / F1 0.958 |
+| Precision (whole golden set) | 0.726 — still a lower bound outside the scope |
+| Recall (whole golden set) | 0.976 (204 of 209) |
+| Requirements produced | 296 |
 | **Grounded / verified** | **277 / 277 (100%)**, 0 ungroundable |
 
 Exhaustive scope: solicitation pages 49–51 (Section L) and 58–70 (Section M) —
@@ -55,11 +56,23 @@ Page 62 was then shredded independently by reading it (pass D, 19 rows). Those
 rows are the ONLY ground truth in this set not derived from extraction output,
 which also makes them the only part with genuine provenance independence.
 
-Recall fell **0.985 → 0.864** as a result. That drop is the measurement getting
+Recall fell **0.985 → 0.864** as a result. That drop was the measurement getting
 *more* honest, not the extractor getting worse: 19 real requirements were being
-excluded from the denominator because nobody had recorded them. It is also a
-concrete coverage finding — the Factor 1 evaluation sub-criteria on page 62 are
-a genuine extraction gap.
+excluded from the denominator because nobody had recorded them.
+
+Page 62 has since been extracted (296 requirements, up from 277), which closes
+the coverage gap in the product. **But that page's recall is contaminated**: its
+ground truth and its drafts were both authored from the same reading of the page,
+so it cannot measure anything. Headline figures therefore EXCLUDE page 62:
+
+| Slice | Precision | Recall | F1 |
+|---|---|---|---|
+| Exhaustive scope **excluding p62** (uncontaminated) | **0.937** | **0.985** | **0.960** |
+| Full 16-page exhaustive scope | 0.943 | 0.974 | 0.958 |
+| Page 62 alone (contaminated — not evidence) | 1.000 | 0.895 | 0.944 |
+
+Extracting page 62 was worth doing for the product; reporting its recall as
+though it were measured would not be.
 
 The other misses are the known PDF line-wrap hyphenation cases (see below).
 
@@ -80,8 +93,9 @@ biggest remaining improvement to this eval, and no amount of further self-audit
 substitutes for it.
 
 **Verify emptiness, never assume it.** A page with no golden rows and no
-predictions looks identical to a page with nothing on it. Any future scope
-extension must confirm each declared page was actually read.
+predictions looks identical to a page with nothing on it. This is now enforced in
+code: `eval.promote.unverified_pages()` reports any declared-exhaustive page with
+no evidence either way, and a test asserts the live golden set has none.
 
 **Not yet exhaustive:** the SOW annex (pages 9–16 of the annex file, 50 golden
 rows) is still sample-annotated, so predictions there remain outside the scope

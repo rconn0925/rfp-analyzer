@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: milestone-complete
-stopped_at: v1.0 milestone complete — Phases 1-5 delivered
-last_updated: "2026-07-24T00:00:00.000Z"
-last_activity: 2026-07-25 -- exhaustive scope L+M audited honestly: precision 0.950, recall 0.864
+status: completed
+stopped_at: context exhaustion at 75% (2026-07-25)
+last_updated: "2026-07-25T21:46:30.874Z"
+last_activity: 2026-07-24 -- 02-07 shipped the eval harness + Claude Code engine seam
 progress:
   total_phases: 5
-  completed_phases: 5
-  total_plans: 19
-  completed_plans: 19
-  percent: 100
+  completed_phases: 2
+  total_plans: 13
+  completed_plans: 13
+  percent: 40
 ---
 
 # Project State
@@ -22,28 +22,31 @@ See: .planning/PROJECT.md (updated 2026-07-22)
 
 **Core value:** Upload a real federal RFP and get back an accurate, fully populated compliance matrix with no manual shredding.
 **Current focus:** v1.0 delivered and the three follow-up quality items are done.
-Measured: precision 0.950 / recall 0.864 / F1 0.905 across the 16 exhaustively
-annotated pages (Section L p49-51 + Section M p58-70, 154 ground-truth rows);
-277 requirements, 277 grounded. All 7 false positives are named in EVAL.md.
+Measured (exhaustive scope, EXCLUDING page 62): precision 0.937 / recall 0.985 /
+F1 0.960. Including p62: 0.943 / 0.974 / 0.958 — p62 is excluded from the headline
+because its ground truth and its drafts were authored from one reading of the
+page, so it cannot measure itself. 296 requirements, 296 grounded.
 
-Recall is 0.864 because page 62 (Factor 1 Basis of Evaluation) was found to have
-been missed ENTIRELY — 19 requirements, zero predictions, and zero golden rows,
-so it had been invisible on both sides of the ratio and recall read 0.985. Those
-19 rows were shredded independently (pass D) and are the only ground truth here
-not derived from extraction output. Extracting page 62 is a concrete, bounded
-coverage fix.
+Page 62's Factor 1 evaluation sub-criteria are now extracted (19 rows), closing
+the coverage gap in the product. The promotion logic is committed as
+`eval/promote.py` with 13 regression tests pinning all three eval bugs found
+this session (dropped atomic siblings, scoped matching hiding whole pages, and
+unverified pages passing as empty).
 
 Next best work, in order:
+
 1. A SECOND READER for the exhaustive scope. Ground truth and extractor share an
    author, so 0.950 measures self-consistency of judgment. No further self-audit
    improves this — it needs someone else's eyes.
+
 2. Extract page 62's Factor 1 evaluation sub-criteria — a known, bounded gap
    worth ~12 points of in-scope recall.
+
 3. Extend the exhaustive scope to the SOW annex (annex p9-16), still
-   sample-annotated. VERIFY each declared page was actually read: a page with no
-   golden rows and no predictions looks identical to an empty one, which is
-   exactly how page 62 hid.
-4. Extract the remaining 78 of 97 chunks so the matrix covers the whole 290-page
+   sample-annotated. Use `eval.promote.promote()` and check
+   `eval.promote.unverified_pages()` before declaring any range exhaustive.
+
+3. Extract the remaining 77 of 97 chunks so the matrix covers the whole 290-page
    package rather than the scoped sections.
 
 ## Current Position
@@ -117,6 +120,6 @@ Items acknowledged and carried forward:
 
 ## Session Continuity
 
-Last session: 2026-07-24T05:50:56.825Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-requirement-extraction-grounding/02-CONTEXT.md
+Last session: 2026-07-25T21:46:30.871Z
+Stopped at: context exhaustion at 75% (2026-07-25)
+Resume file: None

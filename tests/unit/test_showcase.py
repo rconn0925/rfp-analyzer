@@ -121,7 +121,7 @@ class TestRender:
     def test_carries_the_measured_accuracy_and_its_caveat(self):
         """The measurement discipline is the portfolio piece; the caveat is part of it."""
         html = render_html(build_context(_matrix()))
-        assert "0.950" in html
+        assert "0.937" in html
         assert "lower bound" in html
 
     def test_requirement_text_is_escaped(self):
