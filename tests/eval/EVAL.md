@@ -12,15 +12,15 @@ pass-C exhaustive audit of Sections L and M (16 pages).
 | Metric | Value |
 |---|---|
 | **Precision (exhaustive scope)** | **0.950** — *a true error rate* |
-| **Recall (exhaustive scope)** | **0.985** (133 of 135) |
-| **F1 (exhaustive scope)** | **0.967** |
+| **Recall (exhaustive scope)** | **0.864** |
+| **F1 (exhaustive scope)** | **0.905** |
 | Precision (whole golden set) | 0.714 — still a lower bound outside the scope |
-| Recall (whole golden set) | 0.984 (187 of 190) |
+| Recall (whole golden set) | 0.895 (187 of 209) |
 | Requirements produced | 277 |
 | **Grounded / verified** | **277 / 277 (100%)**, 0 ungroundable |
 
 Exhaustive scope: solicitation pages 49–51 (Section L) and 58–70 (Section M) —
-16 pages, 135 ground-truth rows. Reproduce with:
+16 pages, 154 ground-truth rows. Reproduce with:
 
 ```
 rfp-analyzer extract artifacts/primary-ucf   --drafts tests/eval/fixtures/golden_drafts.jsonl   --golden tests/eval/golden/golden_set.json
@@ -44,8 +44,24 @@ count:
 | "…Evaluation of Options will not obligate the Government to exercise the option(s)." | Legal disclaimer |
 | "The Offeror **may** include performance recognition documents…" | Permissive option |
 
-The two remaining misses are the known PDF line-wrap hyphenation cases (see
-below), not extraction failures of judgment.
+## The exhaustiveness claim was wrong once, and fixing it cost recall
+
+Declaring pages 58–70 exhaustive was **false**. Page 62 carried 3,804 characters
+of real Factor 1 "Basis of Evaluation" content and had **zero predictions and zero
+golden rows** — so it silently contributed nothing to either side of the ratio,
+and recall read 0.985 when the page had never been looked at.
+
+Page 62 was then shredded independently by reading it (pass D, 19 rows). Those
+rows are the ONLY ground truth in this set not derived from extraction output,
+which also makes them the only part with genuine provenance independence.
+
+Recall fell **0.985 → 0.864** as a result. That drop is the measurement getting
+*more* honest, not the extractor getting worse: 19 real requirements were being
+excluded from the denominator because nobody had recorded them. It is also a
+concrete coverage finding — the Factor 1 evaluation sub-criteria on page 62 are
+a genuine extraction gap.
+
+The other misses are the known PDF line-wrap hyphenation cases (see below).
 
 **Atomic siblings are in ground truth too.** When a compound sentence is split
 into several single-duty rows, the golden set now carries the same siblings, so
@@ -62,6 +78,10 @@ author. Inside the exhaustive scope this measures *self-consistency of judgment*
 not agreement with an independent human shredder. A second reader is the single
 biggest remaining improvement to this eval, and no amount of further self-audit
 substitutes for it.
+
+**Verify emptiness, never assume it.** A page with no golden rows and no
+predictions looks identical to a page with nothing on it. Any future scope
+extension must confirm each declared page was actually read.
 
 **Not yet exhaustive:** the SOW annex (pages 9–16 of the annex file, 50 golden
 rows) is still sample-annotated, so predictions there remain outside the scope

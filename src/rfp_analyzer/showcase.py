@@ -406,10 +406,14 @@ _PAGE = """<title>RFP Compliance Matrix — a real federal solicitation, shredde
   </p>
   <div class="caveats">
     <ul>
-      <li><b>Precision 0.950, recall 0.985</b> across the 16 pages the golden set
+      <li><b>Precision 0.950, recall 0.864</b> across the 16 pages the golden set
         annotates exhaustively (Sections L and M) — there an unmatched prediction really
         is an error, so this is a true error rate, and all 7 false positives are named
-        in the eval writeup. Across the whole golden set precision is 0.714 and remains
+        in the eval writeup. Recall is the lower figure because one page of Factor 1
+        evaluation criteria was found to have been missed entirely — the audit that
+        found it cost 12 points of recall, which is the measurement getting more
+        honest rather than the extraction getting worse. Across the whole golden set
+        precision is 0.714 and remains
         a <b>lower bound</b>: outside the exhaustive range an unmatched prediction may
         be a requirement the ground truth never recorded, which an audit showed is
         usually what it is.</li>
