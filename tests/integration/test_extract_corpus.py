@@ -54,10 +54,14 @@ def test_requirements_reach_L_M_and_beyond(extraction):
     assert reqs, "extraction produced zero requirements over the primary package"
 
     labels = {r.source_ref.section_label for r in reqs}
-    assert "L" in labels, f"no Section L requirements; labels seen: {sorted(map(str, labels))}"
-    assert "M" in labels, f"no Section M requirements; labels seen: {sorted(map(str, labels))}"
+    # Compare on the top-level section letter: de-duplication now keeps the
+    # DEEPEST section path, so Section L rows are labelled "L.1"/"L.5" rather
+    # than the coarse "L" the parent chunk carried.
+    heads = {(lbl or "").split(".", 1)[0] for lbl in labels}
+    assert "L" in heads, f"no Section L requirements; labels seen: {sorted(map(str, labels))}"
+    assert "M" in heads, f"no Section M requirements; labels seen: {sorted(map(str, labels))}"
 
-    beyond_lm = {lbl for lbl in labels if lbl not in {"L", "M"}}
+    beyond_lm = {h for h in heads if h not in {"L", "M"}}
     assert beyond_lm, "no requirements outside L/M — C/attachments were unreachable (EXTR-04)"
 
     source_files = {r.source_ref.filename for r in reqs}

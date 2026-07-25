@@ -28,6 +28,7 @@ module imports no engine, web, CLI, or queue code itself.
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 
+from rfp_analyzer.pipeline.actor import classify_actor
 from rfp_analyzer.pipeline.extraction.replay import ExtractionParseError
 from rfp_analyzer.pipeline.grounding.normalize import normalize
 from rfp_analyzer.pipeline.grounding.verify import build_source_ref
@@ -61,13 +62,61 @@ _ROLE_TO_REQ_TYPE: dict[str, str] = {
 }
 
 
-def _reconcile_type(role: str | None, type_guess: str) -> str:
-    """Return the req_type: the section role wins; type_guess only when role is None."""
+def _is_lm_context(role: str | None, section_label: str | None) -> bool:
+    """True when a requirement sits in Section L or M, however the chunk is labelled.
+
+    Checks the section label as well as the role because only the TOP-LEVEL
+    section chunk carries a role — ``iter_chunks`` emits "L.5" and "M.2" with
+    ``role=None`` — and the deepest chunk is the one that wins de-duplication.
+    Keying on the role alone therefore never fires for exactly the nested
+    subsections this rule exists to fix.
+    """
+    if role in ("instructions", "evaluation"):
+        return True
+    if not section_label:
+        return False
+    head = section_label.split(".", 1)[0].strip()
+    return head in ("L", "M")
+
+
+def _reconcile_type(
+    role: str | None,
+    type_guess: str,
+    verbatim: str = "",
+    section_label: str | None = None,
+) -> str:
+    """Return the req_type: actor decides inside L/M; the section role decides elsewhere.
+
+    The original rule was "the owning section's role always wins". Measured on
+    N4008526R0033 that mistypes a large class of rows: FAR solicitations file
+    *submittal instructions* inside Section M under "(i) Solicitation Submittal
+    Requirements", and this RFP delegates Section L's content to M wholesale. The
+    role rule then labels real offeror duties ``evaluation``, which in turn makes
+    cross-mapping report them as scored-but-never-instructed gaps that don't exist.
+
+    So for the two roles where the distinction is load-bearing (instructions and
+    evaluation), who owes the duty decides: an offeror duty is an ``instruction``
+    wherever it is filed, and a Government evaluation action is an ``evaluation``.
+    ``other``-actor rows keep the section's role, since a page-limit note or
+    definition belongs with its section. Every other role is unchanged.
+    """
+    if verbatim and _is_lm_context(role, section_label):
+        actor = classify_actor(verbatim)
+        if actor == "offeror":
+            return "instruction"
+        if actor == "government":
+            return "evaluation"
+        # actor "other": fall through to the section's role below.
     if role is None:
         return type_guess
     # Every enum role value is in the map; an unexpected value degrades to the
     # model guess rather than inventing a type.
     return _ROLE_TO_REQ_TYPE.get(role, type_guess)
+
+
+def _depth(section_label: str | None) -> int:
+    """Nesting depth of a section label ("L" -> 1, "L.5" -> 2). None sorts last."""
+    return section_label.count(".") + 1 if section_label else 0
 
 
 def _root_index(drafts: list[RequirementDraft], i: int) -> int:
@@ -156,7 +205,7 @@ def extract_requirements(
     dupes collapse).
     """
     out: list[Requirement] = []
-    seen: set[str] = set()
+    seen: dict[str, int] = {}
     section_ordinals: dict[str, int] = defaultdict(int)
 
     for chunk in chunks:
@@ -183,8 +232,19 @@ def extract_requirements(
         for i, draft in enumerate(drafts):
             rid = draft_ids[i]
             if rid in seen:
-                continue  # overlap-window / duplicate extraction — collapse
-            seen.add(rid)
+                # Overlap-window / nested-section duplicate. Collapse — but keep
+                # the MOST SPECIFIC section, because iter_chunks walks the parent
+                # section before its children, so first-wins would permanently
+                # label every row with the coarse "L"/"M" and discard the "L.5" /
+                # "M.2" path that cross-mapping needs to anchor on.
+                prior = out[seen[rid]]
+                if _depth(chunk.section_label) > _depth(prior.source_ref.section_label):
+                    prior.source_ref.section_label = chunk.section_label
+                    prior.req_type = _reconcile_type(
+                        chunk.role, draft.type_guess, draft.verbatim_text, chunk.section_label
+                    )
+                continue
+            seen[rid] = len(out)
 
             root = _root_index(drafts, i)
             parent_id = draft_ids[root] if root != i else None
@@ -199,7 +259,9 @@ def extract_requirements(
                     verbatim_text=draft.verbatim_text,
                     atomic_obligation=draft.atomic_obligation,
                     binding_keyword=draft.binding_keyword,
-                    req_type=_reconcile_type(chunk.role, draft.type_guess),
+                    req_type=_reconcile_type(
+                        chunk.role, draft.type_guess, draft.verbatim_text, chunk.section_label
+                    ),
                     source_ref=refs[i],
                     verified=refs[i].verified,
                     parent_id=parent_id,

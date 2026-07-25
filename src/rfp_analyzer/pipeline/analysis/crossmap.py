@@ -15,36 +15,43 @@ No engine, no judgment, so a reported gap is reproducible and cannot be
 hallucinated — which matters because a *false* gap sends a proposal team chasing
 work that does not exist.
 
-LIMITATION (measured on N4008526R0033, 2026-07-24) — READ BEFORE SHIPPING GAPS
+STATUS (measured on N4008526R0033, 2026-07-24) — PARTIALLY FIXED
 ------------------------------------------------------------------------------
-Text similarity alone does not recover L<->M correspondence in this package, and
-probably not in FAR solicitations generally. Two findings:
+The first cut of this module reported mostly FALSE gaps, for a structural reason
+rather than a tuning one: this RFP delegates Section L's content to Section M
+("responses to each non-price factor as specified in Section M"), so M carries
+the real submittal instructions. Typing rows by their section then filed those
+offeror duties on the evaluation side and reported them as "scored but never
+instructed".
 
-1. **This RFP delegates L's content to M.** Section L says only "The non-price
-   proposal shall include responses to each non-price factor as specified in
-   Section M"; the actual submittal instructions for Factors 1-4 live *inside*
-   Section M under "(i) Solicitation Submittal Requirements". Measured topic
-   coverage over the extracted rows: phase-in L=0/M=3, workforce L=0/M=3,
-   safety L=0/M=15, corporate experience L=0/M=5. So nearly every substantive M
-   row is correctly *un*matched in L — and reporting those as "m_without_l" gaps
-   would be flatly wrong. They are not gaps; they are the RFP's structure.
+FIXED — requirements are now typed by ACTOR (see ``pipeline.actor``): whoever
+owes the duty decides, so an offeror duty in Section M is an ``instruction``
+wherever it is filed. 29 Section M rows reclassified (evaluation 83->53,
+instruction 57->87), and de-duplication now keeps the deepest section path
+(L.5, M.2) instead of the coarse parent, so a section anchor is available at all.
+M-without-L rows are now genuinely Government-voice evaluation actions ("Price
+is evaluated on total price", "Award goes to the responsible Offeror..."), and
+real pairs link correctly ("An incumbent shall tailor the Phase-in Transition
+Plan" <-> "An incumbent's Phase-in Transition Plan is evaluated on continuity of
+services", score 84).
 
-2. **Consequently ``req_type`` mislabels them.** The 02-05 rule "the owning
-   section's role wins" types everything in Section M as ``evaluation``, but
-   M's Solicitation Submittal Requirements subsections are *instructions*
-   ("The Offeror shall submit a narrative response..."). Bucketing by req_type
-   therefore puts real instructions on the M side.
+STILL WEAK — two known problems, so treat gap output as advisory:
 
-Recommended fix (needs a design decision, not a threshold tweak): anchor
-cross-mapping on the **evaluation factor** — the axis a FAR proposal is actually
-organized by — rather than on paraphrase similarity. That requires sub-section
-structure (L.5, M.2, "Factor 2, Corporate Experience") to reach the Requirement,
-which today's coarse ``section_label`` (L / M / C only) does not carry, and a
-``req_type`` rule that distinguishes M's submittal subsections from its
-evaluation criteria. Explicit "Factor N" text is not a usable anchor on its own:
-only 2 of 277 rows mention one.
+1. **No per-factor anchor.** Structurally similar sentences about different
+   evaluation factors still link: "Limit the Factor 1 narrative to 25
+   single-sided pages" matches "Limit the Technical Approach to Safety narrative
+   to seven single-sided pages" at 88. The fix is to anchor on the evaluation
+   factor, which needs sub-section structure BELOW M.2 (per-factor headings like
+   "(2) Factor 2, Corporate Experience") that the Phase 1 sectioner does not
+   currently emit. Explicit "Factor N" text is not a usable substitute: only 2 of
+   277 rows contain one.
+2. **Award-process statements are not really gaps.** Rows like "Award goes to the
+   responsible Offeror whose conforming offer is the best value" are evaluation
+   *mechanics*, not criteria an offeror must be instructed toward, yet they land
+   in ``m_without_l``. They need a third disposition rather than a gap label.
 
-Until then this module is wired but its gap output is NOT export-ready.
+Until both are addressed, gaps are ADVISORY: useful for a human reviewer,
+not yet a column to hand a proposal team unqualified.
 """
 
 from __future__ import annotations
@@ -64,13 +71,10 @@ different voices ("the Offeror shall submit a phase-in plan" vs "the Government
 will evaluate the feasibility of the phase-in plan"), so near-identity would
 report gaps that are not gaps.
 
-⚠ **UNVALIDATED — do not present this module's gaps to a proposal team yet.**
-Measured on N4008526R0033 (277 requirements), the threshold has no stable
-operating point: 45.0 maps 95% of rows, 55.0 maps 22%, 65.0 maps 4%. Scores
-cluster so tightly that "mapped" at 55.0 includes clear false links (e.g.
-"Certify in writing on page 1 of the proposal" scored 60 against "Tab each
-listed topic in the non-price proposal"). See the module docstring's LIMITATION
-note for the underlying reason and the recommended fix.
+⚠ Still coarse. After the actor-typing fix (see module docstring) 55.0 maps 26%
+of rows on N4008526R0033 with genuine L<->M pairs among them, but structurally
+similar sentences about DIFFERENT evaluation factors still link. Treat mapped/
+gapped as advisory until per-factor anchoring lands.
 """
 
 _L_TYPES = {"instruction"}
