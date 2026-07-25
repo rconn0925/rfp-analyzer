@@ -75,7 +75,7 @@ def build_parser() -> argparse.ArgumentParser:
     extract_cmd.add_argument(
         "--model",
         default=DEFAULT_MODEL,
-        help=f"Local Ollama model for extraction (default: {DEFAULT_MODEL}).",
+        help=f"Provenance label recorded on the run (default: {DEFAULT_MODEL}).",
     )
     extract_cmd.add_argument(
         "--seed",

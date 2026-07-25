@@ -154,7 +154,7 @@ class SourceRef(BaseModel):
 class RequirementDraft(BaseModel):
     """One model-extracted obligation before grounding and stable-ID assignment.
 
-    Doubles as the Ollama ``format`` schema, so it stays flat — Literal enums
+    Doubles as the engine's structured-output schema, so it stays flat — Literal enums
     only, no constrained numerics, no recursive nesting. ``verbatim_text`` is the
     exact source span (this grounds); ``atomic_obligation`` is the single-duty
     rewrite (display/analysis text, never grounded).
@@ -176,7 +176,7 @@ class RequirementDraft(BaseModel):
 
 
 class RequirementBatch(BaseModel):
-    """A chunk's worth of extracted drafts — the Ollama structured-output root."""
+    """A chunk's worth of extracted drafts — the structured-output root."""
 
     requirements: list[RequirementDraft] = Field(default_factory=list)
 

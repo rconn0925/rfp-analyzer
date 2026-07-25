@@ -23,8 +23,10 @@ Design choices (RESEARCH Pitfalls 3/4):
   fallback) so no ok file is silently unreachable (EXTR-04 "every file").
 """
 
+import hashlib
 from collections.abc import Iterator
 
+from rfp_analyzer.pipeline.grounding.normalize import normalize
 from rfp_analyzer.pipeline.models import (
     BlockSpan,
     Chunk,
@@ -38,6 +40,30 @@ from rfp_analyzer.pipeline.models import (
 _PAGE_JOINER = "\n"
 """Inserted between concatenated page texts; joiner chars belong to no page and
 are therefore excluded from every page_map range."""
+
+
+def chunk_key(text: str) -> str:
+    """Return a stable ``CHK-<12hex>`` identity for a chunk's text.
+
+    The join between an exported chunk and the drafts Claude Code records for it
+    (see ``extraction.replay``). Keyed on ``normalize(text)`` ONLY — not on
+    file_id — because the replay lookup runs inside the ``ExtractFn`` seam, which
+    receives just ``chunk_text``. Two consequences, both intended:
+
+    - **Content-derived, so drift is loud.** Re-chunking after a parser change
+      shifts the key, and the stale recorded drafts fail to resolve and surface
+      as unextracted chunks rather than silently grounding against text that
+      moved underneath them (threat T-02-18).
+    - **Identical text in two files shares one key.** Boilerplate (a repeated FAR
+      clause page) is extracted once and replayed into both chunks, where each is
+      grounded independently against its own page_map. Same input, same drafts —
+      benign, and it avoids paying twice for identical text.
+
+    Uses the same normalize() as grounding and ids, so whitespace/ligature
+    variants of one chunk do not produce different keys.
+    """
+    digest = hashlib.sha256(normalize(text).encode("utf-8")).hexdigest()
+    return f"CHK-{digest[:12]}"
 
 
 def iter_chunks(document_map: DocumentMap, max_input_chars: int = 24000) -> Iterator[Chunk]:

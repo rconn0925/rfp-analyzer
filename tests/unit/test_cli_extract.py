@@ -1,9 +1,9 @@
 """Unit tests for the extraction entry point and the ``extract`` CLI subcommand.
 
 Everything here is CI-safe: ``run_extraction`` is driven with an injected fake
-``extract_fn`` (no Ollama), and the CLI paths run over hand-built artifacts. The
-end-to-end corpus proof lives in ``tests/integration/test_extract_corpus.py``
-(skipif Ollama+corpus).
+``extract_fn`` (the engine is always injected), and the CLI paths run over
+hand-built artifacts. The end-to-end corpus proof lives in
+``tests/integration/test_extract_corpus.py`` (skipif corpus).
 """
 
 import argparse
@@ -14,7 +14,7 @@ from rfp_analyzer.cli import (
     build_parser,
     render_requirements_report,
 )
-from rfp_analyzer.pipeline.extraction.run_extraction import run_extraction
+from rfp_analyzer.pipeline.extraction.run_extraction import DEFAULT_MODEL, run_extraction
 from rfp_analyzer.pipeline.metrics import RunMetrics
 from rfp_analyzer.pipeline.models import (
     DocumentMap,
@@ -128,7 +128,7 @@ class TestRunExtraction:
         dmap = _single_page_map("The offeror shall provide a cover letter.")
         batch = RequirementBatch(requirements=[])
         result = run_extraction(dmap, extract_fn=_fake_fn(batch))
-        assert result.model_name == "qwen2.5:14b-instruct"
+        assert result.model_name == DEFAULT_MODEL
 
 
 # --- CLI: build_parser, report rendering, artifact + exit codes ----------------
@@ -178,7 +178,7 @@ def _requirement(
 def _synthetic_requirement_set() -> RequirementSet:
     return RequirementSet(
         package_name="primary-ucf",
-        model_name="qwen2.5:14b-instruct",
+        model_name="claude-code",
         requirements=[
             _requirement("r1", req_type="instruction", section_label="L", page=49),
             _requirement("r2", req_type="evaluation", section_label="M", page=58),
@@ -225,17 +225,17 @@ class TestBuildParserExtract:
         args = parser.parse_args(["extract", "artifacts/primary-ucf"])
         assert args.command == "extract"
         assert args.artifacts_dir == "artifacts/primary-ucf"
-        assert args.model == "qwen2.5:14b-instruct"
+        assert args.model == DEFAULT_MODEL
         assert args.seed == 7
         assert args.out is None
 
     def test_extract_subcommand_accepts_flags(self):
         parser = build_parser()
         args = parser.parse_args(
-            ["extract", "artifacts/x", "--model", "qwen2.5:32b-instruct",
+            ["extract", "artifacts/x", "--model", "claude-code-manual",
              "--seed", "3", "--out", "o"]
         )
-        assert args.model == "qwen2.5:32b-instruct"
+        assert args.model == "claude-code-manual"
         assert args.seed == 3
         assert args.out == "o"
 
@@ -245,7 +245,7 @@ class TestRenderRequirementsReport:
         report = render_requirements_report(_synthetic_requirement_set())
 
         assert "Package: primary-ucf" in report
-        assert "Model: qwen2.5:14b-instruct" in report
+        assert "Model: claude-code" in report
 
         # Verified vs unverified breakdown (T-02-15): 5 verified, 1 ungroundable.
         assert "verified (grounded): 5" in report

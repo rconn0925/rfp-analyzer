@@ -21,14 +21,14 @@ Honesty invariants preserved from the phase design:
 - **A per-chunk parse failure is isolated** — one bad chunk is skipped, the run
   continues.
 
-Pure library code: it calls the (localhost-only) client through ``extract_fn``
-but imports no web/CLI/queue code itself.
+Pure library code: the engine arrives through the injected ``extract_fn``; this
+module imports no engine, web, CLI, or queue code itself.
 """
 
 from collections import defaultdict
 from collections.abc import Callable, Iterable
 
-from rfp_analyzer.pipeline.extraction.client import ExtractionParseError, extract_chunk
+from rfp_analyzer.pipeline.extraction.replay import ExtractionParseError
 from rfp_analyzer.pipeline.grounding.normalize import normalize
 from rfp_analyzer.pipeline.grounding.verify import build_source_ref
 from rfp_analyzer.pipeline.ids import display_label, requirement_id
@@ -41,8 +41,11 @@ from rfp_analyzer.pipeline.models import (
 )
 
 ExtractFn = Callable[[str, str, int], RequirementBatch]
-"""Signature of the model-call dependency: ``(chunk_text, model, seed) -> batch``.
-Injectable so tests pass a fake batch without touching Ollama."""
+"""Signature of the engine dependency: ``(chunk_text, model, seed) -> batch``.
+
+Always injected — there is no in-process engine to default to. In production it
+is a :class:`~rfp_analyzer.pipeline.extraction.replay.ReplayEngine` over drafts
+recorded by Claude Code; tests pass a fake returning canned batches."""
 
 # EXTR-03: the COMPLETE SectionNode.role -> req_type map. Every role value the
 # schema allows is mapped explicitly; only role=None ever defers to the model's
@@ -141,14 +144,16 @@ def extract_requirements(
     chunks: Iterable[Chunk],
     model: str,
     seed: int = 7,
-    extract_fn: ExtractFn = extract_chunk,
+    *,
+    extract_fn: ExtractFn,
 ) -> list[Requirement]:
     """Assemble grounded, atomic, stably-identified Requirements from chunks.
 
-    ``extract_fn`` is the injected model call (defaults to the real Ollama
-    client); tests pass a fake that returns canned batches so the full assembly
-    runs without a GPU. Requirements are returned in chunk-then-draft order with
-    de-duplication by ``requirement_id`` (overlap-window dupes collapse).
+    ``extract_fn`` is the injected engine and is REQUIRED — keyword-only so it
+    can never be supplied by accident, and with no default because there is no
+    in-process model to fall back to. Requirements are returned in
+    chunk-then-draft order with de-duplication by ``requirement_id`` (overlap-window
+    dupes collapse).
     """
     out: list[Requirement] = []
     seen: set[str] = set()

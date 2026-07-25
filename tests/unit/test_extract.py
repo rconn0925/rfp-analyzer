@@ -1,14 +1,14 @@
 """Behavior tests for the chunk -> grounded Requirement orchestration (extract.py).
 
-The whole assembly path is exercised WITHOUT Ollama by injecting a fake
+The whole assembly path is exercised without any engine by injecting a fake
 ``extract_fn`` that returns canned ``RequirementBatch`` objects. This proves the
 grounding wiring, atomic-sibling splitting, deterministic ids (including for
 ungroundable rows), the full SectionNode.role -> req_type map, per-chunk parse
 isolation, and doc_role survival onto the Requirement — all CI-safe, no GPU.
 """
 
-from rfp_analyzer.pipeline.extraction.client import ExtractionParseError
 from rfp_analyzer.pipeline.extraction.extract import extract_requirements
+from rfp_analyzer.pipeline.extraction.replay import ExtractionParseError
 from rfp_analyzer.pipeline.models import (
     Chunk,
     RequirementBatch,

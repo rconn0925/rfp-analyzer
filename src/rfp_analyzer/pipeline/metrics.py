@@ -23,3 +23,12 @@ class RunMetrics(BaseModel):
     input_tokens: int = 0
     output_tokens: int = 0
     estimated_cost_usd: float = 0.0
+
+    chunks_total: int = 0
+    """Chunks the package produced — the denominator of extraction coverage."""
+
+    chunks_unextracted: int = 0
+    """Chunks with NO recorded drafts. Must be surfaced, never read as "zero
+    requirements here": an un-extracted chunk is a coverage hole, and conflating
+    it with a genuinely empty one hides missing recall behind a clean-looking
+    run (threat T-02-20)."""
