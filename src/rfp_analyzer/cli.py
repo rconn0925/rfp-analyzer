@@ -1,5 +1,12 @@
 """Command-line interface for rfp-analyzer.
 
+Extraction is a TWO-STEP flow, because the engine is Claude Code on Ross's
+subscription rather than an in-process model call (see ``extraction.replay``):
+
+    rfp-analyzer chunks  <artifacts-dir> --out chunks.jsonl   # what to extract
+    (Claude Code reads chunks.jsonl and writes drafts.jsonl)
+    rfp-analyzer extract <artifacts-dir> --drafts drafts.jsonl  # ground + score
+
 ``rfp-analyzer parse <package-dir> --out <artifacts-dir>`` (D-06) runs the
 full Phase 1 pipeline and emits both D-05 artifacts every run:
 
@@ -24,6 +31,13 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from rfp_analyzer.eval.scoring import format_score_line, score
+from rfp_analyzer.pipeline.extraction.chunker import chunk_key, iter_chunks
+from rfp_analyzer.pipeline.extraction.replay import (
+    CorruptDraftsError,
+    load_drafts,
+    replay_extract_fn,
+)
 from rfp_analyzer.pipeline.extraction.run_extraction import DEFAULT_MODEL, run_extraction
 from rfp_analyzer.pipeline.models import (
     DocumentMap,
@@ -64,13 +78,40 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output directory for artifacts (default: artifacts).",
     )
 
+    chunks_cmd = subparsers.add_parser(
+        "chunks",
+        help="Export extraction chunks as JSONL for Claude Code to extract from.",
+    )
+    chunks_cmd.add_argument(
+        "artifacts_dir",
+        help="Directory containing a document_map.json produced by `parse`.",
+    )
+    chunks_cmd.add_argument(
+        "--out",
+        default=None,
+        help="Path for chunks.jsonl (default: alongside document_map.json).",
+    )
+
     extract_cmd = subparsers.add_parser(
         "extract",
-        help="Extract grounded requirements from a parsed package's document_map.json.",
+        help="Ground recorded requirement drafts into a requirements.json matrix.",
     )
     extract_cmd.add_argument(
         "artifacts_dir",
         help="Directory containing a document_map.json produced by `parse`.",
+    )
+    extract_cmd.add_argument(
+        "--drafts",
+        required=True,
+        help=(
+            "Path to drafts.jsonl recorded by Claude Code from `chunks` output. "
+            "Required — there is no in-process extraction engine."
+        ),
+    )
+    extract_cmd.add_argument(
+        "--golden",
+        default=None,
+        help="Golden-set JSON to score this run against (precision/recall/F1).",
     )
     extract_cmd.add_argument(
         "--model",
@@ -81,7 +122,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--seed",
         type=int,
         default=7,
-        help="Deterministic sampling seed passed to the model (default: 7).",
+        help="Run provenance seed recorded with the run (default: 7).",
     )
     extract_cmd.add_argument(
         "--out",
@@ -178,14 +219,17 @@ def render_report(document_map: DocumentMap) -> str:
     return "\n".join(lines)
 
 
-def render_requirements_report(requirement_set: RequirementSet) -> str:
+def render_requirements_report(
+    requirement_set: RequirementSet, golden_path: str | None = None
+) -> str:
     """Human-readable extraction report — the `extract` half of the dual output.
 
     Surfaces the honesty signals the matrix depends on: counts by req_type and
     by section, verified vs unverified totals (T-02-15: hallucinated rows are
-    counted, never hidden), the deterministic-sweep missed-candidate list
-    (EXTR-05), amendment change rows and possibly-modified base rows (INTK-03),
-    and a metrics footer proving the local $0.00 accounting.
+    counted, never hidden), extraction coverage (T-02-20), the golden-set
+    precision/recall/F1 line when one applies (success criterion 5), the
+    deterministic-sweep missed-candidate list (EXTR-05), amendment change rows
+    and possibly-modified base rows (INTK-03), and a metrics footer.
     """
     reqs = requirement_set.requirements
     lines: list[str] = []
@@ -196,6 +240,20 @@ def render_requirements_report(requirement_set: RequirementSet) -> str:
     verified = sum(1 for r in reqs if r.verified)
     unverified = len(reqs) - verified
     lines.append(f"  verified (grounded): {verified}  unverified (ungroundable): {unverified}")
+
+    # T-02-20: an un-extracted chunk is a coverage hole, not "nothing here".
+    metrics = requirement_set.metrics
+    if metrics.chunks_total:
+        extracted = metrics.chunks_total - metrics.chunks_unextracted
+        lines.append(f"  chunks extracted: {extracted}/{metrics.chunks_total}")
+        if metrics.chunks_unextracted:
+            lines.append(
+                f"  WARNING: {metrics.chunks_unextracted} chunk(s) had no recorded "
+                "drafts — coverage is incomplete and recall is understated"
+            )
+
+    lines.append("")
+    lines.append(_golden_line(requirement_set, golden_path))
 
     by_type = Counter(r.req_type for r in reqs)
     lines.append("")
@@ -246,8 +304,45 @@ def render_requirements_report(requirement_set: RequirementSet) -> str:
         f"  input tokens: {metrics.input_tokens}"
         f"  output tokens: {metrics.output_tokens}"
     )
-    lines.append(f"  LLM cost: ${metrics.estimated_cost_usd:.2f} (local inference)")
+    lines.append(
+        f"  LLM cost: ${metrics.estimated_cost_usd:.2f} "
+        "(engine ran in a Claude Code session; not metered here)"
+    )
     return "\n".join(lines)
+
+
+NO_GOLDEN_LINE = "vs golden set: no golden set for this package (recall/precision not scored)"
+"""Printed when nothing scores this run.
+
+Success criterion 5 says recall and precision appear on EVERY run. When there is
+no ground truth the honest report is an explicit "not scored" — silently omitting
+the line would let an unmeasured run look the same as a measured one.
+"""
+
+
+def _golden_line(requirement_set: RequirementSet, golden_path: str | None) -> str:
+    """The precision/recall/F1 line, or an explicit statement that nothing scored it."""
+    if not golden_path:
+        return NO_GOLDEN_LINE
+
+    path = Path(golden_path)
+    if not path.exists():
+        return f"vs golden set: ERROR — golden file not found: {path}"
+
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        golds = doc["requirements"] if isinstance(doc, dict) else doc
+    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+        return f"vs golden set: ERROR — unreadable golden file {path}: {exc}"
+
+    package = doc.get("package") if isinstance(doc, dict) else None
+    result = score(requirement_set.requirements, golds)
+    line = format_score_line(result)
+    if package and package not in (requirement_set.package_name or ""):
+        # Scoring a run against another package's ground truth is meaningless;
+        # say so rather than printing a confidently wrong number.
+        line += f"  [WARNING: golden set is for package {package!r}]"
+    return line
 
 
 def _truncate(text: str, limit: int = 120) -> str:
@@ -260,14 +355,14 @@ _MISSED_PREVIEW = 25
 """How many missed candidates to list before summarizing the remainder."""
 
 
-def _run_extract(args: argparse.Namespace) -> int:
-    artifacts_dir = Path(args.artifacts_dir)
+def _resolve_document_map(artifacts_dir: Path) -> DocumentMap | None:
+    """Load and validate ``<artifacts_dir>/document_map.json``, or report why not."""
     if not artifacts_dir.exists():
         print(f"error: artifacts directory does not exist: {artifacts_dir}", file=sys.stderr)
-        return 2
+        return None
     if not artifacts_dir.is_dir():
         print(f"error: not a directory: {artifacts_dir}", file=sys.stderr)
-        return 2
+        return None
 
     map_path = artifacts_dir / "document_map.json"
     if not map_path.exists():
@@ -275,24 +370,84 @@ def _run_extract(args: argparse.Namespace) -> int:
             f"error: no document_map.json in {artifacts_dir} — run `parse` first",
             file=sys.stderr,
         )
-        return 2
-
-    raw = map_path.read_text(encoding="utf-8")
+        return None
 
     # T-02-14: validate the artifact before it drives extraction. A schema-version
     # mismatch is an honest, machine-readable failure, not a silent mis-parse.
-    document_map = _load_document_map(raw)
+    return _load_document_map(map_path.read_text(encoding="utf-8"))
+
+
+def _run_chunks(args: argparse.Namespace) -> int:
+    """Export every extraction chunk as JSONL — the input Claude Code extracts from.
+
+    One line per chunk, in deterministic ``iter_chunks`` order, carrying the
+    ``chunk_key`` that joins it back to the drafts recorded for it. ``page_map``
+    is deliberately NOT exported: page provenance is recomputed at grounding time
+    from the document map, never round-tripped through the engine, so a page
+    reference can't be influenced by what the engine returns.
+    """
+    artifacts_dir = Path(args.artifacts_dir)
+    document_map = _resolve_document_map(artifacts_dir)
     if document_map is None:
         return 2
 
-    requirement_set = run_extraction(document_map, model=args.model, seed=args.seed)
+    out_path = Path(args.out) if args.out is not None else artifacts_dir / "chunks.jsonl"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    count = 0
+    with out_path.open("w", encoding="utf-8", newline="\n") as fh:
+        for chunk in iter_chunks(document_map):
+            record = {
+                "chunk_key": chunk_key(chunk.text),
+                "file_id": chunk.file_id,
+                "filename": chunk.filename,
+                "section_label": chunk.section_label,
+                "role": chunk.role,
+                "doc_role": chunk.doc_role,
+                "text": chunk.text,
+            }
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+            count += 1
+
+    print(f"Package: {document_map.package_name}")
+    print(f"Chunks written: {count} -> {out_path}")
+    print(
+        "\nNext: have Claude Code extract each chunk into drafts.jsonl "
+        '({"chunk_key": ..., "requirements": [...]}), then run:\n'
+        f"  rfp-analyzer extract {artifacts_dir} --drafts drafts.jsonl"
+    )
+    return 0
+
+
+def _run_extract(args: argparse.Namespace) -> int:
+    artifacts_dir = Path(args.artifacts_dir)
+    document_map = _resolve_document_map(artifacts_dir)
+    if document_map is None:
+        return 2
+
+    try:
+        drafts = load_drafts(args.drafts)
+    except CorruptDraftsError as exc:
+        # A bad recording fails the run rather than silently under-reporting.
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+
+    engine = replay_extract_fn(drafts)
+    requirement_set = run_extraction(
+        document_map, model=args.model, seed=args.seed, extract_fn=engine
+    )
 
     out_dir = Path(args.out) if args.out is not None else artifacts_dir
     out_dir.mkdir(parents=True, exist_ok=True)
     requirements_path = out_dir / "requirements.json"
     requirements_path.write_text(requirement_set.model_dump_json(indent=2), encoding="utf-8")
 
-    print(render_requirements_report(requirement_set))
+    print(render_requirements_report(requirement_set, golden_path=args.golden))
+    if engine.unused_count:
+        print(
+            f"\nnote: {engine.unused_count} recorded chunk(s) went unused — "
+            "the drafts file may be stale relative to the current document map"
+        )
     print(f"\nRequirements written to {requirements_path}")
     return 0
 
@@ -368,6 +523,8 @@ def main() -> None:
         sys.exit(2)
     if args.command == "parse":
         sys.exit(_run_parse(args))
+    if args.command == "chunks":
+        sys.exit(_run_chunks(args))
     if args.command == "extract":
         sys.exit(_run_extract(args))
     parser.error(f"unknown command: {args.command}")

@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
+from rfp_analyzer.eval.scoring import MATCH_THRESHOLD, format_score_line, is_match, score
 from tests.eval.conftest import load_golden, load_golden_doc
-from tests.eval.metrics import MATCH_THRESHOLD, format_score_line, is_match, score
 
 
 def gold(text: str, page: int = 1, file_id: str = "f1") -> dict:
@@ -70,21 +70,59 @@ def test_precision_and_recall_are_separate_fields():
 
 
 def test_recall_and_precision_diverge_and_are_reported_distinctly():
-    """One correct hit, one hallucination, one miss -> P=0.5, R=0.5 ... but the
+    """One correct hit, one on-page hallucination, one miss -> P=0.5, R=0.5. The
     point is that a lopsided run reports lopsided numbers, not one blended score."""
-    preds = [_Pred(SENTENCE), _Pred("Wholly invented obligation.", page=9)]
-    golds = [gold(SENTENCE), gold("A second real obligation.", page=3)]
+    preds = [_Pred(SENTENCE), _Pred("Wholly invented obligation.", page=1)]
+    golds = [gold(SENTENCE, page=1), gold("A second real obligation.", page=3)]
     result = score(preds, golds)
     assert result["matched"] == 1
     assert result["precision"] == pytest.approx(0.5)
     assert result["recall"] == pytest.approx(0.5)
 
-    # Now make it lopsided: many hallucinations, perfect recall.
-    preds = [_Pred(SENTENCE)] + [_Pred(f"Invented {i}.", page=50 + i) for i in range(9)]
+    # Now make it lopsided: many hallucinations on an annotated page, perfect recall.
+    preds = [_Pred(SENTENCE)] + [_Pred(f"Invented {i}.") for i in range(9)]
     result = score(preds, [gold(SENTENCE)])
     assert result["recall"] == pytest.approx(1.0)
     assert result["precision"] == pytest.approx(0.1)
     assert result["precision"] != result["recall"], "collapsing these hides the failure"
+
+
+# --- scoping: unannotated pages are unjudged, not wrong ------------------------
+
+
+def test_predictions_on_unannotated_pages_are_out_of_scope_not_false_positives():
+    """A golden set annotates some pages; a prediction elsewhere is unjudged.
+
+    Counting it as wrong would report a precision that measures how much of the
+    package was annotated rather than how good the extraction is.
+    """
+    preds = [_Pred(SENTENCE, page=1), _Pred("Something on an unannotated page.", page=99)]
+    result = score(preds, [gold(SENTENCE, page=1)])
+    assert result["precision"] == pytest.approx(1.0)
+    assert result["total_preds"] == 1
+    assert len(result["out_of_scope_preds"]) == 1
+
+
+def test_out_of_scope_predictions_are_surfaced_in_the_line():
+    preds = [_Pred(SENTENCE, page=1), _Pred("Elsewhere.", page=99)]
+    line = format_score_line(score(preds, [gold(SENTENCE, page=1)]))
+    assert "not scored" in line
+
+
+def test_scoping_cannot_inflate_recall():
+    """Every golden row is in scope by construction, so scoping leaves recall alone."""
+    golds = [gold(SENTENCE, page=1), gold("A second obligation.", page=3)]
+    preds = [_Pred(SENTENCE, page=1), _Pred("Noise.", page=99)]
+    scoped = score(preds, golds)
+    unscoped = score(preds, golds, scoped=False)
+    assert scoped["recall"] == unscoped["recall"] == pytest.approx(0.5)
+
+
+def test_unscoped_mode_counts_every_prediction():
+    preds = [_Pred(SENTENCE, page=1), _Pred("Elsewhere.", page=99)]
+    result = score(preds, [gold(SENTENCE, page=1)], scoped=False)
+    assert result["precision"] == pytest.approx(0.5)
+    assert result["out_of_scope_preds"] == []
 
 
 def test_each_gold_matched_at_most_once():

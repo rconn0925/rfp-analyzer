@@ -21,6 +21,8 @@ Three deliberate properties:
   deliverable requirement, and hiding it would flatter the score.
 
 Pure stdlib + rapidfuzz over in-memory rows — no corpus, no engine, no network.
+Lives in the package (not the test tree) because the CLI prints these numbers on
+every scored run; the golden-set fixture it is usually pointed at stays test data.
 """
 
 from __future__ import annotations
@@ -85,6 +87,7 @@ def score(
     preds: Sequence[Any] | Iterable[Any],
     golds: Sequence[Any] | Iterable[Any],
     thresh: float = MATCH_THRESHOLD,
+    scoped: bool = True,
 ) -> dict[str, Any]:
     """Score predictions against ground truth; returns precision, recall, and F1.
 
@@ -94,12 +97,34 @@ def score(
     (A naive first-fit loop lets one sloppy prediction consume a golden entry that
     a better prediction would have matched, understating both metrics.)
 
-    Returned keys: ``precision``, ``recall``, ``f1``, ``matched``, ``total_preds``,
-    ``total_golds``, ``unmatched_golds`` (the misses, for gap analysis) and
-    ``unmatched_preds``. Empty inputs yield 0.0 metrics, never ZeroDivisionError.
+    **Scoping (``scoped=True``, the default).** A golden set annotates SOME pages,
+    not the whole package — this one covers ~22 of 290. A prediction on an
+    unannotated page is not a false positive; it is simply unjudged, and counting
+    it as wrong would report a precision that says more about how much of the
+    package was annotated than about extraction quality. So precision is computed
+    over predictions inside the golden set's ``(file_id, page)`` footprint, and
+    out-of-scope predictions are returned in ``out_of_scope_preds`` — reported,
+    never silently dropped. Recall is ALWAYS over the full golden set: scoping
+    cannot flatter it, because every golden row is in scope by construction.
+
+    Pass ``scoped=False`` to treat every prediction as judgeable — only correct
+    when the golden set exhaustively annotates everything the run could produce.
+
+    Returned keys: ``precision``, ``recall``, ``f1``, ``matched``, ``total_preds``
+    (in scope), ``total_golds``, ``unmatched_golds`` (the misses, for gap
+    analysis), ``unmatched_preds``, and ``out_of_scope_preds``. Empty inputs yield
+    0.0 metrics, never ZeroDivisionError.
     """
-    preds = list(preds)
+    all_preds = list(preds)
     golds = list(golds)
+
+    if scoped:
+        footprint = {(_fields(g)[0], _fields(g)[1]) for g in golds}
+        preds = [p for p in all_preds if (_fields(p)[0], _fields(p)[1]) in footprint]
+        out_of_scope = [p for p in all_preds if (_fields(p)[0], _fields(p)[1]) not in footprint]
+    else:
+        preds = all_preds
+        out_of_scope = []
 
     candidates: list[tuple[float, int, int]] = []
     for pi, pred in enumerate(preds):
@@ -131,6 +156,7 @@ def score(
         "total_golds": len(golds),
         "unmatched_golds": [g for i, g in enumerate(golds) if i not in taken_golds],
         "unmatched_preds": [p for i, p in enumerate(preds) if i not in taken_preds],
+        "out_of_scope_preds": out_of_scope,
     }
 
 
@@ -140,9 +166,15 @@ def format_score_line(result: dict[str, Any]) -> str:
     The exact string the CLI report prints, kept here so the report and the eval
     can never disagree about what a number means.
     """
+    out_of_scope = len(result.get("out_of_scope_preds", []))
+    suffix = (
+        f"; {out_of_scope} prediction(s) on unannotated pages, not scored"
+        if out_of_scope
+        else ""
+    )
     return (
         f"vs golden set: precision={result['precision']:.3f}, "
         f"recall={result['recall']:.3f}, F1={result['f1']:.3f} "
         f"({result['matched']}/{result['total_golds']} golden matched, "
-        f"{result['total_preds']} predicted)"
+        f"{result['total_preds']} predicted in scope{suffix})"
     )

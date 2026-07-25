@@ -9,7 +9,10 @@ hand-built artifacts. The end-to-end corpus proof lives in
 import argparse
 import json
 
+import pytest
+
 from rfp_analyzer.cli import (
+    NO_GOLDEN_LINE,
     _run_extract,
     build_parser,
     render_requirements_report,
@@ -222,22 +225,40 @@ def _synthetic_requirement_set() -> RequirementSet:
 class TestBuildParserExtract:
     def test_extract_subcommand_defaults(self):
         parser = build_parser()
-        args = parser.parse_args(["extract", "artifacts/primary-ucf"])
+        args = parser.parse_args(
+            ["extract", "artifacts/primary-ucf", "--drafts", "d.jsonl"]
+        )
         assert args.command == "extract"
         assert args.artifacts_dir == "artifacts/primary-ucf"
+        assert args.drafts == "d.jsonl"
         assert args.model == DEFAULT_MODEL
         assert args.seed == 7
+        assert args.out is None
+        assert args.golden is None
+
+    def test_extract_without_drafts_is_a_usage_error(self):
+        """There is no in-process engine — a driftless run must not look valid."""
+        parser = build_parser()
+        with pytest.raises(SystemExit):
+            parser.parse_args(["extract", "artifacts/primary-ucf"])
+
+    def test_chunks_subcommand_defaults(self):
+        parser = build_parser()
+        args = parser.parse_args(["chunks", "artifacts/primary-ucf"])
+        assert args.command == "chunks"
         assert args.out is None
 
     def test_extract_subcommand_accepts_flags(self):
         parser = build_parser()
         args = parser.parse_args(
-            ["extract", "artifacts/x", "--model", "claude-code-manual",
-             "--seed", "3", "--out", "o"]
+            ["extract", "artifacts/x", "--drafts", "d.jsonl", "--model",
+             "claude-code-manual", "--seed", "3", "--out", "o",
+             "--golden", "g.json"]
         )
         assert args.model == "claude-code-manual"
         assert args.seed == 3
         assert args.out == "o"
+        assert args.golden == "g.json"
 
 
 class TestRenderRequirementsReport:
@@ -269,7 +290,11 @@ class TestRenderRequirementsReport:
 
         # Local metrics footer.
         assert "LLM calls: 11" in report
-        assert "LLM cost: $0.00 (local inference)" in report
+        assert "LLM cost: $0.00" in report
+
+        # Success criterion 5: the scoring line is present on EVERY run, even
+        # when nothing scores it — an unmeasured run must not look measured.
+        assert NO_GOLDEN_LINE in report
 
 
 class TestRunExtractExitCodes:
@@ -283,13 +308,15 @@ class TestRunExtractExitCodes:
         artifacts = tmp_path / "primary-ucf"
         artifacts.mkdir()
         args = argparse.Namespace(
-            artifacts_dir=str(artifacts), model="fake", seed=7, out=None
+            artifacts_dir=str(artifacts), model="fake", seed=7, out=None,
+            drafts="unused.jsonl", golden=None,
         )
         assert _run_extract(args) == 2
 
     def test_nonexistent_dir_returns_exit_2(self, tmp_path):
         args = argparse.Namespace(
-            artifacts_dir=str(tmp_path / "nope"), model="fake", seed=7, out=None
+            artifacts_dir=str(tmp_path / "nope"), model="fake", seed=7, out=None,
+            drafts="unused.jsonl", golden=None,
         )
         assert _run_extract(args) == 2
 
@@ -302,20 +329,27 @@ class TestRunExtractExitCodes:
             encoding="utf-8",
         )
         args = argparse.Namespace(
-            artifacts_dir=str(artifacts), model="fake", seed=7, out=None
+            artifacts_dir=str(artifacts), model="fake", seed=7, out=None,
+            drafts="unused.jsonl", golden=None,
         )
         assert _run_extract(args) == 2
 
     def test_success_writes_requirements_json_and_exits_0(self, tmp_path, monkeypatch):
         artifacts = tmp_path / "primary-ucf"
         self._write_map(artifacts, _single_page_map("The offeror shall provide a cover letter."))
-        # Stub the model-calling entry so the CLI path is CI-safe.
+        # Stub the extraction entry so the CLI path stays a pure unit test.
+        drafts_path = tmp_path / "drafts.jsonl"
+        drafts_path.write_text(
+            json.dumps({"chunk_key": "CHK-any", "requirements": []}) + "\n",
+            encoding="utf-8",
+        )
         monkeypatch.setattr(
             "rfp_analyzer.cli.run_extraction",
-            lambda dmap, model, seed: _synthetic_requirement_set(),
+            lambda dmap, model, seed, extract_fn: _synthetic_requirement_set(),
         )
         args = argparse.Namespace(
-            artifacts_dir=str(artifacts), model="fake", seed=7, out=None
+            artifacts_dir=str(artifacts), model="fake", seed=7, out=None,
+            drafts=str(drafts_path), golden=None,
         )
         assert _run_extract(args) == 0
 
