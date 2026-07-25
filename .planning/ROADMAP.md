@@ -14,7 +14,7 @@ Build the pipeline inside-out: prove parsing and section detection on hostile re
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Parsing & Structure Foundation** - Multi-file federal packages parse into a structural document map with UCF section detection, quality gates, and SF30 identification (pure library + CLI) (completed 2026-07-24)
-- [ ] **Phase 2: Requirement Extraction & Grounding** - Every requirement extracted verbatim with verified source references, type/keyword classification, keyword-sweep reconciliation, and golden-set evals
+- [x] **Phase 2: Requirement Extraction & Grounding** - Every requirement extracted verbatim with verified source references, type/keyword classification, keyword-sweep reconciliation, and golden-set evals
 - [ ] **Phase 3: Analysis & Export** - Cross-mapping, proposal outline, compliance judgment, and practitioner-standard Excel/CSV export — full pipeline end-to-end via CLI
 - [ ] **Phase 4: Web App & Job Orchestration** - Proven pipeline wrapped in an async web app: upload, background jobs with progress, profile authoring, persistent results
 - [ ] **Phase 5: Public Demo, Hardening & SAM.gov Fetch** - Publicly hosted 60-second demo with cost controls, plus SAM.gov solicitation fetch
@@ -72,7 +72,7 @@ Note: SAM.gov API key request DEFERRED by user decision (2026-07-24). Upload / l
   4. SF30 amendment change statements appear as their own extracted rows with potentially modified requirements flagged — no silent merging
   5. Extraction recall/precision against a hand-shredded golden-set RFP is measured and reported on every run
 
-**Plans:** 5/7 plans executed
+**Plans:** 7/7 plans complete
 
 Plans:
 **Wave 1**
@@ -82,16 +82,16 @@ Plans:
 - [x] 02-02-PLAN.md — Verbatim grounding: rapidfuzz string-match verify + computed SourceRef (EXTR-02)
 - [x] 02-03-PLAN.md — Section chunker + deterministic keyword sweep/reconcile + SF30 amendment flagging (EXTR-03/04/05, INTK-03)
 - [x] 02-04-PLAN.md — Golden set: agent-drafted + adversarially-validated ground truth for N4008526R0033
-- [ ] (02-02 carries a blocking-human rapidfuzz legitimacy gate)
+- [x] (02-02 rapidfuzz legitimacy gate satisfied)
 
 **Wave 3** *(blocked on Wave 2)*
-- [x] 02-05-PLAN.md — Ollama client (num_ctx guard) + prompt + extract orchestration (EXTR-01/02/03)
+- [x] 02-05-PLAN.md — engine client + prompt + extract orchestration (EXTR-01/02/03) *(client retired in 02-07)*
 
 **Wave 4** *(blocked on Wave 3)*
-- [ ] 02-06-PLAN.md — run_extraction pipeline entry + `extract` CLI subcommand + corpus e2e (EXTR-01/04/05, INTK-03)
+- [x] 02-06-PLAN.md — run_extraction pipeline entry + `extract` CLI subcommand + corpus e2e (EXTR-01/04/05, INTK-03)
 
 **Wave 5** *(blocked on Wave 4)*
-- [ ] 02-07-PLAN.md — Recall/precision/F1 eval harness + 14b-vs-32b bake-off + per-run reporting (success criterion 5)
+- [x] 02-07-PLAN.md — Recall/precision/F1 eval harness + Claude Code engine replay seam + per-run reporting (success criterion 5)
 
 ### Phase 3: Analysis & Export
 
@@ -106,7 +106,24 @@ Plans:
   4. The exported .xlsx contains a compliance matrix sheet with practitioner-standard columns, a cross-reference matrix sheet, and a shred checklist sheet; the matrix is also downloadable as raw CSV
   5. The full pipeline runs CLI end-to-end on a real federal RFP: package in, populated matrix workbook out, no manual steps
 
-**Plans**: TBD
+**Plans:** 0/6 plans complete
+
+Plans:
+**Wave 1**
+- [ ] 03-01-PLAN.md — Analysis schema: CrossMapping, OutlineNode, ComplianceJudgment, CapabilityProfile, ComplianceMatrix (foundation contract)
+
+**Wave 2** *(blocked on Wave 1)*
+- [ ] 03-02-PLAN.md — Deterministic cross-mapping: L<->M<->C gaps and orphans (ANLZ-01)
+- [ ] 03-03-PLAN.md — Proposal outline derived from Section L structure + requirement->node mapping (ANLZ-02)
+
+**Wave 3** *(blocked on Wave 2)*
+- [ ] 03-04-PLAN.md — Compliance judgment via the Claude Code replay seam + fictional demo capabilities profile (ANLZ-04)
+
+**Wave 4** *(blocked on Wave 3)*
+- [ ] 03-05-PLAN.md — Excel workbook (matrix / cross-reference / shred checklist sheets) + CSV export (EXPT-01..04)
+
+**Wave 5** *(blocked on Wave 4)*
+- [ ] 03-06-PLAN.md — `analyze` CLI end-to-end on the real package: package in, workbook out (success criterion 5)
 
 ### Phase 4: Web App & Job Orchestration
 
