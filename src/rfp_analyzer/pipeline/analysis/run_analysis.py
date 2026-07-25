@@ -14,6 +14,7 @@ from __future__ import annotations
 import time
 
 from rfp_analyzer.pipeline.analysis.crossmap import cross_map
+from rfp_analyzer.pipeline.analysis.factors import assign_factors, factor_anchors
 from rfp_analyzer.pipeline.analysis.judge import DEMO_PROFILE, apply_verdicts
 from rfp_analyzer.pipeline.analysis.outline import derive_outline, map_requirements
 from rfp_analyzer.pipeline.metrics import RunMetrics
@@ -45,7 +46,8 @@ def run_analysis(
     reqs = requirement_set.requirements
 
     t0 = time.perf_counter()
-    mappings = cross_map(reqs)
+    factors = assign_factors(reqs, factor_anchors(document_map), document_map)
+    mappings = cross_map(reqs, factors=factors)
     timings["crossmap"] = time.perf_counter() - t0
 
     t0 = time.perf_counter()

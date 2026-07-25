@@ -259,6 +259,7 @@ class CrossMapping(BaseModel):
         "l_without_m",
         "m_without_l",
         "sow_without_either",
+        "evaluation_process",
         "mapped",
     ]
     rationale: str = ""

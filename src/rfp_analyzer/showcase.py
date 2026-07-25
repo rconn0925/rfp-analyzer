@@ -49,6 +49,7 @@ _GAP_CLASS = {
     "l_without_m": ("warn", "L without M"),
     "m_without_l": ("bad", "M without L"),
     "sow_without_either": ("idle", "SOW only"),
+    "evaluation_process": ("idle", "Eval mechanics"),
 }
 
 
@@ -149,6 +150,7 @@ def render_html(context: dict) -> str:
             ("L without M", "warn", c["gaps"].get("l_without_m", 0)),
             ("M without L", "bad", c["gaps"].get("m_without_l", 0)),
             ("SOW only", "idle", c["gaps"].get("sow_without_either", 0)),
+            ("Eval mechanics", "idle", c["gaps"].get("evaluation_process", 0)),
         ]
     )
     caps = "".join(

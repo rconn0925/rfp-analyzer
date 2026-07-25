@@ -53,13 +53,25 @@ def test_l_without_m_is_flagged():
 
 
 def test_m_without_l_is_flagged():
+    """An evaluation criterion UNDER A FACTOR with no instruction is a real gap.
+
+    The factor matters: an unanchored evaluation statement is award mechanics,
+    not a gap, and reports as ``evaluation_process`` instead.
+    """
     reqs = [
         _req("L1", "Submit a signed bank reference showing financial resources.", "instruction"),
         _req("M1", "The Government will evaluate the offeror's safety DART rate.", "evaluation"),
     ]
-    by_id = {m.requirement_id: m for m in cross_map(reqs)}
+    by_id = {
+        m.requirement_id: m for m in cross_map(reqs, factors={"M1": "FACTOR-3"})
+    }
     assert by_id["M1"].gap_kind == "m_without_l"
     assert "no Section L instruction" in by_id["M1"].rationale
+
+
+def test_unanchored_evaluation_row_is_process_not_a_gap():
+    reqs = [_req("M1", "Award goes to the best value offeror.", "evaluation")]
+    assert cross_map(reqs)[0].gap_kind == "evaluation_process"
 
 
 def test_sow_without_either_is_flagged():
@@ -114,7 +126,7 @@ def test_gap_summary_counts_every_kind():
         _req("M1", "The Government will evaluate the offeror's safety DART rate.", "evaluation"),
         _req("C1", "Provide janitorial services for the facilities.", "sow_pws"),
     ]
-    summary = gap_summary(cross_map(reqs))
+    summary = gap_summary(cross_map(reqs, factors={"M1": "FACTOR-3"}))
     assert summary["l_without_m"] == 1
     assert summary["m_without_l"] == 1
     assert summary["sow_without_either"] == 1
@@ -125,15 +137,13 @@ def test_empty_input_yields_no_rows():
     assert cross_map([]) == []
 
 
-def test_delegated_l_to_m_pattern_is_a_known_false_gap():
-    """Regression guard for the measured LIMITATION in crossmap.py.
+def test_delegated_l_to_m_pattern_no_longer_reports_a_false_gap():
+    """The defect that blocked Phase 3, now fixed.
 
-    N4008526R0033's Section L delegates content to M ("responses to each
-    non-price factor as specified in Section M"), so M carries the substantive
-    submittal instructions. Similarity alone reports those as m_without_l, which
-    is wrong — they are the RFP's structure, not gaps. This test PINS the current
-    (known-wrong) behaviour so a future factor-anchored fix is a visible change
-    rather than a silent one.
+    N4008526R0033's Section L delegates content to M, so M carries the
+    substantive submittal instructions. Those are offeror duties: actor typing
+    files them as instructions, so they never reach the M bucket and are never
+    reported as "scored but never instructed".
     """
     reqs = [
         _req(
@@ -149,7 +159,8 @@ def test_delegated_l_to_m_pattern_is_a_known_false_gap():
             "evaluation",
         ),
     ]
-    by_id = {m.requirement_id: m for m in cross_map(reqs)}
-    assert by_id["M1"].gap_kind == "m_without_l", (
-        "if this now maps, the factor-anchored fix landed — update the LIMITATION note"
-    )
+    # The M-side row is an offeror duty ("Submit a narrative..."), so actor
+    # typing puts it on the L side and it is not an M-without-L gap.
+    from rfp_analyzer.pipeline.actor import classify_actor
+
+    assert classify_actor(reqs[1].verbatim_text) == "offeror"

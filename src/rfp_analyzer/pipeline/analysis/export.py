@@ -45,6 +45,7 @@ _GAP_LABEL = {
     "l_without_m": "GAP: L without M",
     "m_without_l": "GAP: M without L",
     "sow_without_either": "GAP: SOW without L or M",
+    "evaluation_process": "Evaluation mechanics (not a gap)",
 }
 
 MATRIX_HEADERS = [
@@ -181,8 +182,9 @@ def _crossref_sheet(book, matrix, fmt_title, fmt_header, fmt_wrap, fmt_plain):
     sheet.write(0, 0, "L / M / SOW Cross-Reference and Gaps", fmt_title)
     sheet.write(
         1, 0,
-        "ADVISORY: gap detection is similarity-based and not yet factor-anchored. "
-        "Review gaps before acting on them (see crossmap.py STATUS).",
+        "Gaps are anchored on the evaluation factor and on who owes the duty. "
+        "Rows where neither side carries a factor still rest on similarity alone — "
+        "worth a glance before acting.",
         book.add_format({"italic": True, "font_color": "#B00020", "text_wrap": True}),
     )
 

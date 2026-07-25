@@ -22,6 +22,7 @@ _GAP_TEXT = {
     "l_without_m": "L without M (instructed but not scored)",
     "m_without_l": "M without L (scored but not instructed)",
     "sow_without_either": "SOW without L or M (performed, never pre-award visible)",
+    "evaluation_process": "evaluation mechanics (not a gap)",
 }
 
 _VERDICT_TEXT = {
