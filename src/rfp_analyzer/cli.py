@@ -31,7 +31,16 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+from rfp_analyzer.analysis_report import render_matrix_report
 from rfp_analyzer.eval.scoring import format_score_line, score
+from rfp_analyzer.pipeline.analysis.export import write_csv, write_workbook
+from rfp_analyzer.pipeline.analysis.judge import (
+    DEMO_PROFILE,
+    CorruptVerdictsError,
+    judgment_tasks,
+    load_verdicts,
+)
+from rfp_analyzer.pipeline.analysis.run_analysis import run_analysis
 from rfp_analyzer.pipeline.extraction.chunker import chunk_key, iter_chunks
 from rfp_analyzer.pipeline.extraction.replay import (
     CorruptDraftsError,
@@ -128,6 +137,42 @@ def build_parser() -> argparse.ArgumentParser:
         "--out",
         default=None,
         help="Directory for requirements.json (default: alongside document_map.json).",
+    )
+
+    judgments_cmd = subparsers.add_parser(
+        "judgments",
+        help="Export the compliance-judging worklist for Claude Code.",
+    )
+    judgments_cmd.add_argument(
+        "artifacts_dir",
+        help="Directory containing requirements.json produced by `extract`.",
+    )
+    judgments_cmd.add_argument(
+        "--out",
+        default=None,
+        help="Path for judgments.jsonl (default: alongside requirements.json).",
+    )
+
+    analyze_cmd = subparsers.add_parser(
+        "analyze",
+        help="Turn requirements.json into a compliance matrix workbook (xlsx + csv).",
+    )
+    analyze_cmd.add_argument(
+        "artifacts_dir",
+        help="Directory containing document_map.json and requirements.json.",
+    )
+    analyze_cmd.add_argument(
+        "--verdicts",
+        default=None,
+        help=(
+            "Path to verdicts.jsonl recorded by Claude Code. Optional — without it "
+            "the matrix reports every row as NOT JUDGED rather than implying compliance."
+        ),
+    )
+    analyze_cmd.add_argument(
+        "--out",
+        default=None,
+        help="Directory for matrix.json / matrix.xlsx / matrix.csv (default: artifacts_dir).",
     )
     return parser
 
@@ -458,6 +503,81 @@ def _run_extract(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_requirement_set(artifacts_dir: Path) -> RequirementSet | None:
+    """Load requirements.json from an artifacts directory, or report why not."""
+    path = artifacts_dir / "requirements.json"
+    if not path.exists():
+        print(
+            f"error: no requirements.json in {artifacts_dir} — run `extract` first",
+            file=sys.stderr,
+        )
+        return None
+    try:
+        return RequirementSet.model_validate_json(path.read_text(encoding="utf-8"))
+    except ValueError as exc:
+        print(f"error: requirements.json failed schema validation: {exc}", file=sys.stderr)
+        return None
+
+
+def _run_judgments(args: argparse.Namespace) -> int:
+    """Export the judging worklist — step one of the compliance-judgment handoff."""
+    artifacts_dir = Path(args.artifacts_dir)
+    requirement_set = _load_requirement_set(artifacts_dir)
+    if requirement_set is None:
+        return 2
+
+    tasks = judgment_tasks(requirement_set.requirements, DEMO_PROFILE)
+    out_path = Path(args.out) if args.out is not None else artifacts_dir / "judgments.jsonl"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    with out_path.open("w", encoding="utf-8", newline="\n") as handle:
+        profile_line = json.dumps({"profile": DEMO_PROFILE.model_dump()}, ensure_ascii=False)
+        handle.write(profile_line + "\n")
+        for task in tasks:
+            handle.write(json.dumps(task, ensure_ascii=False) + "\n")
+
+    print(f"Package: {requirement_set.package_name}")
+    print(f"Judging tasks written: {len(tasks)} -> {out_path}")
+    print(f"Profile: {DEMO_PROFILE.company_name}")
+    print(
+        "\nNext: have Claude Code judge each requirement into verdicts.jsonl "
+        '({"requirement_id", "verdict", "rationale", "confidence"} per line), then:\n'
+        f"  rfp-analyzer analyze {artifacts_dir} --verdicts verdicts.jsonl"
+    )
+    return 0
+
+
+def _run_analyze(args: argparse.Namespace) -> int:
+    """Build the compliance matrix and write the workbook + CSV."""
+    artifacts_dir = Path(args.artifacts_dir)
+    document_map = _resolve_document_map(artifacts_dir)
+    if document_map is None:
+        return 2
+    requirement_set = _load_requirement_set(artifacts_dir)
+    if requirement_set is None:
+        return 2
+
+    verdicts = None
+    if args.verdicts:
+        try:
+            verdicts = load_verdicts(args.verdicts)
+        except CorruptVerdictsError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+
+    matrix = run_analysis(document_map, requirement_set, verdicts=verdicts)
+
+    out_dir = Path(args.out) if args.out is not None else artifacts_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "matrix.json").write_text(matrix.model_dump_json(indent=2), encoding="utf-8")
+    xlsx_path = write_workbook(matrix, out_dir / "matrix.xlsx")
+    csv_path = write_csv(matrix, out_dir / "matrix.csv")
+
+    print(render_matrix_report(matrix))
+    print(f"\nWorkbook written to {xlsx_path}")
+    print(f"CSV written to {csv_path}")
+    return 0
+
+
 def _load_document_map(raw: str) -> DocumentMap | None:
     """Validate raw document_map.json text; return None (after an error) if unusable.
 
@@ -533,6 +653,10 @@ def main() -> None:
         sys.exit(_run_chunks(args))
     if args.command == "extract":
         sys.exit(_run_extract(args))
+    if args.command == "judgments":
+        sys.exit(_run_judgments(args))
+    if args.command == "analyze":
+        sys.exit(_run_analyze(args))
     parser.error(f"unknown command: {args.command}")
 
 
