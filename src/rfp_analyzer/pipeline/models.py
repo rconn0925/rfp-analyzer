@@ -238,3 +238,94 @@ class RequirementSet(BaseModel):
     requirements: list[Requirement] = Field(default_factory=list)
     missed_candidates: list[MissedCandidate] = Field(default_factory=list)
     metrics: RunMetrics = Field(default_factory=RunMetrics)
+
+
+# --- Phase 3: analysis & export contract ---------------------------------------
+
+
+class CrossMapping(BaseModel):
+    """How one requirement relates across Sections L, M, and C/SOW (ANLZ-01).
+
+    A federal proposal fails on gaps, not on prose: an L instruction with no M
+    evaluation criterion means work nobody scores, and an M criterion with no L
+    instruction means a score with nothing telling you to write it. Both are
+    findings a proposal manager acts on, so both are first-class rows here rather
+    than a filtered-out absence.
+    """
+
+    requirement_id: str
+    counterpart_ids: list[str] = Field(default_factory=list)
+    gap_kind: Literal[
+        "l_without_m",
+        "m_without_l",
+        "sow_without_either",
+        "mapped",
+    ]
+    rationale: str = ""
+    score: float = 0.0
+    """Similarity of the strongest counterpart match (0-100), 0.0 when unmapped."""
+
+
+class OutlineNode(BaseModel):
+    """One node of the proposal outline derived from Section L structure (ANLZ-02).
+
+    ``node_id`` is a stable path key (e.g. ``"L.5.a"``) so requirement->node
+    mapping survives renumbering of the human-facing ``title``.
+    """
+
+    node_id: str
+    title: str
+    volume: str = ""
+    parent_node_id: str | None = None
+    source_page: int | None = None
+
+
+class ComplianceJudgment(BaseModel):
+    """A graded compliance call for one requirement against a profile (ANLZ-04).
+
+    ``rationale`` and ``confidence`` are mandatory companions to ``verdict``: an
+    ungrounded verdict is not actionable, and a proposal manager needs to know
+    which calls to re-check. ``UNKNOWN`` exists so the judge can decline rather
+    than guess — a fabricated "Fully compliant" is the costliest failure here.
+    """
+
+    requirement_id: str
+    verdict: Literal["fully_compliant", "partially_compliant", "non_compliant", "unknown"]
+    rationale: str
+    confidence: Literal["high", "medium", "low"]
+    profile_evidence: list[str] = Field(default_factory=list)
+    """Capability ids/snippets the verdict leans on — traceability, not decoration."""
+
+
+class CapabilityProfile(BaseModel):
+    """A company's capabilities, the yardstick compliance is judged against."""
+
+    profile_id: str = "demo"
+    company_name: str = ""
+    is_fictional: bool = True
+    """True for the demo profile. Surfaced in exports so a fictional judgment is
+    never mistaken for a real assessment of a real company."""
+    capabilities: list[str] = Field(default_factory=list)
+    narrative: str = ""
+
+
+class ComplianceMatrix(BaseModel):
+    """Root artifact for one analysis run — serialized to ``matrix.json``.
+
+    Carries the requirement set it was built from so an export is reproducible
+    from a single file, and keeps analysis outputs in separate lists (rather than
+    denormalized onto Requirement) so the extraction contract stays untouched.
+    """
+
+    schema_version: str = "1.0"
+    package_name: str = ""
+    profile: CapabilityProfile = Field(default_factory=CapabilityProfile)
+    requirements: list[Requirement] = Field(default_factory=list)
+    cross_mappings: list[CrossMapping] = Field(default_factory=list)
+    outline: list[OutlineNode] = Field(default_factory=list)
+    requirement_outline: dict[str, str] = Field(default_factory=dict)
+    """requirement_id -> outline node_id. Every requirement gets a key; unmappable
+    rows map to the explicit UNASSIGNED node rather than being dropped."""
+    judgments: list[ComplianceJudgment] = Field(default_factory=list)
+    missed_candidates: list[MissedCandidate] = Field(default_factory=list)
+    metrics: RunMetrics = Field(default_factory=RunMetrics)
